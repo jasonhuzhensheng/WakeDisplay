@@ -57,7 +57,7 @@ let edidMsgZH = "将删除 /Library/Preferences/com.apple.windowserver.displays.
 
 let zhTable: [String: String] = [
     "Wake Display    ⌘⇧R": "唤醒显示器    ⌘⇧R",
-    "Force Reset (sleep → re-handshake)": "强制重置（关屏 → 重新握手）",
+    "Force Reset (sleep → re-handshake, screens blink)": "强制重置（关屏 → 重新握手，屏幕会闪一下）",
     "Prevent Display Sleep": "阻止显示器休眠",
     "Auto-Wake (external asleep while Mac in use)": "自动唤醒（外屏休眠而电脑在用时自动点亮）",
     "Scaling / Text Size — ": "缩放 / 字体大小 — ",
@@ -197,13 +197,12 @@ func ddcWrite(vcp: UInt8, value: UInt16) {
 }
 func ddcPowerOn() { ddcWrite(vcp: 0xD6, value: 1) }   // VCP D6 = Power Mode, 1 = On
 
-/// Level 1 wake: user activity + DDC power-on + re-probe + mirror toggle
+/// Level 1 wake (no flicker): user activity + DDC power-on + re-probe
 func wakeSoft() {
     declareUserActivity()
     ddcPowerOn()
     probeDisplays()
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { mirrorToggle() }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { ddcPowerOn(); probeDisplays(); declareUserActivity() }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { ddcPowerOn(); probeDisplays(); declareUserActivity() }
 }
 
 /// Level 2 wake: sleep all displays, then wake, forcing USB-C re-enumeration
@@ -211,7 +210,10 @@ func wakeHard() {
     DispatchQueue.global().async {
         shell("pmset displaysleepnow")
         Thread.sleep(forTimeInterval: 3)
-        DispatchQueue.main.async { wakeSoft() }
+        DispatchQueue.main.async {
+            wakeSoft()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { mirrorToggle() }   // screens blink once here
+        }
     }
 }
 
@@ -261,7 +263,7 @@ func stepText(_ d: CGDirectDisplayID, larger: Bool) {
 
 // MARK: - Menu-bar app
 
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     var statusItem: NSStatusItem!
     var preventSleepID: IOPMAssertionID = 0
     var autoWakeTimer: Timer?
@@ -271,32 +273,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ n: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        if let btn = statusItem.button {
-            btn.image = NSImage(systemSymbolName: "display", accessibilityDescription: "WakeDisplay")
-            btn.action = #selector(statusClicked(_:))
-            btn.target = self
-            btn.sendAction(on: [.leftMouseUp, .rightMouseUp])
-        }
+        statusItem.button?.image = NSImage(systemSymbolName: "display", accessibilityDescription: "WakeDisplay")
+        // Any click (left or right) opens the menu; contents are rebuilt each time it opens
+        let menu = NSMenu()
+        menu.delegate = self
+        statusItem.menu = menu
         registerHotKeys()
     }
 
-    /// Left-click = wake now; right-click = menu
-    @objc func statusClicked(_ sender: Any?) {
-        if NSApp.currentEvent?.type == .rightMouseUp {
-            statusItem.menu = buildMenu()
-            statusItem.button?.performClick(nil)
-            statusItem.menu = nil
-        } else {
-            wakeSoft()
-            flash()
-        }
-    }
-
-    func flash() {
-        statusItem.button?.image = NSImage(systemSymbolName: "sun.max.fill", accessibilityDescription: nil)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            self.statusItem.button?.image = NSImage(systemSymbolName: "display", accessibilityDescription: nil)
-        }
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        menu.removeAllItems()
+        let built = buildMenu()
+        let items = built.items
+        built.removeAllItems()
+        items.forEach { menu.addItem($0) }
     }
 
     func item(_ title: String, _ sel: Selector?, state: Bool = false, obj: Any? = nil) -> NSMenuItem {
@@ -308,7 +298,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func buildMenu() -> NSMenu {
         let m = NSMenu()
         m.addItem(item("🔆 " + L("Wake Display    ⌘⇧R"), #selector(actWakeSoft)))
-        m.addItem(item("🔁 " + L("Force Reset (sleep → re-handshake)"), #selector(actWakeHard)))
+        m.addItem(item("🔁 " + L("Force Reset (sleep → re-handshake, screens blink)"), #selector(actWakeHard)))
         m.addItem(.separator())
         m.addItem(item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0))
         m.addItem(item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil))
@@ -349,7 +339,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     // MARK: actions
-    @objc func actWakeSoft() { wakeSoft(); flash() }
+    @objc func actWakeSoft() { wakeSoft() }
     @objc func actWakeHard() { wakeHard() }
 
     @objc func actSetLang(_ s: NSMenuItem) {

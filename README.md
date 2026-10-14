@@ -19,13 +19,14 @@
 
 | 问题 | 根因 | WakeDisplay 的做法 |
 |---|---|---|
-| Mac 休眠 / 锁屏后外屏黑掉，系统里仍能看到它，但必须**物理拔插线**才亮 | macOS 电源管理在屏幕变暗时挂起雷电 / USB-C 控制器；显示器面板进入 DDC 省电态后握手未完成 | 点一下菜单栏图标（或 ⌘⇧R）：声明用户活动 → 发 DDC 开机指令 → 重新探测显示器 → 镜像开/关强制重连 |
+| Mac 休眠 / 锁屏后外屏黑掉，系统里仍能看到它，但必须**物理拔插线**才亮 | macOS 电源管理在屏幕变暗时挂起雷电 / USB-C 控制器；显示器面板进入 DDC 省电态后握手未完成 | 菜单 →「唤醒显示器」（或 ⌘⇧R）：声明用户活动 → 发 DDC 开机指令 → 重新探测显示器；不行再用「强制重置」（镜像开/关强制重连） |
 | 系统设置里**没有「更大文本 / 更小文本」**缩放选项 | macOS 对不认识的外接屏隐藏了 HiDPI 模式 | 列出全部隐藏模式，一键切换；⌘⇧+ / ⌘⇧− 逐级调字体大小 |
 
 ### 功能一览
 
-- 🔆 **左键点图标 / ⌘⇧R** — 唤醒显示器（四种手段叠加：用户活动声明、DDC/CI 电源指令、IOKit 重新探测、镜像开关重连）
-- 🔁 **强制重置** — 先让所有屏休眠再唤醒，强制 USB-C 端口重新枚举
+- 点击菜单栏图标（左键或右键）打开菜单
+- 🔆 **唤醒显示器 / ⌘⇧R** — 不闪屏（用户活动声明 + DDC/CI 电源指令 + IOKit 重新探测）
+- 🔁 **强制重置** — 先让所有屏休眠再唤醒，再镜像开/关强制重新建立链路（屏幕会闪一下）
 - 🤖 **自动唤醒** — 每 5 秒检测：内屏醒着、外屏却在休眠 → 自动点亮
 - ☕️ **阻止显示器休眠** — 等价于常驻 `caffeinate -d`
 - 🔍 **缩放 / 字体大小** — 每块外接屏一个子菜单，列出系统隐藏的 HiDPI 分辨率；「更大文本 / 更小文本」与系统设置滑块等价
@@ -107,13 +108,14 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 
 | Problem | Root cause | What WakeDisplay does |
 |---|---|---|
-| After sleep / lock the external display goes dark; macOS still lists it, but only **physically unplugging the cable** brings it back | macOS power management suspends the Thunderbolt / USB-C controller when the screen dims; the panel drops into DDC power-save and the link never re-handshakes | One click on the menu-bar icon (or ⌘⇧R): declare user activity → send a DDC power-on command → re-probe display services → toggle mirroring to force a fresh link |
+| After sleep / lock the external display goes dark; macOS still lists it, but only **physically unplugging the cable** brings it back | macOS power management suspends the Thunderbolt / USB-C controller when the screen dims; the panel drops into DDC power-save and the link never re-handshakes | Menu → "Wake Display" (or ⌘⇧R): declare user activity → send a DDC power-on command → re-probe display services; if that fails, "Force Reset" toggles mirroring to force a fresh link |
 | System Settings shows **no "Larger Text / Smaller Text"** scaling options | macOS hides HiDPI modes for displays it doesn't recognise | Lists every hidden mode and switches with one click; ⌘⇧+ / ⌘⇧− step through text sizes |
 
 ### Features
 
-- 🔆 **Left-click / ⌘⇧R** — wake the display (four stacked methods: user-activity assertion, DDC/CI power command, IOKit re-probe, mirror toggle)
-- 🔁 **Force reset** — put all displays to sleep, then wake, forcing USB-C re-enumeration
+- Click the menu-bar icon (left or right) to open the menu
+- 🔆 **Wake Display / ⌘⇧R** — no flicker (user-activity assertion + DDC/CI power command + IOKit re-probe)
+- 🔁 **Force reset** — sleep all displays, wake them, then toggle mirroring to force a fresh link (screens blink once)
 - 🤖 **Auto-wake** — every 5 s: if the built-in display is awake but an external one is asleep, wake it
 - ☕️ **Prevent display sleep** — a persistent `caffeinate -d`
 - 🔍 **Scaling / text size** — one submenu per external display listing hidden HiDPI resolutions; "Larger / Smaller Text" behave like the System Settings slider

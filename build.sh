@@ -15,8 +15,8 @@ cat > "$APP/Contents/Info.plist" <<'EOF'
   <key>CFBundleName</key><string>WakeDisplay</string>
   <key>CFBundleDisplayName</key><string>WakeDisplay</string>
   <key>CFBundleIdentifier</key><string>com.jason.wakedisplay</string>
-  <key>CFBundleVersion</key><string>1.4.1</string>
-  <key>CFBundleShortVersionString</key><string>1.4.1</string>
+  <key>CFBundleVersion</key><string>1.5</string>
+  <key>CFBundleShortVersionString</key><string>1.5</string>
   <key>CFBundleExecutable</key><string>WakeDisplay</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>LSMinimumSystemVersion</key><string>12.0</string>
