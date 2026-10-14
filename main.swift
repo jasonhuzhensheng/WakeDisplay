@@ -136,6 +136,15 @@ func sudoShell(_ cmd: String) -> (ok: Bool, out: String) {
     return (true, res?.stringValue ?? "")
 }
 
+/// Open a URL in the default browser. NSWorkspace can silently fail from a background (LSUIElement) app
+/// right after a modal alert, so fall back to /usr/bin/open.
+func openURL(_ s: String) {
+    guard let url = URL(string: s) else { return }
+    if !NSWorkspace.shared.open(url) {
+        let p = Process(); p.launchPath = "/usr/bin/open"; p.arguments = [s]; try? p.run()
+    }
+}
+
 // MARK: - Method 2: mirror toggle, forces a fresh DP link (public CoreGraphics API)
 func externalDisplays() -> [CGDirectDisplayID] {
     var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
@@ -428,11 +437,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         a.addButton(withTitle: L("Follow on X @HUZHENSHENG"))
         a.addButton(withTitle: L("Close"))
         NSApp.activate(ignoringOtherApps: true)
-        switch a.runModal() {
-        case .alertFirstButtonReturn: NSWorkspace.shared.open(URL(string: "https://github.com/jasonhuzhensheng/WakeDisplay")!)
-        case .alertSecondButtonReturn: NSWorkspace.shared.open(URL(string: "https://x.com/HUZHENSHENG")!)
-        default: break
-        }
+        let resp = a.runModal()
+        a.window.orderOut(nil)
+        // Open after the modal session has fully ended; fall back to /usr/bin/open if NSWorkspace refuses
+        let target: String? = resp == .alertFirstButtonReturn ? "https://github.com/jasonhuzhensheng/WakeDisplay"
+                            : resp == .alertSecondButtonReturn ? "https://x.com/HUZHENSHENG" : nil
+        if let t = target { DispatchQueue.main.async { openURL(t) } }
     }
 
     // MARK: global hotkeys ⌘⇧R / ⌘⇧+ / ⌘⇧−
