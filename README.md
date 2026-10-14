@@ -31,6 +31,7 @@
 - 🔍 **缩放 / 字体大小** — 每块外接屏一个子菜单，列出系统隐藏的 HiDPI 分辨率；「更大文本 / 更小文本」与系统设置滑块等价
 - ⚡️ **写入防断连电源策略** — 一键执行 `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0`（弹系统密码框，可随时恢复默认）
 - 🧹 **清除显示器缓存（EDID）** — 删除 `com.apple.windowserver.displays.plist` 并重启
+- 🌐 **界面语言**：默认英文，右键菜单 → Language → 中文 即可切换（自动记住）
 - 开机自动启动（LaunchAgent），不占 Dock
 
 ### 使用环境
@@ -118,6 +119,7 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 - 🔍 **Scaling / text size** — one submenu per external display listing hidden HiDPI resolutions; "Larger / Smaller Text" behave like the System Settings slider
 - ⚡️ **Apply anti-disconnect power policy** — runs `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0` via the system password prompt (restore defaults any time)
 - 🧹 **Reset display cache (EDID)** — deletes `com.apple.windowserver.displays.plist` and reboots
+- 🌐 **UI language**: English by default; switch to Chinese via right-click → Language → 中文 (remembered)
 - Launch at login (LaunchAgent), no Dock icon
 
 ### Requirements
