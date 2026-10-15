@@ -1,0 +1,79 @@
+# Test build: every push to the `test` branch is compiled and smoke-tested on a macOS VM.
+# Never publishes a release. Results (summary, build log, screenshots) are force-pushed to the
+# `test-results` branch so they can be checked without downloading artifacts.
+# 测试构建：推到 test 分支即在 macOS 虚拟机上编译 + 冒烟测试，不发布；结果推到 test-results 分支。
+name: Test build
+
+on:
+  push:
+    branches: [test]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: test-build
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: macos-14   # Apple Silicon VM
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          chmod +x build.sh
+          SKIP_INSTALL=1 ./build.sh 2>&1 | tee build.log
+
+      - name: Smoke test (launch, menu, screenshots in English and Chinese)
+        run: |
+          set +e
+          mkdir -p out
+          APP="$PWD/WakeDisplay.app"
+          D=com.jason.wakedisplay
+          {
+            echo "commit: ${GITHUB_SHA::7}"
+            echo "version: $(grep -m1 '^VERSION=' build.sh)"
+            echo "binary: $(stat -f%z "$APP/Contents/MacOS/WakeDisplay") bytes"
+            echo "macOS: $(sw_vers -productVersion) ($(uname -m))"
+          } > out/summary.txt
+          # keep CI runs out of the real usage stats / crash reports / auto-update
+          defaults write $D telemetryEnabled -bool false
+          defaults write $D crashReports -bool false
+          defaults write $D autoUpdate -bool false
+          /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$APP"
+          for L in en zh-Hans; do
+            defaults write $D lang "$L"
+            open "$APP"; sleep 6
+            if pgrep -x WakeDisplay >/dev/null; then echo "[$L] launch: OK" >> out/summary.txt
+            else echo "[$L] launch: FAILED (not running)" >> out/summary.txt; fi
+            screencapture -x "out/$L-1-menubar.png"
+            open "wakedisplay://menu"; sleep 2
+            screencapture -x "out/$L-2-menu.png"
+            if pgrep -x WakeDisplay >/dev/null; then echo "[$L] after menu: still running" >> out/summary.txt
+            else echo "[$L] after menu: CRASHED" >> out/summary.txt; fi
+            pkill -x WakeDisplay; sleep 2
+          done
+          if ls ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -qi wakedisplay; then
+            echo "crash reports: FOUND" >> out/summary.txt
+            cp ~/Library/Logs/DiagnosticReports/*WakeDisplay* out/ 2>/dev/null
+          else
+            echo "crash reports: none" >> out/summary.txt
+          fi
+          cat out/summary.txt
+
+      - name: Publish results to the test-results branch
+        if: always()
+        run: |
+          mkdir -p out
+          cp build.log out/ 2>/dev/null || echo "build did not produce a log" > out/build.log
+          [ -f out/summary.txt ] || echo "BUILD FAILED — see build.log" > out/summary.txt
+          cd out
+          git init -q -b test-results
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Test results for ${GITHUB_SHA::7}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" test-results
