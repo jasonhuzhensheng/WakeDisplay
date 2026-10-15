@@ -358,7 +358,8 @@ final class OutdoorMode {
         Float(min(screen.maximumPotentialExtendedDynamicRangeColorComponentValue, 1.6))
     }
 
-    func toggle() { isOn ? stop() : start() }
+    /// Manual toggle (menu / hotkey / widget); the light-sensor automation uses start()/stop() directly
+    func toggle() { isOn ? stop() : start(); AutoOutdoor.manualToggled(isOnNow: isOn) }
 
     func start() {
         guard !isOn, let d = builtinDisplay() else { return }
@@ -487,6 +488,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         registerHotKeys()
         CrashReporter.start()
         WakeReminder.start()
+        if AutoOutdoor.enabled { AutoOutdoor.start() }
         WhatsNew.showIfUpdated()
         SoftDisconnect.reconnectAll()          // never leave a monitor switched off from a previous run
         startDisplayWatcher()
