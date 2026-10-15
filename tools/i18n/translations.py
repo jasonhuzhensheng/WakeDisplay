@@ -304,3 +304,9 @@ _EINK = {
 KEYS += _EINK_KEYS
 for _c, (_n, _arr) in LANGS.items():
     _arr.extend(_EINK[_c])
+
+# ---- v1.29: Experimental menu ----
+_LABS = {"zh-Hans":"测试功能","zh-Hant":"測試功能","ja":"試験的な機能","ko":"실험적 기능","es":"Funciones experimentales","fr":"Fonctions expérimentales","de":"Experimentelle Funktionen","pt":"Recursos experimentais","it":"Funzioni sperimentali","ru":"Экспериментальные функции","ar":"ميزات تجريبية","hi":"प्रायोगिक सुविधाएँ","id":"Fitur Eksperimental","tr":"Deneysel Özellikler","vi":"Tính năng thử nghiệm"}
+KEYS.append("Experimental Features")
+for _c, (_n, _arr) in LANGS.items():
+    _arr.append(_LABS[_c])

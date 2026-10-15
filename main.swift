@@ -667,7 +667,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     /// "📖 E-ink Mode" toggle for one screen (shown in Advanced ▸ External / Built-in)
     func einkItem(_ d: CGDirectDisplayID, named: Bool) -> NSMenuItem {
-        let title = "📖 " + L("E-ink Mode (for reading)  ⌃⌥⌘E") + (named ? " — " + displayName(d) : "")
+        let icon = CGDisplayIsBuiltin(d) != 0 ? "💻 " : "🖥 "
+        let title = "📖 " + L("E-ink Mode (for reading)  ⌃⌥⌘E") + (named ? " — " + icon + displayName(d) : "")
         return item(title, #selector(actToggleEInkDisplay(_:)), state: EInk.displays.contains(d), obj: NSNumber(value: d))
     }
 
@@ -716,17 +717,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             item("🔁 " + L("Force Reset (sleep → re-handshake, screens blink)"), #selector(actWakeHard)),
             item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil),
         ]
-        // E-ink Mode per external display (level 3)
-        let exts = physicalExternals()
-        if !exts.isEmpty { extHead.append(.separator()) }
-        for d in exts {
-            extHead.append(einkItem(d, named: exts.count > 1))
-        }
+
         // Built-in Display ▸ : Outdoor Mode (+ Auto Outdoor Mode added by AdvancedMenu)
-        var builtinHead: [NSMenuItem] = [
+        let builtinHead: [NSMenuItem] = [
             item("☀️ " + L("Outdoor Mode (max brightness)  ⌃⌥⌘B"), #selector(actToggleOutdoor), state: outdoor.isOn),
         ]
-        if let b = builtinDisplay() { builtinHead.append(einkItem(b, named: false)) }
+
 
         // Level 3: Maintenance ▸
         let maint = NSMenu()
@@ -771,9 +767,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let aboutParent = NSMenuItem(title: "ℹ️ " + L("About"), action: nil, keyEquivalent: "")
         aboutParent.submenu = aboutSub
 
+        // Level 3: 🧪 Experimental ▸ — E-ink Mode, one toggle per screen
+        let labs = NSMenu()
+        var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
+        CGGetOnlineDisplayList(16, &ids, &n)
+        for d in ids.prefix(Int(n)) where !isVirtual(d) { labs.addItem(einkItem(d, named: true)) }
+        let labsParent = NSMenuItem(title: "🧪 " + L("Experimental Features"), action: nil, keyEquivalent: "")
+        labsParent.submenu = labs
+
         let general: [NSMenuItem] = [
             item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0),
             maintParent,
+            labsParent,
             .separator(),
             langParent,
             item(L("Launch at Login"), #selector(actToggleLogin), state: FileManager.default.fileExists(atPath: launchAgent)),

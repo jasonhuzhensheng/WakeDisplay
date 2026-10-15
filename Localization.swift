@@ -190,6 +190,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "墨水屏模式已开启",
         "Press ⌃⌥⌘E to switch back to color": "按 ⌃⌥⌘E 切回彩色",
         "Back to color": "已切回彩色",
+        "Experimental Features": "测试功能",
     ]
     case .zhHant: return [
         "  HiDPI (sharp)": "  HiDPI（清晰）",
@@ -299,6 +300,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "墨水屏模式已開啟",
         "Press ⌃⌥⌘E to switch back to color": "按 ⌃⌥⌘E 切回彩色",
         "Back to color": "已切回彩色",
+        "Experimental Features": "測試功能",
     ]
     case .ja: return [
         "  HiDPI (sharp)": "  HiDPI（高精細）",
@@ -408,6 +410,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "電子ペーパーモード オン",
         "Press ⌃⌥⌘E to switch back to color": "⌃⌥⌘E でカラーに戻す",
         "Back to color": "カラーに戻しました",
+        "Experimental Features": "試験的な機能",
     ]
     case .ko: return [
         "  HiDPI (sharp)": "  HiDPI (선명)",
@@ -517,6 +520,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "전자잉크 모드 켜짐",
         "Press ⌃⌥⌘E to switch back to color": "⌃⌥⌘E를 눌러 컬러로 돌아가기",
         "Back to color": "컬러로 돌아왔습니다",
+        "Experimental Features": "실험적 기능",
     ]
     case .es: return [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -626,6 +630,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "Modo tinta electrónica activado",
         "Press ⌃⌥⌘E to switch back to color": "Pulsa ⌃⌥⌘E para volver al color",
         "Back to color": "Color restaurado",
+        "Experimental Features": "Funciones experimentales",
     ]
     case .fr: return [
         "  HiDPI (sharp)": "  HiDPI (net)",
@@ -735,6 +740,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "Mode encre électronique activé",
         "Press ⌃⌥⌘E to switch back to color": "Appuyez sur ⌃⌥⌘E pour revenir à la couleur",
         "Back to color": "Retour à la couleur",
+        "Experimental Features": "Fonctions expérimentales",
     ]
     case .de: return [
         "  HiDPI (sharp)": "  HiDPI (scharf)",
@@ -844,6 +850,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "E-Ink-Modus ist an",
         "Press ⌃⌥⌘E to switch back to color": "⌃⌥⌘E drücken, um zur Farbe zurückzukehren",
         "Back to color": "Wieder in Farbe",
+        "Experimental Features": "Experimentelle Funktionen",
     ]
     case .pt: return [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -953,6 +960,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "Modo tinta eletrônica ativado",
         "Press ⌃⌥⌘E to switch back to color": "Pressione ⌃⌥⌘E para voltar às cores",
         "Back to color": "Cores restauradas",
+        "Experimental Features": "Recursos experimentais",
     ]
     case .it: return [
         "  HiDPI (sharp)": "  HiDPI (nitido)",
@@ -1062,6 +1070,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "Modalità e-ink attiva",
         "Press ⌃⌥⌘E to switch back to color": "Premi ⌃⌥⌘E per tornare ai colori",
         "Back to color": "Colori ripristinati",
+        "Experimental Features": "Funzioni sperimentali",
     ]
     case .ru: return [
         "  HiDPI (sharp)": "  HiDPI (чётко)",
@@ -1171,6 +1180,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "Режим e-ink включён",
         "Press ⌃⌥⌘E to switch back to color": "Нажмите ⌃⌥⌘E, чтобы вернуть цвет",
         "Back to color": "Цвет восстановлен",
+        "Experimental Features": "Экспериментальные функции",
     ]
     case .ar: return [
         "  HiDPI (sharp)": "  HiDPI (حاد)",
@@ -1280,6 +1290,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "وضع الحبر الإلكتروني مفعّل",
         "Press ⌃⌥⌘E to switch back to color": "اضغط ⌃⌥⌘E للعودة إلى الألوان",
         "Back to color": "تمت العودة إلى الألوان",
+        "Experimental Features": "ميزات تجريبية",
     ]
     case .hi: return [
         "  HiDPI (sharp)": "  HiDPI (स्पष्ट)",
@@ -1389,6 +1400,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "ई-इंक मोड चालू है",
         "Press ⌃⌥⌘E to switch back to color": "रंगीन पर लौटने के लिए ⌃⌥⌘E दबाएँ",
         "Back to color": "रंग वापस आ गए",
+        "Experimental Features": "प्रायोगिक सुविधाएँ",
     ]
     case .id: return [
         "  HiDPI (sharp)": "  HiDPI (tajam)",
@@ -1498,6 +1510,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "Mode E-ink aktif",
         "Press ⌃⌥⌘E to switch back to color": "Tekan ⌃⌥⌘E untuk kembali ke warna",
         "Back to color": "Kembali ke warna",
+        "Experimental Features": "Fitur Eksperimental",
     ]
     case .tr: return [
         "  HiDPI (sharp)": "  HiDPI (keskin)",
@@ -1607,6 +1620,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "E-mürekkep Modu açık",
         "Press ⌃⌥⌘E to switch back to color": "Renkliye dönmek için ⌃⌥⌘E’ye basın",
         "Back to color": "Renkliye dönüldü",
+        "Experimental Features": "Deneysel Özellikler",
     ]
     case .vi: return [
         "  HiDPI (sharp)": "  HiDPI (sắc nét)",
@@ -1716,6 +1730,7 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "E-ink Mode is on": "Đã bật chế độ mực điện tử",
         "Press ⌃⌥⌘E to switch back to color": "Nhấn ⌃⌥⌘E để trở lại màu",
         "Back to color": "Đã trở lại màu",
+        "Experimental Features": "Tính năng thử nghiệm",
     ]
     default: return [:]
     }
