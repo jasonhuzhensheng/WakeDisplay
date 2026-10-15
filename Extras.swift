@@ -191,3 +191,80 @@ final class ExtrasMenu: NSObject {
     @objc func whatsNew() { WhatsNew.show() }
     @objc func reportIssue() { Feedback.openIssue() }
 }
+
+// MARK: - Outdoor Mode reminder after the lid opens / screen wakes / unlock
+//
+// Outdoor Mode drains the battery, so if it is still on when the user comes back, flash a small
+// HUD for about a second: "☀️ Outdoor Mode is on · Press ⌃⌥⌘B to turn it off".
+// 合盖再打开（屏幕唤醒或解锁后），如果户外模式仍开着，屏幕中央提示约 1 秒后自动消失。
+
+enum WakeReminder {
+    private static var lastShown = Date.distantPast
+    private static var hud: NSWindow?
+
+    static func start() {
+        let ws = NSWorkspace.shared.notificationCenter
+        ws.addObserver(forName: NSWorkspace.screensDidWakeNotification, object: nil, queue: .main) { _ in trigger() }
+        ws.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { _ in trigger() }
+        // With a password, the first HUD is hidden behind the lock screen → show again after unlock
+        DistributedNotificationCenter.default().addObserver(forName: NSNotification.Name("com.apple.screenIsUnlocked"),
+                                                            object: nil, queue: .main) { _ in trigger() }
+    }
+
+    private static func trigger() {
+        guard outdoor.isOn else { return }
+        outdoor.refresh()                                   // sleep resets backlight + gamma; re-apply now
+        guard Date().timeIntervalSince(lastShown) > 2 else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {   // let the screen finish lighting up
+            guard outdoor.isOn else { return }
+            lastShown = Date()
+            show("☀️ " + L("Outdoor Mode is on"), L("Press ⌃⌥⌘B to turn it off"))
+        }
+    }
+
+    /// Small centered HUD on the built-in display; fades out after ~1 s, never takes focus or clicks
+    static func show(_ title: String, _ subtitle: String) {
+        hud?.orderOut(nil)
+        let screen = builtinDisplay().flatMap(screenFor) ?? NSScreen.main ?? NSScreen.screens.first!
+        let size = NSSize(width: 460, height: 104)
+        let f = screen.frame
+        let rect = NSRect(x: f.midX - size.width / 2, y: f.midY - size.height / 2, width: size.width, height: size.height)
+
+        let w = NSWindow(contentRect: rect, styleMask: .borderless, backing: .buffered, defer: false)
+        w.level = .screenSaver
+        w.isOpaque = false
+        w.backgroundColor = .clear
+        w.hasShadow = true
+        w.ignoresMouseEvents = true
+        w.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
+
+        let fx = NSVisualEffectView(frame: NSRect(origin: .zero, size: size))
+        fx.material = .hudWindow
+        fx.blendingMode = .behindWindow
+        fx.state = .active
+        fx.wantsLayer = true
+        fx.layer?.cornerRadius = 18
+        fx.layer?.masksToBounds = true
+
+        let t = NSTextField(labelWithString: title)
+        t.font = .systemFont(ofSize: 22, weight: .semibold)
+        t.alignment = .center
+        t.frame = NSRect(x: 16, y: 52, width: size.width - 32, height: 30)
+        let s = NSTextField(labelWithString: subtitle)
+        s.font = .systemFont(ofSize: 15)
+        s.textColor = .secondaryLabelColor
+        s.alignment = .center
+        s.frame = NSRect(x: 16, y: 22, width: size.width - 32, height: 22)
+        fx.addSubview(t); fx.addSubview(s)
+
+        w.contentView = fx
+        w.alphaValue = 0
+        w.orderFrontRegardless()
+        hud = w
+        NSAnimationContext.runAnimationGroup { $0.duration = 0.15; w.animator().alphaValue = 1 }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.15) {
+            NSAnimationContext.runAnimationGroup({ $0.duration = 0.35; w.animator().alphaValue = 0 },
+                                                 completionHandler: { w.orderOut(nil); if hud === w { hud = nil } })
+        }
+    }
+}

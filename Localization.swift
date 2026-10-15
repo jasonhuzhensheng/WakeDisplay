@@ -151,6 +151,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "隐私",
         "Send Crash Reports": "发送崩溃报告",
         "Maintenance": "维护工具",
+        "Outdoor Mode is on": "户外模式已开启",
+        "Press ⌃⌥⌘B to turn it off": "按 ⌃⌥⌘B 关闭，更省电",
     ],
     .zhHant: [
         "  HiDPI (sharp)": "  HiDPI（清晰）",
@@ -231,6 +233,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "隱私權",
         "Send Crash Reports": "傳送當機報告",
         "Maintenance": "維護工具",
+        "Outdoor Mode is on": "戶外模式已開啟",
+        "Press ⌃⌥⌘B to turn it off": "按 ⌃⌥⌘B 關閉，更省電",
     ],
     .ja: [
         "  HiDPI (sharp)": "  HiDPI（高精細）",
@@ -311,6 +315,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "プライバシー",
         "Send Crash Reports": "クラッシュレポートを送信",
         "Maintenance": "メンテナンス",
+        "Outdoor Mode is on": "屋外モードがオンです",
+        "Press ⌃⌥⌘B to turn it off": "⌃⌥⌘B でオフにするとバッテリーを節約できます",
     ],
     .ko: [
         "  HiDPI (sharp)": "  HiDPI (선명)",
@@ -391,6 +397,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "개인정보",
         "Send Crash Reports": "충돌 보고서 보내기",
         "Maintenance": "유지 관리",
+        "Outdoor Mode is on": "야외 모드가 켜져 있습니다",
+        "Press ⌃⌥⌘B to turn it off": "⌃⌥⌘B를 눌러 끄면 배터리를 아낄 수 있습니다",
     ],
     .es: [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -471,6 +479,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "Privacidad",
         "Send Crash Reports": "Enviar informes de fallos",
         "Maintenance": "Mantenimiento",
+        "Outdoor Mode is on": "El modo exterior está activado",
+        "Press ⌃⌥⌘B to turn it off": "Pulsa ⌃⌥⌘B para desactivarlo y ahorrar batería",
     ],
     .fr: [
         "  HiDPI (sharp)": "  HiDPI (net)",
@@ -551,6 +561,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "Confidentialité",
         "Send Crash Reports": "Envoyer les rapports de plantage",
         "Maintenance": "Maintenance",
+        "Outdoor Mode is on": "Le mode extérieur est activé",
+        "Press ⌃⌥⌘B to turn it off": "Appuyez sur ⌃⌥⌘B pour le désactiver et économiser la batterie",
     ],
     .de: [
         "  HiDPI (sharp)": "  HiDPI (scharf)",
@@ -631,6 +643,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "Datenschutz",
         "Send Crash Reports": "Absturzberichte senden",
         "Maintenance": "Wartung",
+        "Outdoor Mode is on": "Outdoor-Modus ist an",
+        "Press ⌃⌥⌘B to turn it off": "⌃⌥⌘B drücken, um ihn auszuschalten und Akku zu sparen",
     ],
     .pt: [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -711,6 +725,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "Privacidade",
         "Send Crash Reports": "Enviar relatórios de falha",
         "Maintenance": "Manutenção",
+        "Outdoor Mode is on": "O modo externo está ativado",
+        "Press ⌃⌥⌘B to turn it off": "Pressione ⌃⌥⌘B para desativar e poupar bateria",
     ],
     .it: [
         "  HiDPI (sharp)": "  HiDPI (nitido)",
@@ -791,6 +807,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "Privacy",
         "Send Crash Reports": "Invia rapporti sugli arresti anomali",
         "Maintenance": "Manutenzione",
+        "Outdoor Mode is on": "La modalità esterni è attiva",
+        "Press ⌃⌥⌘B to turn it off": "Premi ⌃⌥⌘B per disattivarla e risparmiare batteria",
     ],
     .ru: [
         "  HiDPI (sharp)": "  HiDPI (чётко)",
@@ -871,6 +889,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "Конфиденциальность",
         "Send Crash Reports": "Отправлять отчёты о сбоях",
         "Maintenance": "Обслуживание",
+        "Outdoor Mode is on": "Уличный режим включён",
+        "Press ⌃⌥⌘B to turn it off": "Нажмите ⌃⌥⌘B, чтобы выключить и сберечь батарею",
     ],
     .ar: [
         "  HiDPI (sharp)": "  HiDPI (حاد)",
@@ -951,6 +971,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "الخصوصية",
         "Send Crash Reports": "إرسال تقارير الأعطال",
         "Maintenance": "الصيانة",
+        "Outdoor Mode is on": "الوضع الخارجي مفعّل",
+        "Press ⌃⌥⌘B to turn it off": "اضغط ⌃⌥⌘B لإيقافه وتوفير البطارية",
     ],
     .hi: [
         "  HiDPI (sharp)": "  HiDPI (स्पष्ट)",
@@ -1031,6 +1053,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "गोपनीयता",
         "Send Crash Reports": "क्रैश रिपोर्ट भेजें",
         "Maintenance": "रखरखाव",
+        "Outdoor Mode is on": "आउटडोर मोड चालू है",
+        "Press ⌃⌥⌘B to turn it off": "बैटरी बचाने के लिए ⌃⌥⌘B दबाकर बंद करें",
     ],
     .id: [
         "  HiDPI (sharp)": "  HiDPI (tajam)",
@@ -1111,6 +1135,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "Privasi",
         "Send Crash Reports": "Kirim Laporan Crash",
         "Maintenance": "Pemeliharaan",
+        "Outdoor Mode is on": "Mode Luar Ruangan aktif",
+        "Press ⌃⌥⌘B to turn it off": "Tekan ⌃⌥⌘B untuk mematikannya dan menghemat baterai",
     ],
     .tr: [
         "  HiDPI (sharp)": "  HiDPI (keskin)",
@@ -1191,6 +1217,8 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "Gizlilik",
         "Send Crash Reports": "Çökme Raporları Gönder",
         "Maintenance": "Bakım",
+        "Outdoor Mode is on": "Dış Mekân Modu açık",
+        "Press ⌃⌥⌘B to turn it off": "Kapatıp pil tasarrufu için ⌃⌥⌘B’ye basın",
     ],
     .vi: [
         "  HiDPI (sharp)": "  HiDPI (sắc nét)",
@@ -1271,5 +1299,7 @@ let translations: [Lang: [String: String]] = [
         "Privacy": "Quyền riêng tư",
         "Send Crash Reports": "Gửi báo cáo sự cố",
         "Maintenance": "Bảo trì",
+        "Outdoor Mode is on": "Chế độ ngoài trời đang bật",
+        "Press ⌃⌥⌘B to turn it off": "Nhấn ⌃⌥⌘B để tắt và tiết kiệm pin",
     ],
 ]

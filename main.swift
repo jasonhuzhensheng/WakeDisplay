@@ -389,6 +389,9 @@ final class OutdoorMode {
         boost = 1.0
     }
 
+    /// Re-apply brightness / EDR / gamma right away (e.g. after the Mac wakes)
+    func refresh() { apply() }
+
     private func apply() {
         guard isOn else { return }
         _ = dsSetBrightness?(display, 1.0)
@@ -483,6 +486,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem.menu = menu
         registerHotKeys()
         CrashReporter.start()
+        WakeReminder.start()
         WhatsNew.showIfUpdated()
         SoftDisconnect.reconnectAll()          // never leave a monitor switched off from a previous run
         startDisplayWatcher()
