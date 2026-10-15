@@ -374,7 +374,7 @@ final class OutdoorMode {
 
     func start() {
         guard !isOn, let d = builtinDisplay() else { return }
-        if EInk.isOn { EInk.stop(quiet: true) }
+        EInk.stop(d, quiet: true)
         display = d
         isOn = true
         var cur: Float = 0
@@ -488,29 +488,31 @@ final class OutdoorMode {
 }
 let outdoor = OutdoorMode()
 
-// MARK: - E-ink mode (for reading): grayscale + warm "paper" tint, lifted blacks, softer contrast
+// MARK: - E-ink mode (for reading), per display: warm "paper" tint, lifted blacks, softer contrast
 //
-// 1. Grayscale: private CoreGraphics CGDisplayForceToGray (the same switch the Accessibility
-//    grayscale filter uses), looked up at runtime so a missing symbol never breaks launch.
-// 2. Paper tint: per-display gamma formula — white becomes warm off-white, black a deep grey.
-// Turning it off restores ColorSync gamma and full colour.
-
-private typealias ForceGrayFn = @convention(c) (Bool) -> Void
-private let cgForceToGray: ForceGrayFn? = {
-    guard let s = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "CGDisplayForceToGray") else { return nil }  // RTLD_DEFAULT
-    return unsafeBitCast(s, to: ForceGrayFn.self)
-}()
+// Applied with a per-display gamma formula, so each screen can be switched on its own and the
+// others stay in full colour. (macOS can only turn true grayscale on for all screens at once,
+// so this mode mutes colours into paper tones instead.) Off = ColorSync gamma restored.
 
 enum EInk {
-    private(set) static var isOn = false
+    private(set) static var displays = Set<CGDirectDisplayID>()
+    static var isOn: Bool { !displays.isEmpty }
     private static var observing = false
 
-    static func toggle() { isOn ? stop() : start() }
+    /// Hotkey / URL: toggle the screen under the mouse pointer
+    static func toggleUnderMouse() {
+        let p = NSEvent.mouseLocation
+        let scr = NSScreen.screens.first { NSMouseInRect(p, $0.frame, false) } ?? NSScreen.main
+        guard let id = scr?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else { return }
+        toggle(id)
+    }
 
-    static func start() {
-        guard !isOn else { return }
-        if outdoor.isOn { outdoor.stop() }          // the two modes both drive gamma; reading wins
-        isOn = true
+    static func toggle(_ d: CGDirectDisplayID) { displays.contains(d) ? stop(d) : start(d) }
+
+    static func start(_ d: CGDirectDisplayID) {
+        guard !displays.contains(d) else { return }
+        if d == builtinDisplay(), outdoor.isOn { outdoor.stop() }   // both drive the built-in panel's gamma
+        displays.insert(d)
         apply()
         if !observing {                             // macOS resets gamma on wake / reconfiguration
             observing = true
@@ -519,28 +521,53 @@ enum EInk {
             NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.screensDidWakeNotification, object: nil, queue: .main, using: re)
         }
         (NSApp.delegate as? AppDelegate)?.updateIcon()
-        WakeReminder.show("📖 " + L("E-ink Mode is on"), L("Press ⌃⌥⌘E to switch back to color"))
+        WakeReminder.show("📖 " + L("E-ink Mode is on"), displayName(d) + " · " + L("Press ⌃⌥⌘E to switch back to color"))
     }
 
-    static func stop(quiet: Bool = false) {
-        guard isOn else { return }
-        isOn = false
-        cgForceToGray?(false)
-        CGDisplayRestoreColorSyncSettings()
+    static func stop(_ d: CGDirectDisplayID, quiet: Bool = false) {
+        guard displays.remove(d) != nil else { return }
+        CGDisplayRestoreColorSyncSettings()         // resets every display…
+        apply()                                     // …so re-tint the ones still in e-ink mode
+        if outdoor.isOn { outdoor.refresh() }
         (NSApp.delegate as? AppDelegate)?.updateIcon()
-        if !quiet { WakeReminder.show("🎨 " + L("Back to color"), "") }
+        if !quiet { WakeReminder.show("🎨 " + L("Back to color"), displayName(d)) }
+    }
+
+    static func stopAll() {
+        guard isOn else { return }
+        displays.removeAll()
+        CGDisplayRestoreColorSyncSettings()
     }
 
     private static func apply() {
-        cgForceToGray?(true)
+        var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
+        CGGetOnlineDisplayList(16, &ids, &n)
+        let online = Set(ids.prefix(Int(n)))
+        displays.formIntersection(online)           // forget unplugged screens
+        for d in displays {
+            //                              min   max   gamma   → paper white, ink ≈ deep warm grey
+            CGSetDisplayTransferByFormula(d, 0.12, 0.95, 1.2,
+                                             0.11, 0.91, 1.2,
+                                             0.09, 0.80, 1.2)
+        }
+    }
+
+    /// Submenu: one checkable entry per screen
+    static func menuItem(target: AnyObject) -> NSMenuItem {
+        let root = NSMenuItem(title: "📖 " + L("E-ink Mode (for reading)  ⌃⌥⌘E"), action: nil, keyEquivalent: "")
+        root.state = isOn ? .on : .off
+        let sub = NSMenu()
         var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
         CGGetOnlineDisplayList(16, &ids, &n)
         for d in ids.prefix(Int(n)) where !isVirtual(d) {
-            //                              min   max   gamma   → paper white (0.96,0.93,0.84), ink black ≈ 0.09
-            CGSetDisplayTransferByFormula(d, 0.10, 0.96, 1.15,
-                                             0.09, 0.93, 1.15,
-                                             0.07, 0.84, 1.15)
+            let it = NSMenuItem(title: (CGDisplayIsBuiltin(d) != 0 ? "💻 " : "🖥 ") + displayName(d),
+                                action: #selector(AppDelegate.actToggleEInkDisplay(_:)), keyEquivalent: "")
+            it.target = target; it.representedObject = NSNumber(value: d)
+            it.state = displays.contains(d) ? .on : .off
+            sub.addItem(it)
         }
+        root.submenu = sub
+        return root
     }
 }
 
@@ -595,7 +622,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    func applicationWillTerminate(_ n: Notification) { outdoor.stop(); EInk.stop(quiet: true); SoftDisconnect.reconnectAll(); CrashReporter.cleanExit() }
+    func applicationWillTerminate(_ n: Notification) { outdoor.stop(); EInk.stopAll(); SoftDisconnect.reconnectAll(); CrashReporter.cleanExit() }
 
     /// URL commands (handy for Shortcuts / scripts): wakedisplay://wake | reset | outdoor | larger | smaller | menu
     func application(_ application: NSApplication, open urls: [URL]) {
@@ -660,7 +687,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let m = NSMenu()
         m.addItem(item("🔆 " + L("Wake Display    ⌘⇧R"), #selector(actWakeSoft)))
         m.addItem(item("☀️ " + L("Outdoor Mode (max brightness)  ⌃⌥⌘B"), #selector(actToggleOutdoor), state: outdoor.isOn))
-        m.addItem(item("📖 " + L("E-ink Mode (for reading)  ⌃⌥⌘E"), #selector(actToggleEInk), state: EInk.isOn))
+        m.addItem(EInk.menuItem(target: self))
         var scaleItems: [NSMenuItem] = []     // → top of ⚙️ Advanced
         for d in physicalExternals() {
             let sub = NSMenu()
@@ -770,7 +797,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc func actWakeHard() { wakeHard(); Telemetry.feature("forceReset") }
 
     @objc func actToggleEInk() {
-        EInk.toggle()
+        EInk.toggleUnderMouse()
+        if EInk.isOn { Telemetry.feature("einkMode") }
+    }
+    @objc func actToggleEInkDisplay(_ sender: NSMenuItem) {
+        guard let d = (sender.representedObject as? NSNumber)?.uint32Value else { return }
+        EInk.toggle(d)
         if EInk.isOn { Telemetry.feature("einkMode") }
     }
 
@@ -947,7 +979,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             case 5: (NSApp.delegate as? AppDelegate)?.popMenuAtMouse()
             case 6: DDC.step(10)
             case 7: DDC.step(-10)
-            case 8: EInk.toggle()
+            case 8: EInk.toggleUnderMouse()
             default: break
             }
             return noErr
