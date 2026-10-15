@@ -5,7 +5,7 @@
 set -e
 cd "$(dirname "$0")"
 
-VERSION="1.18"
+VERSION="1.19"
 APP=WakeDisplay.app
 WIDGET="$APP/Contents/PlugIns/WakeDisplayWidget.appex"
 rm -rf "$APP"
@@ -33,8 +33,10 @@ cat > "$APP/Contents/Info.plist" <<EOF
 EOF
 
 echo "▶ 编译主程序 / Building app…"
-swiftc -O -import-objc-header CGVirtualDisplay.h main.swift Localization.swift Telemetry.swift Updater.swift Advanced.swift Extras.swift AutoOutdoor.swift -o "$APP/Contents/MacOS/WakeDisplay" \
-  -framework Cocoa -framework Carbon -framework IOKit -framework Metal -framework QuartzCore
+# -Osize: optimise for size · -dead_strip: drop unused code · strip -x: drop local symbols
+swiftc -Osize -wmo -import-objc-header CGVirtualDisplay.h main.swift Localization.swift Telemetry.swift Updater.swift Advanced.swift Extras.swift AutoOutdoor.swift -o "$APP/Contents/MacOS/WakeDisplay" \
+  -Xlinker -dead_strip -framework Cocoa -framework Carbon -framework IOKit -framework Metal -framework QuartzCore
+strip -x "$APP/Contents/MacOS/WakeDisplay"
 
 # Widget needs macOS 14 (WidgetKit on macOS + containerBackground). Skip quietly on older SDKs.
 OSMAJOR=$(sw_vers -productVersion | cut -d. -f1)
@@ -42,9 +44,10 @@ if [ "$OSMAJOR" -ge 14 ]; then
   echo "▶ 编译小组件 / Building widget…"
   mkdir -p "$WIDGET/Contents/MacOS"
   sed "s/__VERSION__/$VERSION/g" Widget/Info.plist > "$WIDGET/Contents/Info.plist"
-  swiftc -O -parse-as-library -target "$(uname -m)-apple-macos14.0" \
+  swiftc -Osize -wmo -parse-as-library -target "$(uname -m)-apple-macos14.0" \
     Widget/WakeDisplayWidget.swift -o "$WIDGET/Contents/MacOS/WakeDisplayWidget" \
-    -framework WidgetKit -framework SwiftUI
+    -Xlinker -dead_strip -framework WidgetKit -framework SwiftUI
+  strip -x "$WIDGET/Contents/MacOS/WakeDisplayWidget"
   codesign --force --sign - --entitlements Widget/Widget.entitlements "$WIDGET"
 else
   echo "ℹ︎ macOS < 14: 跳过小组件 / skipping widget"

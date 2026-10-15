@@ -44,20 +44,32 @@ func effectiveLang() -> Lang {
 func L(_ en: String) -> String {
     let l = effectiveLang()
     if l == .en { return en }
-    return translations[l]?[en] ?? en
+    return translationTable(l)[en] ?? en
+}
+
+/// Only the active language's table is ever built (and cached), not all 16 at once
+private var cachedTable: (lang: Lang, table: [String: String])?
+func translationTable(_ l: Lang) -> [String: String] {
+    if let c = cachedTable, c.lang == l { return c.table }
+    let t = buildTable(l)
+    cachedTable = (l, t)
+    return t
 }
 ''')
 out.append(f'let hidpiHelpEN = {lit(HIDPI_EN)}')
 out.append(f'let pmsetMsgEN = {lit(PMSET_EN)}')
 out.append(f'let edidMsgEN = {lit(EDID_EN)}')
 out.append(f'let aboutEN = {lit(ABOUT_EN)}\n')
-out.append('let translations: [Lang: [String: String]] = [')
+out.append('private func buildTable(_ l: Lang) -> [String: String] {')
+out.append('    switch l {')
 for c,(name,arr) in LANGS.items():
-    out.append(f'    .{cn(c)}: [')
+    out.append(f'    case .{cn(c)}: return [')
     for k,v in zip(KEYS,arr):
         key = special.get(k) or lit(k)
         out.append(f'        {key}: {lit(v)},')
-    out.append('    ],')
-out.append(']')
+    out.append('    ]')
+out.append('    default: return [:]')
+out.append('    }')
+out.append('}')
 open('Localization.swift','w').write('\n'.join(out)+'\n')
 print("ok", len(LANGS)+1, "languages,", len(KEYS), "strings")

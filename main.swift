@@ -348,7 +348,7 @@ final class OutdoorMode {
     private var savedBrightness: Float?
     private var window: NSWindow?
     private var metalLayer: CAMetalLayer?
-    private let device = MTLCreateSystemDefaultDevice()
+    private lazy var device = MTLCreateSystemDefaultDevice()   // created only when Outdoor Mode is first used
     private lazy var queue = device?.makeCommandQueue()
     private var timer: Timer?
     private var display: CGDirectDisplayID = 0
@@ -543,7 +543,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let m = NSMenu()
         m.addItem(item("🔆 " + L("Wake Display    ⌘⇧R"), #selector(actWakeSoft)))
         m.addItem(item("☀️ " + L("Outdoor Mode (max brightness)  ⌃⌥⌘B"), #selector(actToggleOutdoor), state: outdoor.isOn))
-        m.addItem(.separator())
+        var scaleItems: [NSMenuItem] = []     // → top of ⚙️ Advanced
         for d in physicalExternals() {
             let sub = NSMenu()
             let sharp = hidpiVirtuals[d] != nil
@@ -570,14 +570,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 sub.addItem(item(title, #selector(actSetMode(_:)), state: on, obj: [d, sm.mode] as [Any]))
             }
             let parent = NSMenuItem(title: "🔍 " + L("Scaling / Text Size — ") + displayName(d), action: nil, keyEquivalent: "")
-            m.addItem(parent); m.setSubmenu(sub, for: parent)
+            parent.submenu = sub
+            scaleItems.append(parent)
         }
         if let quick = QuickLayout.menuItem() { m.addItem(quick) }
         m.addItem(.separator())
-        m.addItem(item("📤 " + L("Share WakeDisplay…"), #selector(actShare)))
 
         // ── Everything else lives in ⚙️ Advanced (level 2), ordered by how often it is used ──
-        let head: [NSMenuItem] = [
+        var head: [NSMenuItem] = scaleItems
+        if !scaleItems.isEmpty { head.append(.separator()) }
+        head += [
             item("🔁 " + L("Force Reset (sleep → re-handshake, screens blink)"), #selector(actWakeHard)),
             item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0),
             item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil),
@@ -636,6 +638,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             NSMenuItem(title: L("Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"),
         ]
         m.addItem(AdvancedMenu.shared.build(head: head, extra: tail))
+        m.addItem(item("📤 " + L("Share WakeDisplay…"), #selector(actShare)))
         return m
     }
 

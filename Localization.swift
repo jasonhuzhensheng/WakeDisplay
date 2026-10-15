@@ -63,7 +63,16 @@ func effectiveLang() -> Lang {
 func L(_ en: String) -> String {
     let l = effectiveLang()
     if l == .en { return en }
-    return translations[l]?[en] ?? en
+    return translationTable(l)[en] ?? en
+}
+
+/// Only the active language's table is ever built (and cached), not all 16 at once
+private var cachedTable: (lang: Lang, table: [String: String])?
+func translationTable(_ l: Lang) -> [String: String] {
+    if let c = cachedTable, c.lang == l { return c.table }
+    let t = buildTable(l)
+    cachedTable = (l, t)
+    return t
 }
 
 let hidpiHelpEN = "macOS only generates HiDPI scaling modes for displays with high enough pixel density (usually ≥ 4K).\n1080p / 2K portable monitors typically expose native modes only, so System Settings offers no \"Larger Text\" either.\n\nOptions:\n• Pick a lower non-HiDPI resolution here (e.g. 1600×900): bigger text, slightly soft.\n• For \"big and sharp\", turn on \"Sharp Scaling at Native Resolution\" in this submenu: WakeDisplay renders the desktop on a HiDPI virtual display and mirrors your panel onto it, so the panel keeps its native resolution while text gets larger."
@@ -71,8 +80,9 @@ let pmsetMsgEN = "Will run:\nsudo pmset -a sleep 0 standby 0 autopoweroff 0 powe
 let edidMsgEN = "Will delete /Library/Preferences/com.apple.windowserver.displays.plist and the user-level display config, then restart the Mac.\nPersonal data is untouched, but display arrangement / scaling settings will reset. Continue?"
 let aboutEN = "macOS menu-bar utility: wake dark USB-C external displays with one click and unlock the HiDPI scaling modes macOS hides.\n\nAuthor: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nBuilt with: Claude Fable 5.1 (Anthropic)\nLicense: MIT"
 
-let translations: [Lang: [String: String]] = [
-    .zhHans: [
+private func buildTable(_ l: Lang) -> [String: String] {
+    switch l {
+    case .zhHans: return [
         "  HiDPI (sharp)": "  HiDPI（清晰）",
         "Display ": "显示器 ",
         "Wake Display    ⌘⇧R": "唤醒显示器    ⌘⇧R",
@@ -174,8 +184,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "下",
         "Right": "右",
         "Updates": "更新",
-    ],
-    .zhHant: [
+    ]
+    case .zhHant: return [
         "  HiDPI (sharp)": "  HiDPI（清晰）",
         "Display ": "顯示器 ",
         "Wake Display    ⌘⇧R": "喚醒顯示器    ⌘⇧R",
@@ -277,8 +287,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "下",
         "Right": "右",
         "Updates": "更新",
-    ],
-    .ja: [
+    ]
+    case .ja: return [
         "  HiDPI (sharp)": "  HiDPI（高精細）",
         "Display ": "ディスプレイ ",
         "Wake Display    ⌘⇧R": "ディスプレイを起動    ⌘⇧R",
@@ -380,8 +390,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "下",
         "Right": "右",
         "Updates": "アップデート",
-    ],
-    .ko: [
+    ]
+    case .ko: return [
         "  HiDPI (sharp)": "  HiDPI (선명)",
         "Display ": "디스플레이 ",
         "Wake Display    ⌘⇧R": "디스플레이 깨우기    ⌘⇧R",
@@ -483,8 +493,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "아래",
         "Right": "오른쪽",
         "Updates": "업데이트",
-    ],
-    .es: [
+    ]
+    case .es: return [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
         "Display ": "Pantalla ",
         "Wake Display    ⌘⇧R": "Activar pantalla    ⌘⇧R",
@@ -586,8 +596,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "Abajo",
         "Right": "Derecha",
         "Updates": "Actualizaciones",
-    ],
-    .fr: [
+    ]
+    case .fr: return [
         "  HiDPI (sharp)": "  HiDPI (net)",
         "Display ": "Écran ",
         "Wake Display    ⌘⇧R": "Réveiller l’écran    ⌘⇧R",
@@ -689,8 +699,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "En dessous",
         "Right": "Droite",
         "Updates": "Mises à jour",
-    ],
-    .de: [
+    ]
+    case .de: return [
         "  HiDPI (sharp)": "  HiDPI (scharf)",
         "Display ": "Display ",
         "Wake Display    ⌘⇧R": "Display aufwecken    ⌘⇧R",
@@ -792,8 +802,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "Unten",
         "Right": "Rechts",
         "Updates": "Updates",
-    ],
-    .pt: [
+    ]
+    case .pt: return [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
         "Display ": "Tela ",
         "Wake Display    ⌘⇧R": "Despertar tela    ⌘⇧R",
@@ -895,8 +905,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "Abaixo",
         "Right": "Direita",
         "Updates": "Atualizações",
-    ],
-    .it: [
+    ]
+    case .it: return [
         "  HiDPI (sharp)": "  HiDPI (nitido)",
         "Display ": "Monitor ",
         "Wake Display    ⌘⇧R": "Riattiva monitor    ⌘⇧R",
@@ -998,8 +1008,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "Sotto",
         "Right": "Destra",
         "Updates": "Aggiornamenti",
-    ],
-    .ru: [
+    ]
+    case .ru: return [
         "  HiDPI (sharp)": "  HiDPI (чётко)",
         "Display ": "Дисплей ",
         "Wake Display    ⌘⇧R": "Разбудить дисплей    ⌘⇧R",
@@ -1101,8 +1111,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "Снизу",
         "Right": "Справа",
         "Updates": "Обновления",
-    ],
-    .ar: [
+    ]
+    case .ar: return [
         "  HiDPI (sharp)": "  HiDPI (حاد)",
         "Display ": "الشاشة ",
         "Wake Display    ⌘⇧R": "إيقاظ الشاشة    ⌘⇧R",
@@ -1204,8 +1214,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "أسفل",
         "Right": "يمين",
         "Updates": "التحديثات",
-    ],
-    .hi: [
+    ]
+    case .hi: return [
         "  HiDPI (sharp)": "  HiDPI (स्पष्ट)",
         "Display ": "डिस्प्ले ",
         "Wake Display    ⌘⇧R": "डिस्प्ले जगाएँ    ⌘⇧R",
@@ -1307,8 +1317,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "नीचे",
         "Right": "दाएँ",
         "Updates": "अपडेट",
-    ],
-    .id: [
+    ]
+    case .id: return [
         "  HiDPI (sharp)": "  HiDPI (tajam)",
         "Display ": "Layar ",
         "Wake Display    ⌘⇧R": "Bangunkan Layar    ⌘⇧R",
@@ -1410,8 +1420,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "Bawah",
         "Right": "Kanan",
         "Updates": "Pembaruan",
-    ],
-    .tr: [
+    ]
+    case .tr: return [
         "  HiDPI (sharp)": "  HiDPI (keskin)",
         "Display ": "Ekran ",
         "Wake Display    ⌘⇧R": "Ekranı Uyandır    ⌘⇧R",
@@ -1513,8 +1523,8 @@ let translations: [Lang: [String: String]] = [
         "Below": "Alt",
         "Right": "Sağ",
         "Updates": "Güncellemeler",
-    ],
-    .vi: [
+    ]
+    case .vi: return [
         "  HiDPI (sharp)": "  HiDPI (sắc nét)",
         "Display ": "Màn hình ",
         "Wake Display    ⌘⇧R": "Đánh thức màn hình    ⌘⇧R",
@@ -1616,5 +1626,7 @@ let translations: [Lang: [String: String]] = [
         "Below": "Dưới",
         "Right": "Phải",
         "Updates": "Cập nhật",
-    ],
-]
+    ]
+    default: return [:]
+    }
+}
