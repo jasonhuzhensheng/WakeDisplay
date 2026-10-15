@@ -2,10 +2,10 @@
 // What is sent: app version, macOS version, CPU architecture, UI language, number of external
 // displays, and which WakeDisplay feature was used. Never: names, files, IP-derived identity,
 // display serials or anything personal. The user ID is a salted SHA-256 of a random install UUID.
-// Users can switch it off in the menu ("Send Anonymous Usage Stats").
+// Users can switch it off in About WakeDisplay… ("Send Anonymous Usage Stats" checkbox).
 //
 // 匿名使用统计（TelemetryDeck）：只发送版本号、系统版本、芯片架构、界面语言、外接屏数量和用了哪个功能。
-// 不发送任何个人信息；用户标识是随机安装 ID 的加盐 SHA-256。菜单里可一键关闭。
+// 不发送任何个人信息；用户标识是随机安装 ID 的加盐 SHA-256。在「关于」窗口里可一键关闭。
 import Foundation
 import CryptoKit
 

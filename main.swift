@@ -582,7 +582,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let langParent = NSMenuItem(title: "🌐 " + langTitle, action: nil, keyEquivalent: "")
         m.addItem(langParent); m.setSubmenu(langSub, for: langParent)
         m.addItem(item(L("Launch at Login"), #selector(actToggleLogin), state: FileManager.default.fileExists(atPath: launchAgent)))
-        m.addItem(item(L("Send Anonymous Usage Stats"), #selector(actToggleTelemetry), state: Telemetry.enabled))
         m.addItem(item(L("About WakeDisplay…"), #selector(actAbout)))
         m.addItem(NSMenuItem(title: L("Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         return m
@@ -600,8 +599,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             info(L("Outdoor Mode"), L("Brightness set to 100%. This display has no XDR headroom, so no extra boost is available beyond that."))
         }
     }
-
-    @objc func actToggleTelemetry() { Telemetry.enabled.toggle() }
 
     @objc func actSetLang(_ s: NSMenuItem) {
         guard let code = s.representedObject as? String, let l = Lang(rawValue: code) else { return }
@@ -696,8 +693,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         a.addButton(withTitle: L("Open GitHub"))
         a.addButton(withTitle: L("Follow on X @HUZHENSHENG"))
         a.addButton(withTitle: L("Close"))
+        // Anonymous-stats switch lives here, as a checkbox under the text
+        a.showsSuppressionButton = true
+        a.suppressionButton?.title = L("Send Anonymous Usage Stats")
+        a.suppressionButton?.state = Telemetry.enabled ? .on : .off
         NSApp.activate(ignoringOtherApps: true)
         let resp = a.runModal()
+        Telemetry.enabled = (a.suppressionButton?.state == .on)
         a.window.orderOut(nil)
         // Open after the modal session has fully ended; fall back to /usr/bin/open if NSWorkspace refuses
         let target: String? = resp == .alertFirstButtonReturn ? "https://github.com/jasonhuzhensheng/WakeDisplay"

@@ -102,7 +102,7 @@ WakeDisplay 通过 [TelemetryDeck](https://telemetrydeck.com) 发送**匿名**�
 
 - **发送：** 版本号、macOS 版本、芯片架构、界面语言、外接屏数量、用了哪个功能（如「唤醒」「户外模式」）
 - **不发送：** 姓名、文件、显示器序列号或任何个人信息；用户标识是随机安装 ID 的加盐 SHA-256 哈希
-- **关闭：** 菜单 → 取消勾选「发送匿名使用统计」，之后不再发送任何数据
+- **关闭：** 菜单 →「关于 WakeDisplay…」→ 取消勾选「发送匿名使用统计」，之后不再发送任何数据
 - 代码完全公开：[`Telemetry.swift`](Telemetry.swift)
 
 ### 常见问题
@@ -215,7 +215,7 @@ WakeDisplay sends **anonymous** usage statistics via [TelemetryDeck](https://tel
 
 - **Sent:** app version, macOS version, CPU architecture, UI language, number of external displays, which feature was used (e.g. "wake", "outdoor mode")
 - **Never sent:** names, files, display serials or anything personal; the user ID is a salted SHA-256 hash of a random install ID
-- **Turn off:** menu → untick "Send Anonymous Usage Stats"; nothing is sent after that
+- **Turn off:** menu → "About WakeDisplay…" → untick "Send Anonymous Usage Stats"; nothing is sent after that
 - Fully open code: [`Telemetry.swift`](Telemetry.swift)
 
 ### FAQ
