@@ -343,9 +343,9 @@ func enableSharpScaling(_ physical: CGDirectDisplayID, width wanted: Int? = nil)
     let settings = CGVirtualDisplaySettings()
     settings.hiDPI = 1
     // Modes are given in backing pixels (2× the "looks like" size); macOS derives the HiDPI variants
-    settings.modes = logicalSizes(W, H).map { CGVirtualDisplayMode(width: $0.w * 2, height: $0.h * 2, refreshRate: CGFloat(hz)) }
+    settings.modes = logicalSizes(W, H).map { CGVirtualDisplayMode(width: UInt($0.w * 2), height: UInt($0.h * 2), refreshRate: CGFloat(hz)) }
     if !vd.apply(settings) {
-        settings.modes = logicalSizes(W, H).map { CGVirtualDisplayMode(width: $0.w * 2, height: $0.h * 2, refreshRate: 60) }
+        settings.modes = logicalSizes(W, H).map { CGVirtualDisplayMode(width: UInt($0.w * 2), height: UInt($0.h * 2), refreshRate: 60) }
         guard vd.apply(settings) else { return false }
     }
     hidpiVirtuals[physical] = vd
@@ -494,7 +494,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc func actLarger(_ s: NSMenuItem) { if let d = s.representedObject as? CGDirectDisplayID { stepScaled(d, larger: true) } }
     @objc func actSmaller(_ s: NSMenuItem) { if let d = s.representedObject as? CGDirectDisplayID { stepScaled(d, larger: false) } }
     @objc func actSetMode(_ s: NSMenuItem) {
-        guard let arr = s.representedObject as? [Any], let d = arr[0] as? CGDirectDisplayID, let m = arr[1] as? CGDisplayMode else { return }
+        guard let arr = s.representedObject as? [Any], arr.count == 2, let d = arr[0] as? CGDirectDisplayID else { return }
+        let m = arr[1] as! CGDisplayMode
         setMode(scalingTarget(d), m)
         if hidpiVirtuals[d] != nil { UserDefaults.standard.set(m.width, forKey: displayKey(d)) }
     }

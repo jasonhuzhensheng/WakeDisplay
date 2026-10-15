@@ -3,6 +3,8 @@
 #import <Foundation/Foundation.h>
 #import <CoreGraphics/CoreGraphics.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class CGVirtualDisplay;
 
 @interface CGVirtualDisplayMode : NSObject
@@ -38,3 +40,5 @@
 - (instancetype)initWithDescriptor:(CGVirtualDisplayDescriptor *)descriptor;
 - (BOOL)applySettings:(CGVirtualDisplaySettings *)settings;
 @end
+
+NS_ASSUME_NONNULL_END
