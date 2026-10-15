@@ -551,24 +551,6 @@ enum EInk {
                                              0.09, 0.80, 1.2)
         }
     }
-
-    /// Submenu: one checkable entry per screen
-    static func menuItem(target: AnyObject) -> NSMenuItem {
-        let root = NSMenuItem(title: "📖 " + L("E-ink Mode (for reading)  ⌃⌥⌘E"), action: nil, keyEquivalent: "")
-        root.state = isOn ? .on : .off
-        let sub = NSMenu()
-        var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
-        CGGetOnlineDisplayList(16, &ids, &n)
-        for d in ids.prefix(Int(n)) where !isVirtual(d) {
-            let it = NSMenuItem(title: (CGDisplayIsBuiltin(d) != 0 ? "💻 " : "🖥 ") + displayName(d),
-                                action: #selector(AppDelegate.actToggleEInkDisplay(_:)), keyEquivalent: "")
-            it.target = target; it.representedObject = NSNumber(value: d)
-            it.state = displays.contains(d) ? .on : .off
-            sub.addItem(it)
-        }
-        root.submenu = sub
-        return root
-    }
 }
 
 // MARK: - Menu-bar app
@@ -683,11 +665,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return it
     }
 
+    /// "📖 E-ink Mode" toggle for one screen (shown in Advanced ▸ External / Built-in)
+    func einkItem(_ d: CGDirectDisplayID, named: Bool) -> NSMenuItem {
+        let title = "📖 " + L("E-ink Mode (for reading)  ⌃⌥⌘E") + (named ? " — " + displayName(d) : "")
+        return item(title, #selector(actToggleEInkDisplay(_:)), state: EInk.displays.contains(d), obj: NSNumber(value: d))
+    }
+
     func buildMenu() -> NSMenu {
         let m = NSMenu()
         m.addItem(item("🔆 " + L("Wake Display    ⌘⇧R"), #selector(actWakeSoft)))
         m.addItem(item("☀️ " + L("Outdoor Mode (max brightness)  ⌃⌥⌘B"), #selector(actToggleOutdoor), state: outdoor.isOn))
-        m.addItem(EInk.menuItem(target: self))
         var scaleItems: [NSMenuItem] = []     // → top of ⚙️ Advanced
         for d in physicalExternals() {
             let sub = NSMenu()
@@ -729,10 +716,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             item("🔁 " + L("Force Reset (sleep → re-handshake, screens blink)"), #selector(actWakeHard)),
             item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil),
         ]
+        // E-ink Mode per external display (level 3)
+        let exts = physicalExternals()
+        if !exts.isEmpty { extHead.append(.separator()) }
+        for d in exts {
+            extHead.append(einkItem(d, named: exts.count > 1))
+        }
         // Built-in Display ▸ : Outdoor Mode (+ Auto Outdoor Mode added by AdvancedMenu)
-        let builtinHead: [NSMenuItem] = [
+        var builtinHead: [NSMenuItem] = [
             item("☀️ " + L("Outdoor Mode (max brightness)  ⌃⌥⌘B"), #selector(actToggleOutdoor), state: outdoor.isOn),
         ]
+        if let b = builtinDisplay() { builtinHead.append(einkItem(b, named: false)) }
 
         // Level 3: Maintenance ▸
         let maint = NSMenu()
