@@ -2,8 +2,8 @@
 #   brew tap jasonhuzhensheng/wakedisplay https://github.com/jasonhuzhensheng/WakeDisplay
 #   brew install --cask wakedisplay
 cask "wakedisplay" do
-  version "1.23"
-  sha256 "7a90515beebfe726d05176859d3b0e4b42399d14249f93fa4cdaadc597c54c78"
+  version "1.24"
+  sha256 "818ad322b7d6769ca5dfe49ea042c3f661a57d3418fc2c63af209c84ebc815ab"
 
   url "https://github.com/jasonhuzhensheng/WakeDisplay/releases/download/v#{version}/WakeDisplay-v#{version}.zip"
   name "WakeDisplay"
