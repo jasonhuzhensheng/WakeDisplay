@@ -39,6 +39,7 @@
 - ☀️ **户外模式（⌃⌥⌘B）** — MacBook 内建屏亮度拉满；Liquid Retina XDR 机型再借用 HDR 余量把整个画面提亮约 1.6 倍（全屏约 800 尼特），阳光下也看得清。关闭即恢复原亮度
 - 🧩 **桌面 / 通知中心小组件**（macOS 14+）— 小号：点一下唤醒；中号：唤醒、强制重置、户外模式、字体变大 / 变小、菜单六个按钮。右键桌面 →「编辑小组件」→ 搜索 WakeDisplay 添加
 - 🌐 **16 种界面语言**，默认跟随系统语言：English、简体中文、繁體中文、日本語、한국어、Español、Français、Deutsch、Português、Italiano、Русский、العربية、हिन्दी、Bahasa Indonesia、Türkçe、Tiếng Việt
+- 🔄 **自动更新** — 每 6 小时检查 GitHub 最新版本，自动下载、校验并安装后重启（户外模式开启时暂缓）。菜单 → ℹ️ 关于 → 可手动「检查更新」或关闭自动更新
 - 🔍 **缩放 / 字体大小** — 每块外接屏一个子菜单，列出系统隐藏的 HiDPI 分辨率；「更大文本 / 更小文本」与系统设置滑块等价
 - ✨ **原生分辨率清晰缩放** — 系统不给 HiDPI 选项的屏（如 2880×1800 便携屏）：显示器保持原生分辨率输出，界面「看起来像」1920×1200 等更大字号，依然清晰（虚拟 HiDPI 屏 + 镜像，BetterDisplay 同款原理）
 - ⚡️ **写入防断连电源策略** — 一键执行 `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0`（弹系统密码框，可随时恢复默认）
@@ -102,7 +103,7 @@ WakeDisplay 通过 [TelemetryDeck](https://telemetrydeck.com) 发送**匿名**�
 
 - **发送：** 版本号、macOS 版本、芯片架构、界面语言、外接屏数量、用了哪个功能（如「唤醒」「户外模式」）
 - **不发送：** 姓名、文件、显示器序列号或任何个人信息；用户标识是随机安装 ID 的加盐 SHA-256 哈希
-- **关闭：** 菜单 →「关于 WakeDisplay…」→ 取消勾选「发送匿名使用统计」，之后不再发送任何数据
+- **关闭：** 菜单 → ℹ️ 关于 → 取消勾选「发送匿名使用统计」，之后不再发送任何数据
 - 代码完全公开：[`Telemetry.swift`](Telemetry.swift)
 
 ### 常见问题
@@ -152,6 +153,7 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 - ☀️ **Outdoor mode (⌃⌥⌘B)** — built-in MacBook display to 100% brightness; on Liquid Retina XDR models it also uses the HDR headroom to brighten the whole desktop ~1.6× (≈800 nits full-screen) for direct sunlight. Turning it off restores your previous brightness
 - 🧩 **Desktop / Notification Center widget** (macOS 14+) — small: tap to wake; medium: six buttons for Wake, Force Reset, Outdoor, Larger / Smaller Text and Menu. Right-click the desktop → Edit Widgets → search "WakeDisplay"
 - 🌐 **16 UI languages**, following your system language by default: English, 简体中文, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português, Italiano, Русский, العربية, हिन्दी, Bahasa Indonesia, Türkçe, Tiếng Việt
+- 🔄 **Auto-update** — checks GitHub every 6 hours, downloads, verifies and installs the new version, then relaunches (postponed while Outdoor Mode is on). Menu → ℹ️ About → "Check for Updates…" or turn auto-update off
 - 🔍 **Scaling / text size** — one submenu per external display listing hidden HiDPI resolutions; "Larger / Smaller Text" behave like the System Settings slider
 - ✨ **Sharp scaling at native resolution** — for panels macOS gives no HiDPI options (e.g. a 2880×1800 portable screen): the panel keeps its native signal while the UI "looks like" 1920×1200 or another larger size, still sharp (HiDPI virtual display + mirroring, the same technique as BetterDisplay)
 - ⚡️ **Apply anti-disconnect power policy** — runs `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0` via the system password prompt (restore defaults any time)
@@ -215,7 +217,7 @@ WakeDisplay sends **anonymous** usage statistics via [TelemetryDeck](https://tel
 
 - **Sent:** app version, macOS version, CPU architecture, UI language, number of external displays, which feature was used (e.g. "wake", "outdoor mode")
 - **Never sent:** names, files, display serials or anything personal; the user ID is a salted SHA-256 hash of a random install ID
-- **Turn off:** menu → "About WakeDisplay…" → untick "Send Anonymous Usage Stats"; nothing is sent after that
+- **Turn off:** menu → ℹ️ About → untick "Send Anonymous Usage Stats"; nothing is sent after that
 - Fully open code: [`Telemetry.swift`](Telemetry.swift)
 
 ### FAQ

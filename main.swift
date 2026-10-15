@@ -486,6 +486,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             Telemetry.send("App.launched")
             Telemetry.dailyActiveIfNeeded()
         }
+        Updater.start()
         telemetryTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { _ in Telemetry.dailyActiveIfNeeded() }
     }
 
@@ -582,7 +583,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let langParent = NSMenuItem(title: "🌐 " + langTitle, action: nil, keyEquivalent: "")
         m.addItem(langParent); m.setSubmenu(langSub, for: langParent)
         m.addItem(item(L("Launch at Login"), #selector(actToggleLogin), state: FileManager.default.fileExists(atPath: launchAgent)))
-        m.addItem(item(L("About WakeDisplay…"), #selector(actAbout)))
+        let aboutSub = NSMenu()
+        aboutSub.addItem(item(L("About WakeDisplay…"), #selector(actAbout)))
+        aboutSub.addItem(.separator())
+        aboutSub.addItem(item(L("Check for Updates…"), #selector(actCheckUpdates)))
+        aboutSub.addItem(item(L("Install Updates Automatically"), #selector(actToggleAutoUpdate), state: Updater.autoUpdate))
+        aboutSub.addItem(.separator())
+        aboutSub.addItem(item(L("Send Anonymous Usage Stats"), #selector(actToggleTelemetry), state: Telemetry.enabled))
+        aboutSub.addItem(.separator())
+        let ver = NSMenuItem(title: "WakeDisplay v\(Updater.currentVersion)", action: nil, keyEquivalent: "")
+        ver.isEnabled = false
+        aboutSub.addItem(ver)
+        let aboutParent = NSMenuItem(title: "ℹ️ " + L("About"), action: nil, keyEquivalent: "")
+        m.addItem(aboutParent); m.setSubmenu(aboutSub, for: aboutParent)
         m.addItem(NSMenuItem(title: L("Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         return m
     }
@@ -599,6 +612,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             info(L("Outdoor Mode"), L("Brightness set to 100%. This display has no XDR headroom, so no extra boost is available beyond that."))
         }
     }
+
+    @objc func actCheckUpdates() { Updater.checkInteractively() }
+    @objc func actToggleAutoUpdate() { Updater.autoUpdate.toggle() }
+    @objc func actToggleTelemetry() { Telemetry.enabled.toggle() }
 
     @objc func actSetLang(_ s: NSMenuItem) {
         guard let code = s.representedObject as? String, let l = Lang(rawValue: code) else { return }
