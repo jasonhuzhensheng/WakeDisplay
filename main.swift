@@ -563,7 +563,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         m.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
     }
 
-    @objc func mouseEntered(with event: NSEvent) { wakeOnClick() }
+    @objc func mouseEntered(with event: NSEvent) { playWakeAnimation(); wakeOnClick() }
+
+    /// Hover feedback: the icon goes from dim to bright while the sun rises (0.5 s)
+    private var animTimer: Timer?
+    func playWakeAnimation() {
+        guard animTimer == nil, let b = statusItem.button else { return }
+        let start = Date(), duration = 0.5
+        b.alphaValue = 0.3
+        updateIcon(rise: 0)
+        animTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 30, repeats: true) { [weak self] t in
+            let p = min(1, Date().timeIntervalSince(start) / duration)
+            let e = 1 - pow(1 - p, 3)                       // ease-out
+            b.alphaValue = 0.3 + 0.7 * e
+            self?.updateIcon(rise: e)
+            if p >= 1 { t.invalidate(); self?.animTimer = nil; b.alphaValue = 1; self?.updateIcon() }
+        }
+        RunLoop.main.add(animTimer!, forMode: .common)   // keep animating while the menu is open
+    }
     @objc func mouseExited(with event: NSEvent) {}
 
     func menuNeedsUpdate(_ menu: NSMenu) {
@@ -757,12 +774,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     /// Menu-bar icon, drawn in code (no image files): a display with a rising sun.
     /// Outdoor Mode on → solid sun; Prevent Sleep on → small dot top-right. Template image, so it follows light/dark.
-    func updateIcon() {
+    /// `rise` 0…1: how far the sun has risen (used by the hover animation; 1 = normal icon)
+    func updateIcon(rise: CGFloat = 1) {
         let sunOn = outdoor.isOn, keepAwake = preventSleepID != 0
+        let drop = (1 - rise) * 4.5
         let img = NSImage(size: NSSize(width: 18, height: 18), flipped: true) { _ in
             NSColor.black.set()
             let screen = NSBezierPath(roundedRect: NSRect(x: 2.25, y: 3.25, width: 13.5, height: 9.5), xRadius: 1.6, yRadius: 1.6)
             screen.lineWidth = 1.5; screen.stroke()
+            NSGraphicsContext.saveGraphicsState()
+            NSBezierPath(rect: NSRect(x: 3, y: 4, width: 12, height: 8.6)).addClip()   // sun rises from behind the bezel
+            let tr = NSAffineTransform(); tr.translateX(by: 0, yBy: drop); tr.concat()
             let sun = NSBezierPath()
             sun.appendArc(withCenter: NSPoint(x: 9, y: 12), radius: 3.2, startAngle: 180, endAngle: 0, clockwise: false)
             if sunOn { sun.close(); sun.fill() } else { sun.lineWidth = 1.4; sun.stroke() }
@@ -771,6 +793,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 rays.move(to: NSPoint(x: a.0, y: a.1)); rays.line(to: NSPoint(x: b.0, y: b.1))
             }
             rays.stroke()
+            NSGraphicsContext.restoreGraphicsState()
             let stand = NSBezierPath(); stand.lineWidth = 1.5; stand.lineCapStyle = .round
             stand.move(to: NSPoint(x: 6, y: 15.6)); stand.line(to: NSPoint(x: 12, y: 15.6)); stand.stroke()
             if keepAwake { NSBezierPath(ovalIn: NSRect(x: 13.6, y: 0.4, width: 4, height: 4)).fill() }
