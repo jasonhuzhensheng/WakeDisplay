@@ -22,7 +22,7 @@ macOS only generates HiDPI scaling modes for displays with high enough pixel den
 
 Options:
 • Pick a lower non-HiDPI resolution here (e.g. 1600×900): bigger text, slightly soft.
-• For "big and sharp" you need a virtual HiDPI display mirrored onto the physical one (BetterDisplay's approach); this may be added to WakeDisplay later.
+• For "big and sharp", turn on "Sharp Scaling at Native Resolution" in this submenu: WakeDisplay renders the desktop on a HiDPI virtual display and mirrors your panel onto it, so the panel keeps its native resolution while text gets larger.
 """
 let hidpiHelpZH = """
 macOS 只对像素密度足够高的显示器（通常 ≥ 4K）自动提供 HiDPI 缩放模式。
@@ -30,7 +30,7 @@ macOS 只对像素密度足够高的显示器（通常 ≥ 4K）自动提供 HiD
 
 可选方案：
 • 先在本菜单里选一个较低的非 HiDPI 分辨率（如 1600×900），字体会变大但略模糊；
-• 要「既大又清晰」，需要创建一块虚拟 HiDPI 屏再镜像到物理屏（BetterDisplay 的做法），本工具后续可加入该功能。
+• 要「既大又清晰」，打开本子菜单里的「原生分辨率清晰缩放」：WakeDisplay 会创建一块虚拟 HiDPI 屏并把物理屏镜像过去，显示器保持原生分辨率，字体变大且清晰。
 """
 let aboutEN = """
 macOS menu-bar utility: wake dark USB-C external displays with one click and unlock the HiDPI scaling modes macOS hides.
@@ -66,6 +66,10 @@ let zhTable: [String: String] = [
     "  HiDPI (sharp)": "  HiDPI（清晰）",
     "⚠️ No HiDPI modes for this display (help)": "⚠️ 此显示器没有可用的 HiDPI 模式（见帮助）",
     "Display ": "显示器 ",
+    "Sharp Scaling at Native Resolution": "原生分辨率清晰缩放",
+    "Looks like ": "看起来像 ",
+    "⚠️ No HiDPI modes — turn on Sharp Scaling above (help)": "⚠️ 没有 HiDPI 模式，请打开上面的清晰缩放（帮助）",
+    "Could not create the HiDPI virtual display on this Mac.": "无法在这台 Mac 上创建 HiDPI 虚拟显示器。",
     "Apply Anti-Disconnect Power Policy (sudo pmset)": "写入防断连电源策略（sudo pmset）",
     "Restore Default Power Policy": "恢复系统默认电源策略",
     "Show Current Power Settings": "查看当前电源参数",
@@ -153,7 +157,7 @@ func externalDisplays() -> [CGDirectDisplayID] {
 }
 func mirrorToggle() {
     let main = CGMainDisplayID()
-    let exts = externalDisplays().filter { $0 != main }
+    let exts = physicalExternals().filter { $0 != main && hidpiVirtuals[$0] == nil }
     guard !exts.isEmpty else { return }
     var cfg: CGDisplayConfigRef?
     if CGBeginDisplayConfiguration(&cfg) == .success {
@@ -243,7 +247,7 @@ func scaleModes(for d: CGDirectDisplayID) -> [ScaleMode] {
 }
 func displayName(_ d: CGDirectDisplayID) -> String {
     for s in NSScreen.screens where (s.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID) == d { return s.localizedName }
-    return L("Display ") + "\(d)"
+    return nameCache[d] ?? L("Display ") + "\(d)"
 }
 func setMode(_ d: CGDirectDisplayID, _ m: CGDisplayMode) {
     var cfg: CGDisplayConfigRef?
@@ -259,6 +263,134 @@ func stepText(_ d: CGDirectDisplayID, larger: Bool) {
     let next = larger ? idx + 1 : idx - 1
     guard modes.indices.contains(next) else { return }
     setMode(d, modes[next].mode)
+}
+
+// MARK: - Sharp scaling at native resolution (HiDPI virtual display)
+//
+// macOS only offers "Larger Text" HiDPI modes for displays it considers dense enough. For others
+// (e.g. a 2880×1800 portable screen) we create an invisible HiDPI virtual display, render the
+// desktop there at 2× (e.g. "looks like 1920×1200" → 3840×2400 pixels), and mirror the physical
+// display onto it. The panel keeps receiving its native 2880×1800 signal, but text is larger
+// and still sharp. This is the same technique BetterDisplay uses.
+
+let kVirtualVendor: UInt32 = 0x3141, kVirtualProduct: UInt32 = 0x5744
+var hidpiVirtuals: [CGDirectDisplayID: CGVirtualDisplay] = [:]   // physical ID → virtual display
+var nameCache: [CGDirectDisplayID: String] = [:]
+
+func isVirtual(_ d: CGDirectDisplayID) -> Bool {
+    CGDisplayVendorNumber(d) == kVirtualVendor && CGDisplayModelNumber(d) == kVirtualProduct
+}
+/// Physical external displays (excludes our own virtual displays)
+func physicalExternals() -> [CGDirectDisplayID] { externalDisplays().filter { !isVirtual($0) } }
+/// Where scaling changes should be applied: the virtual display if sharp scaling is on, else the display itself
+func scalingTarget(_ d: CGDirectDisplayID) -> CGDirectDisplayID { hidpiVirtuals[d]?.displayID ?? d }
+
+func displayKey(_ d: CGDirectDisplayID) -> String {
+    "hidpi.\(CGDisplayVendorNumber(d))-\(CGDisplayModelNumber(d))-\(CGDisplaySerialNumber(d))"
+}
+
+/// Largest non-HiDPI mode = the panel's native pixel resolution
+func nativeMode(_ d: CGDirectDisplayID) -> CGDisplayMode? {
+    let opts = [kCGDisplayShowDuplicateLowResolutionModes: kCFBooleanTrue] as CFDictionary
+    let all = (CGDisplayCopyAllDisplayModes(d, opts) as? [CGDisplayMode] ?? []).filter { $0.isUsableForDesktopGUI() }
+    let cur = CGDisplayCopyDisplayMode(d)
+    return all.filter { $0.pixelWidth == $0.width }
+        .max { a, b in
+            if a.pixelWidth != b.pixelWidth { return a.pixelWidth < b.pixelWidth }
+            if let c = cur { return abs(a.refreshRate - c.refreshRate) > abs(b.refreshRate - c.refreshRate) }
+            return a.refreshRate < b.refreshRate
+        }
+}
+
+/// "Looks like" sizes offered for a W×H panel: from 1/2 (largest text) up to native (smallest text)
+func logicalSizes(_ W: Int, _ H: Int) -> [(w: Int, h: Int)] {
+    let factors: [Double] = [1.0, 0.8889, 0.8, 0.75, 0.6667, 0.5833, 0.5]
+    var out: [(Int, Int)] = []
+    for f in factors {
+        let w = Int((Double(W) * f / 8).rounded()) * 8
+        let h = Int((Double(w) * Double(H) / Double(W) / 2).rounded()) * 2
+        if !out.contains(where: { $0.0 == w }) { out.append((w, h)) }
+    }
+    return out.map { (w: $0.0, h: $0.1) }
+}
+
+/// Pick the virtual display's HiDPI mode whose logical width is closest to `width`
+func virtualMode(_ v: CGDirectDisplayID, width: Int) -> CGDisplayMode? {
+    scaleModes(for: v).filter { $0.hidpi }.min { abs($0.w - width) < abs($1.w - width) }?.mode
+}
+
+@discardableResult
+func enableSharpScaling(_ physical: CGDirectDisplayID, width wanted: Int? = nil) -> Bool {
+    if hidpiVirtuals[physical] != nil { return true }
+    guard let native = nativeMode(physical) else { return false }
+    nameCache[physical] = displayName(physical)
+    let W = native.pixelWidth, H = native.pixelHeight
+    let hz = native.refreshRate > 0 ? native.refreshRate : 60
+
+    let desc = CGVirtualDisplayDescriptor()
+    desc.queue = DispatchQueue.main
+    desc.name = "WakeDisplay HiDPI"
+    desc.maxPixelsWide = UInt32(W * 2)
+    desc.maxPixelsHigh = UInt32(H * 2)
+    let mm = CGDisplayScreenSize(physical)
+    desc.sizeInMillimeters = mm.width > 0 ? mm : CGSize(width: 340, height: 212)
+    desc.vendorID = kVirtualVendor
+    desc.productID = kVirtualProduct
+    desc.serialNum = physical
+    desc.terminationHandler = { _, _ in }
+
+    let vd = CGVirtualDisplay(descriptor: desc)
+    let settings = CGVirtualDisplaySettings()
+    settings.hiDPI = 1
+    // Modes are given in backing pixels (2× the "looks like" size); macOS derives the HiDPI variants
+    settings.modes = logicalSizes(W, H).map { CGVirtualDisplayMode(width: $0.w * 2, height: $0.h * 2, refreshRate: CGFloat(hz)) }
+    if !vd.apply(settings) {
+        settings.modes = logicalSizes(W, H).map { CGVirtualDisplayMode(width: $0.w * 2, height: $0.h * 2, refreshRate: 60) }
+        guard vd.apply(settings) else { return false }
+    }
+    hidpiVirtuals[physical] = vd
+    let vid = vd.displayID
+    let sizes = logicalSizes(W, H)
+    let target = wanted ?? (UserDefaults.standard.object(forKey: displayKey(physical)) as? Int) ?? sizes[min(4, sizes.count - 1)].w   // default ≈ 2/3, e.g. 1920 on a 2880 panel
+
+    // Give WindowServer a moment to bring the virtual display online, then mirror the panel onto it
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+        var cfg: CGDisplayConfigRef?
+        guard CGBeginDisplayConfiguration(&cfg) == .success else { return }
+        CGConfigureDisplayWithDisplayMode(cfg, physical, native, nil)       // panel stays at native pixels
+        if let m = virtualMode(vid, width: target) { CGConfigureDisplayWithDisplayMode(cfg, vid, m, nil) }
+        CGConfigureDisplayMirrorOfDisplay(cfg, physical, vid)              // panel shows the HiDPI desktop
+        CGCompleteDisplayConfiguration(cfg, .forSession)
+    }
+    UserDefaults.standard.set(target, forKey: displayKey(physical))
+    return true
+}
+
+func disableSharpScaling(_ physical: CGDirectDisplayID) {
+    guard hidpiVirtuals[physical] != nil else { return }
+    var cfg: CGDisplayConfigRef?
+    if CGBeginDisplayConfiguration(&cfg) == .success {
+        CGConfigureDisplayMirrorOfDisplay(cfg, physical, kCGNullDirectDisplay)
+        CGCompleteDisplayConfiguration(cfg, .forSession)
+    }
+    hidpiVirtuals[physical] = nil          // releasing the object removes the virtual display
+    UserDefaults.standard.removeObject(forKey: displayKey(physical))
+}
+
+/// Re-enable sharp scaling for displays where it was on last time
+func restoreSharpScaling() {
+    for d in physicalExternals() where UserDefaults.standard.object(forKey: displayKey(d)) != nil {
+        enableSharpScaling(d)
+    }
+}
+
+/// Larger / smaller text on whatever drives the panel (virtual HiDPI display if sharp scaling is on)
+func stepScaled(_ physical: CGDirectDisplayID, larger: Bool) {
+    let t = scalingTarget(physical)
+    stepText(t, larger: larger)
+    if hidpiVirtuals[physical] != nil, let m = CGDisplayCopyDisplayMode(t) {
+        UserDefaults.standard.set(m.width, forKey: displayKey(physical))
+    }
 }
 
 // MARK: - Menu-bar app
@@ -279,6 +411,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.delegate = self
         statusItem.menu = menu
         registerHotKeys()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { restoreSharpScaling() }
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
@@ -303,20 +436,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         m.addItem(item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0))
         m.addItem(item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil))
         m.addItem(.separator())
-        for d in externalDisplays() {
+        for d in physicalExternals() {
             let sub = NSMenu()
+            let sharp = hidpiVirtuals[d] != nil
+            let target = scalingTarget(d)
             sub.addItem(item(L("Larger Text  ⌘⇧+"), #selector(actLarger(_:)), obj: d))
             sub.addItem(item(L("Smaller Text  ⌘⇧−"), #selector(actSmaller(_:)), obj: d))
             sub.addItem(.separator())
-            let cur = CGDisplayCopyDisplayMode(d)
-            let modes = scaleModes(for: d)
-            if !modes.contains(where: { $0.hidpi }) {
-                sub.addItem(item(L("⚠️ No HiDPI modes for this display (help)"), #selector(actHiDPIHelp)))
+            var nativeLabel = ""
+            if let n = nativeMode(d) { nativeLabel = " (\(n.pixelWidth) × \(n.pixelHeight))" }
+            sub.addItem(item("✨ " + L("Sharp Scaling at Native Resolution") + nativeLabel, #selector(actToggleSharp(_:)), state: sharp, obj: d))
+            sub.addItem(.separator())
+            let cur = CGDisplayCopyDisplayMode(target)
+            var modes = scaleModes(for: target)
+            if sharp {
+                // Only the HiDPI "looks like" modes matter on the virtual display
+                modes = modes.filter { $0.hidpi }
+            } else if !modes.contains(where: { $0.hidpi }) {
+                sub.addItem(item(L("⚠️ No HiDPI modes — turn on Sharp Scaling above (help)"), #selector(actHiDPIHelp)))
                 sub.addItem(.separator())
             }
             for sm in modes {
                 let on = cur.map { $0.width == sm.w && $0.height == sm.h && ($0.pixelWidth > $0.width) == sm.hidpi } ?? false
-                sub.addItem(item(sm.title, #selector(actSetMode(_:)), state: on, obj: [d, sm.mode] as [Any]))
+                let title = sharp ? L("Looks like ") + "\(sm.w) × \(sm.h)" : sm.title
+                sub.addItem(item(title, #selector(actSetMode(_:)), state: on, obj: [d, sm.mode] as [Any]))
             }
             let parent = NSMenuItem(title: "🔍 " + L("Scaling / Text Size — ") + displayName(d), action: nil, keyEquivalent: "")
             m.addItem(parent); m.setSubmenu(sub, for: parent)
@@ -348,11 +491,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         UserDefaults.standard.set(code, forKey: "lang")   // remembered across launches
     }
 
-    @objc func actLarger(_ s: NSMenuItem) { if let d = s.representedObject as? CGDirectDisplayID { stepText(d, larger: true) } }
-    @objc func actSmaller(_ s: NSMenuItem) { if let d = s.representedObject as? CGDirectDisplayID { stepText(d, larger: false) } }
+    @objc func actLarger(_ s: NSMenuItem) { if let d = s.representedObject as? CGDirectDisplayID { stepScaled(d, larger: true) } }
+    @objc func actSmaller(_ s: NSMenuItem) { if let d = s.representedObject as? CGDirectDisplayID { stepScaled(d, larger: false) } }
     @objc func actSetMode(_ s: NSMenuItem) {
-        guard let arr = s.representedObject as? [Any], let d = arr[0] as? CGDirectDisplayID else { return }
-        setMode(d, arr[1] as! CGDisplayMode)
+        guard let arr = s.representedObject as? [Any], let d = arr[0] as? CGDirectDisplayID, let m = arr[1] as? CGDisplayMode else { return }
+        setMode(scalingTarget(d), m)
+        if hidpiVirtuals[d] != nil { UserDefaults.standard.set(m.width, forKey: displayKey(d)) }
+    }
+    @objc func actToggleSharp(_ s: NSMenuItem) {
+        guard let d = s.representedObject as? CGDirectDisplayID else { return }
+        if hidpiVirtuals[d] != nil { disableSharpScaling(d) }
+        else if !enableSharpScaling(d) { info(L("Failed"), L("Could not create the HiDPI virtual display on this Mac.")) }
     }
     @objc func actHiDPIHelp() { info(L("No HiDPI modes — what now?"), L(hidpiHelpEN)) }
 
@@ -360,7 +509,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc func actToggleAutoWake() {
         if let t = autoWakeTimer { t.invalidate(); autoWakeTimer = nil; return }
         autoWakeTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
-            let exts = externalDisplays()
+            let exts = physicalExternals()
             let builtinAwake = CGDisplayIsAsleep(CGMainDisplayID()) == 0
             if builtinAwake && exts.contains(where: { CGDisplayIsAsleep($0) != 0 }) { wakeSoft() }
         }
@@ -443,8 +592,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             GetEventParameter(evt, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID), nil, MemoryLayout<EventHotKeyID>.size, nil, &hk)
             switch hk.id {
             case 1: wakeSoft()
-            case 2: if let d = externalDisplays().first { stepText(d, larger: true) }
-            case 3: if let d = externalDisplays().first { stepText(d, larger: false) }
+            case 2: if let d = physicalExternals().first { stepScaled(d, larger: true) }
+            case 3: if let d = physicalExternals().first { stepScaled(d, larger: false) }
             default: break
             }
             return noErr

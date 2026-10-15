@@ -30,6 +30,7 @@
 - 🤖 **自动唤醒** — 每 5 秒检测：内屏醒着、外屏却在休眠 → 自动点亮
 - ☕️ **阻止显示器休眠** — 等价于常驻 `caffeinate -d`
 - 🔍 **缩放 / 字体大小** — 每块外接屏一个子菜单，列出系统隐藏的 HiDPI 分辨率；「更大文本 / 更小文本」与系统设置滑块等价
+- ✨ **原生分辨率清晰缩放** — 系统不给 HiDPI 选项的屏（如 2880×1800 便携屏）：显示器保持原生分辨率输出，界面「看起来像」1920×1200 等更大字号，依然清晰（虚拟 HiDPI 屏 + 镜像，BetterDisplay 同款原理）
 - ⚡️ **写入防断连电源策略** — 一键执行 `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0`（弹系统密码框，可随时恢复默认）
 - 🧹 **清除显示器缓存（EDID）** — 删除 `com.apple.windowserver.displays.plist` 并重启
 - 🌐 **界面语言**：默认英文，右键菜单 → Language → 中文 即可切换（自动记住）
@@ -79,7 +80,7 @@ open /Applications/WakeDisplay.app
 
 **点了没反应？** 先确认显示器 OSD 调得出来。调不出来且电源灯亮 → 彻底断电放电（拔掉所有线、按住电源键 15 秒、等 30 秒）；仍不亮 → 用手机 / iPad 直连测试显示器本身是否故障。
 
-**缩放子菜单里没有 HiDPI 项？** 显示器像素密度不够（1080p / 2K 屏一般没有），或 EDID 上报的物理尺寸异常。前者只能选低分辩率（略模糊），后者可通过显示器 override 文件修正——欢迎开 issue 附上显示器型号。
+**缩放子菜单里没有 HiDPI 项？** 打开子菜单里的「✨ 原生分辨率清晰缩放」，然后在「看起来像」列表里选字号，或用 ⌘⇧+ / ⌘⇧− 逐级调整。设置会记住，下次启动自动恢复。
 
 **写入电源策略后笔记本更耗电？** 是的，`sleep 0` 会阻止深度休眠。不需要时点「恢复系统默认电源策略」即可。
 
@@ -93,10 +94,11 @@ open /Applications/WakeDisplay.app
 | DDC/CI 电源指令 | `IOAVServiceWriteI2C` 向 `DCPAVServiceProxy`（Location = External）写 VCP 0xD6 = 1（与 [m1ddc](https://github.com/waydabber/m1ddc) 同一通路） |
 | 重新探测 | `IOServiceRequestProbe` 遍历 `IODisplayConnect` / `AppleCLCD2` / `DCPAVControllerProxy` 等 |
 | 镜像重连 | `CGConfigureDisplayMirrorOfDisplay` 开 → 1.5 s → 关 |
+| 原生分辨率清晰缩放 | 私有 `CGVirtualDisplay`（hiDPI=1）创建虚拟屏，`CGConfigureDisplayMirrorOfDisplay` 把物理屏镜像到虚拟屏 |
 | 隐藏 HiDPI 模式 | `CGDisplayCopyAllDisplayModes` + `kCGDisplayShowDuplicateLowResolutionModes`，`CGConfigureDisplayWithDisplayMode` 持久切换 |
 | 全局快捷键 | Carbon `RegisterEventHotKey` |
 
-单文件 Swift，无第三方依赖，约 400 行。
+Swift 单文件 + 一个私有 API 头文件（`CGVirtualDisplay.h`），无第三方依赖。
 
 ---
 
@@ -119,6 +121,7 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 - 🤖 **Auto-wake** — every 5 s: if the built-in display is awake but an external one is asleep, wake it
 - ☕️ **Prevent display sleep** — a persistent `caffeinate -d`
 - 🔍 **Scaling / text size** — one submenu per external display listing hidden HiDPI resolutions; "Larger / Smaller Text" behave like the System Settings slider
+- ✨ **Sharp scaling at native resolution** — for panels macOS gives no HiDPI options (e.g. a 2880×1800 portable screen): the panel keeps its native signal while the UI "looks like" 1920×1200 or another larger size, still sharp (HiDPI virtual display + mirroring, the same technique as BetterDisplay)
 - ⚡️ **Apply anti-disconnect power policy** — runs `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0` via the system password prompt (restore defaults any time)
 - 🧹 **Reset display cache (EDID)** — deletes `com.apple.windowserver.displays.plist` and reboots
 - 🌐 **UI language**: English by default; switch to Chinese via right-click → Language → 中文 (remembered)
@@ -168,7 +171,7 @@ open /Applications/WakeDisplay.app
 
 **Nothing happens when I click?** First check the monitor's own OSD comes up. If it doesn't and the power LED is on → full power drain (unplug everything, hold power 15 s, wait 30 s). Still dark → test the monitor with a phone / iPad to rule out hardware failure.
 
-**No HiDPI entries in the scaling submenu?** Either the pixel density is too low (1080p / 2K panels usually have none) or the EDID reports an odd physical size. The former only allows lower non-HiDPI resolutions (slightly soft); the latter can be fixed with a display override file — open an issue with your monitor model.
+**No HiDPI entries in the scaling submenu?** Turn on "✨ Sharp Scaling at Native Resolution" in that submenu, then pick a size from the "Looks like" list or step with ⌘⇧+ / ⌘⇧−. The choice is remembered and restored at launch.
 
 **Laptop drains faster after applying the power policy?** Yes, `sleep 0` prevents deep sleep. Use "Restore default power policy" when you don't need it.
 
@@ -182,10 +185,11 @@ open /Applications/WakeDisplay.app
 | DDC/CI power command | `IOAVServiceWriteI2C` to `DCPAVServiceProxy` (Location = External), VCP 0xD6 = 1 — same path as [m1ddc](https://github.com/waydabber/m1ddc) |
 | Re-probe | `IOServiceRequestProbe` over `IODisplayConnect` / `AppleCLCD2` / `DCPAVControllerProxy` etc. |
 | Mirror reconnect | `CGConfigureDisplayMirrorOfDisplay` on → 1.5 s → off |
+| Sharp scaling at native resolution | Private `CGVirtualDisplay` (hiDPI=1) virtual display; `CGConfigureDisplayMirrorOfDisplay` mirrors the panel onto it |
 | Hidden HiDPI modes | `CGDisplayCopyAllDisplayModes` + `kCGDisplayShowDuplicateLowResolutionModes`; `CGConfigureDisplayWithDisplayMode` with `.permanently` |
 | Global hotkeys | Carbon `RegisterEventHotKey` |
 
-Single-file Swift, no third-party dependencies, ~400 lines.
+Single Swift file plus one private-API header (`CGVirtualDisplay.h`), no third-party dependencies.
 
 ---
 
