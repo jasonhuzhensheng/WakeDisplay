@@ -289,17 +289,21 @@ func displayKey(_ d: CGDirectDisplayID) -> String {
     "hidpi.\(CGDisplayVendorNumber(d))-\(CGDisplayModelNumber(d))-\(CGDisplaySerialNumber(d))"
 }
 
-/// Largest non-HiDPI mode = the panel's native pixel resolution
+/// The mode that drives the panel at its highest real pixel count (= native resolution).
+/// Some panels (e.g. 2880×1800 portables) only expose native pixels through a HiDPI mode such as
+/// "1440×900 HiDPI", so compare backing pixels, not logical size. Prefer the current refresh rate.
 func nativeMode(_ d: CGDirectDisplayID) -> CGDisplayMode? {
     let opts = [kCGDisplayShowDuplicateLowResolutionModes: kCFBooleanTrue] as CFDictionary
     let all = (CGDisplayCopyAllDisplayModes(d, opts) as? [CGDisplayMode] ?? []).filter { $0.isUsableForDesktopGUI() }
     let cur = CGDisplayCopyDisplayMode(d)
-    return all.filter { $0.pixelWidth == $0.width }
-        .max { a, b in
-            if a.pixelWidth != b.pixelWidth { return a.pixelWidth < b.pixelWidth }
-            if let c = cur { return abs(a.refreshRate - c.refreshRate) > abs(b.refreshRate - c.refreshRate) }
-            return a.refreshRate < b.refreshRate
+    return all.max { a, b in
+        let pa = a.pixelWidth * a.pixelHeight, pb = b.pixelWidth * b.pixelHeight
+        if pa != pb { return pa < pb }
+        if let c = cur, a.refreshRate != b.refreshRate {
+            return abs(a.refreshRate - c.refreshRate) > abs(b.refreshRate - c.refreshRate)
         }
+        return (a.pixelWidth > a.width) && !(b.pixelWidth > b.width)   // tie: prefer the HiDPI variant
+    }
 }
 
 /// "Looks like" sizes offered for a W×H panel: from 1/2 (largest text) up to native (smallest text)
