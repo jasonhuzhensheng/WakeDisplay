@@ -570,6 +570,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationWillTerminate(_ n: Notification) { outdoor.stop() }
 
+    /// Commands from the desktop widget (and anything else): wakedisplay://wake | reset | outdoor | larger | smaller | menu
+    func application(_ application: NSApplication, open urls: [URL]) {
+        for url in urls where url.scheme == "wakedisplay" {
+            switch url.host ?? "" {
+            case "wake":    wakeSoft()
+            case "reset":   wakeHard()
+            case "outdoor": actToggleOutdoor()
+            case "larger":  if let d = physicalExternals().first { stepScaled(d, larger: true) }
+            case "smaller": if let d = physicalExternals().first { stepScaled(d, larger: false) }
+            case "menu":    popMenuAtMouse()
+            default: break
+            }
+        }
+    }
+
     /// ⌃⌥⌘M: open the menu at the mouse pointer (works even if the icon is hidden behind the notch)
     func popMenuAtMouse() {
         let m = buildMenu()

@@ -6,7 +6,7 @@ name: Release
 on:
   push:
     branches: [main]
-    paths: ['build.sh', 'main.swift', 'CGVirtualDisplay.h']
+    paths: ['build.sh', 'main.swift', 'CGVirtualDisplay.h', 'Widget/**']
   workflow_dispatch:
 
 permissions:
@@ -23,7 +23,7 @@ jobs:
       - name: Read version from build.sh
         id: v
         run: |
-          VER=$(grep -m1 'CFBundleShortVersionString' build.sh | sed -E 's/.*<string>([^<]+)<\/string>.*/\1/')
+          VER=$(grep -m1 '^VERSION=' build.sh | sed -E 's/^VERSION="?([^"]+)"?.*/\1/')
           echo "version=$VER" >> "$GITHUB_OUTPUT"
           if git rev-parse -q --verify "refs/tags/v$VER" >/dev/null; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
