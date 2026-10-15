@@ -47,6 +47,14 @@
 
 ### 安装
 
+**方式一：直接下载（推荐）**
+到 [Releases](https://github.com/jasonhuzhensheng/WakeDisplay/releases/latest) 下载最新的 `WakeDisplay-vX.Y.zip`，解压后拖到「应用程序」。应用未经 Apple 公证，首次启动前执行：
+```bash
+xattr -dr com.apple.quarantine /Applications/WakeDisplay.app
+```
+
+**方式二：从源码编译**
+
 ```bash
 git clone https://github.com/jasonhuzhensheng/WakeDisplay.git
 cd WakeDisplay
@@ -137,6 +145,14 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 | Display | Any USB-C / DP external display. DDC wake requires **DDC/CI enabled** in the monitor's OSD; HiDPI modes generally need 4K or higher |
 
 ### Install
+
+**Option 1: download (recommended)**
+Grab the latest `WakeDisplay-vX.Y.zip` from [Releases](https://github.com/jasonhuzhensheng/WakeDisplay/releases/latest), unzip, and move it to Applications. The app is not notarized, so before the first launch run:
+```bash
+xattr -dr com.apple.quarantine /Applications/WakeDisplay.app
+```
+
+**Option 2: build from source**
 
 ```bash
 git clone https://github.com/jasonhuzhensheng/WakeDisplay.git

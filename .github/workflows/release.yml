@@ -1,0 +1,63 @@
+# Auto-release: whenever main gets a new version number in build.sh, build the app on a
+# macOS runner, zip it and publish a GitHub Release (tag vX.Y) with auto-generated notes.
+# 自动发布：build.sh 里的版本号变了并推到 main，就自动编译、打包、创建 Release。
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths: ['build.sh', 'main.swift', 'CGVirtualDisplay.h']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-14   # Apple Silicon runner
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version from build.sh
+        id: v
+        run: |
+          VER=$(grep -m1 'CFBundleShortVersionString' build.sh | sed -E 's/.*<string>([^<]+)<\/string>.*/\1/')
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          if git rev-parse -q --verify "refs/tags/v$VER" >/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "v$VER already released — nothing to do."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build
+        if: steps.v.outputs.exists == 'false'
+        run: |
+          chmod +x build.sh
+          SKIP_INSTALL=1 ./build.sh
+          ditto -c -k --keepParent WakeDisplay.app "WakeDisplay-v${{ steps.v.outputs.version }}.zip"
+
+      - name: Publish release
+        if: steps.v.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VER: ${{ steps.v.outputs.version }}
+        run: |
+          cat > notes.md <<NOTES
+          ## Install / 安装
+
+          1. Download \`WakeDisplay-v${VER}.zip\` below and unzip / 下载下方 zip 并解压
+          2. Move \`WakeDisplay.app\` to **Applications** / 拖到「应用程序」
+          3. First launch (app is not notarized) / 首次启动（未经 Apple 公证）：
+             \`xattr -dr com.apple.quarantine /Applications/WakeDisplay.app\` then open it / 然后打开
+
+          Requires macOS 12+ on Apple Silicon / 需要 macOS 12+，Apple Silicon
+
+          NOTES
+          gh release create "v${VER}" "WakeDisplay-v${VER}.zip" \
+            --title "WakeDisplay v${VER}" \
+            --notes-file notes.md \
+            --generate-notes \
+            --target "$GITHUB_SHA"
