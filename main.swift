@@ -312,6 +312,7 @@ func restoreSharpScaling() {
 func stepScaled(_ physical: CGDirectDisplayID, larger: Bool) {
     let t = scalingTarget(physical)
     stepText(t, larger: larger)
+    PerDisplay.saveMode(physical)
     if hidpiVirtuals[physical] != nil, let m = CGDisplayCopyDisplayMode(t) {
         UserDefaults.standard.set(m.width, forKey: displayKey(physical))
     }
@@ -481,7 +482,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.delegate = self
         statusItem.menu = menu
         registerHotKeys()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { restoreSharpScaling() }
+        SoftDisconnect.reconnectAll()          // never leave a monitor switched off from a previous run
+        startDisplayWatcher()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { PerDisplay.restoreAll() }
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
             Telemetry.send("App.launched")
             Telemetry.dailyActiveIfNeeded()
@@ -490,7 +493,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         telemetryTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { _ in Telemetry.dailyActiveIfNeeded() }
     }
 
-    func applicationWillTerminate(_ n: Notification) { outdoor.stop() }
+    func applicationWillTerminate(_ n: Notification) { outdoor.stop(); SoftDisconnect.reconnectAll() }
 
     /// Commands from the desktop widget (and anything else): wakedisplay://wake | reset | outdoor | larger | smaller | menu
     func application(_ application: NSApplication, open urls: [URL]) {
@@ -567,6 +570,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let parent = NSMenuItem(title: "🔍 " + L("Scaling / Text Size — ") + displayName(d), action: nil, keyEquivalent: "")
             m.addItem(parent); m.setSubmenu(sub, for: parent)
         }
+        m.addItem(AdvancedMenu.shared.build())
         m.addItem(.separator())
         m.addItem(item("⚡️ " + L("Apply Anti-Disconnect Power Policy (sudo pmset)"), #selector(actApplyPmset)))
         m.addItem(item("↩️ " + L("Restore Default Power Policy"), #selector(actRestorePmset)))
@@ -630,6 +634,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let m = arr[1] as! CGDisplayMode
         setMode(scalingTarget(d), m)
         if hidpiVirtuals[d] != nil { UserDefaults.standard.set(m.width, forKey: displayKey(d)) }
+        else { PerDisplay.saveMode(d) }
     }
     @objc func actToggleSharp(_ s: NSMenuItem) {
         guard let d = s.representedObject as? CGDirectDisplayID else { return }
@@ -736,6 +741,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             case 3: if let d = physicalExternals().first { stepScaled(d, larger: false) }
             case 4: outdoor.toggle()
             case 5: (NSApp.delegate as? AppDelegate)?.popMenuAtMouse()
+            case 6: DDC.step(10)
+            case 7: DDC.step(-10)
             default: break
             }
             return noErr
@@ -752,6 +759,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         var ref5: EventHotKeyRef?
         RegisterEventHotKey(UInt32(kVK_ANSI_M), UInt32(cmdKey | optionKey | controlKey), EventHotKeyID(signature: 0x57414B45, id: 5), GetApplicationEventTarget(), 0, &ref5)
         hotKeyRefs.append(ref5)
+        for (code, id) in [(UInt32(kVK_UpArrow), UInt32(6)), (UInt32(kVK_DownArrow), UInt32(7))] {
+            var r: EventHotKeyRef?
+            RegisterEventHotKey(code, UInt32(cmdKey | optionKey | controlKey), EventHotKeyID(signature: 0x57414B45, id: id), GetApplicationEventTarget(), 0, &r)
+            hotKeyRefs.append(r)
+        }
     }
 
     // MARK: dialogs

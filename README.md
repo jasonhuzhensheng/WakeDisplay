@@ -40,6 +40,12 @@
 - 🧩 **桌面 / 通知中心小组件**（macOS 14+）— 小号：点一下唤醒；中号：唤醒、强制重置、户外模式、字体变大 / 变小、菜单六个按钮。右键桌面 →「编辑小组件」→ 搜索 WakeDisplay 添加
 - 🌐 **16 种界面语言**，默认跟随系统语言：English、简体中文、繁體中文、日本語、한국어、Español、Français、Deutsch、Português、Italiano、Русский、العربية、हिन्दी、Bahasa Indonesia、Türkçe、Tiếng Việt
 - 🔄 **自动更新** — 每 6 小时检查 GitHub 最新版本，自动下载、校验并安装后重启（户外模式开启时暂缓）。菜单 → ℹ️ 关于 → 可手动「检查更新」或关闭自动更新
+- ⚙️ **高级**（菜单 → ⚙️ 高级）
+  - ☀︎ 外接屏亮度（DDC，⌃⌥⌘↑ / ⌃⌥⌘↓）· 🔊 音量 / 静音 · 🔌 切换输入源（USB-C / DP / HDMI）
+  - 🌙 额外调暗：在显示器最低亮度之下再压暗 25% / 50% / 75%
+  - ⏱ 刷新率快速切换 · 👁 不拔线断开某台显示器（可一键重新连接）
+  - 🗂 布局预设：保存 / 应用 3 套多屏排列
+  - 💾 按显示器记住设置：插上哪台屏自动恢复它的分辨率、刷新率和亮度
 - 🔍 **缩放 / 字体大小** — 每块外接屏一个子菜单，列出系统隐藏的 HiDPI 分辨率；「更大文本 / 更小文本」与系统设置滑块等价
 - ✨ **原生分辨率清晰缩放** — 系统不给 HiDPI 选项的屏（如 2880×1800 便携屏）：显示器保持原生分辨率输出，界面「看起来像」1920×1200 等更大字号，依然清晰（虚拟 HiDPI 屏 + 镜像，BetterDisplay 同款原理）
 - ⚡️ **写入防断连电源策略** — 一键执行 `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0`（弹系统密码框，可随时恢复默认）
@@ -96,6 +102,7 @@ open /Applications/WakeDisplay.app
 | ⌘⇧− | 更小文本 |
 | ⌃⌥⌘B | 户外模式开 / 关 |
 | ⌃⌥⌘M | 在鼠标位置弹出菜单（图标被刘海挡住时用） |
+| ⌃⌥⌘↑ / ⌃⌥⌘↓ | 外接屏亮度 ±10% |
 
 ### 隐私 / 匿名统计
 
@@ -154,6 +161,12 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 - 🧩 **Desktop / Notification Center widget** (macOS 14+) — small: tap to wake; medium: six buttons for Wake, Force Reset, Outdoor, Larger / Smaller Text and Menu. Right-click the desktop → Edit Widgets → search "WakeDisplay"
 - 🌐 **16 UI languages**, following your system language by default: English, 简体中文, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português, Italiano, Русский, العربية, हिन्दी, Bahasa Indonesia, Türkçe, Tiếng Việt
 - 🔄 **Auto-update** — checks GitHub every 6 hours, downloads, verifies and installs the new version, then relaunches (postponed while Outdoor Mode is on). Menu → ℹ️ About → "Check for Updates…" or turn auto-update off
+- ⚙️ **Advanced** (menu → ⚙️ Advanced)
+  - ☀︎ External brightness over DDC (⌃⌥⌘↑ / ⌃⌥⌘↓) · 🔊 volume / mute · 🔌 input source switch (USB-C / DP / HDMI)
+  - 🌙 Extra dimming: 25% / 50% / 75% below the monitor's minimum brightness
+  - ⏱ Quick refresh-rate switch · 👁 Disconnect a display without unplugging (one-click reconnect)
+  - 🗂 Layout presets: save / apply 3 multi-display arrangements
+  - 💾 Remember settings per display: resolution, refresh rate and brightness come back when that monitor is plugged in
 - 🔍 **Scaling / text size** — one submenu per external display listing hidden HiDPI resolutions; "Larger / Smaller Text" behave like the System Settings slider
 - ✨ **Sharp scaling at native resolution** — for panels macOS gives no HiDPI options (e.g. a 2880×1800 portable screen): the panel keeps its native signal while the UI "looks like" 1920×1200 or another larger size, still sharp (HiDPI virtual display + mirroring, the same technique as BetterDisplay)
 - ⚡️ **Apply anti-disconnect power policy** — runs `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0` via the system password prompt (restore defaults any time)
@@ -210,6 +223,7 @@ open /Applications/WakeDisplay.app
 | ⌘⇧− | Smaller text |
 | ⌃⌥⌘B | Outdoor mode on / off |
 | ⌃⌥⌘M | Open the menu at the mouse pointer (if the icon is hidden behind the notch) |
+| ⌃⌥⌘↑ / ⌃⌥⌘↓ | External brightness ±10% |
 
 ### Privacy / anonymous stats
 

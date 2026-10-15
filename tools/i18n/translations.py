@@ -26,6 +26,7 @@ KEYS = [
  "Restored defaults", "Reset display cache", "Open GitHub", "Follow on X @HUZHENSHENG", "Close", "Continue", "Cancel",
  "@HIDPI", "@PMSET", "@EDID", "@ABOUT", "Automatic (System)", "Send Anonymous Usage Stats",
  "About", "Check for Updates…", "Install Updates Automatically", "You're up to date.", "A new version is available: ", "Install and Relaunch", "Later", "Update failed: ",
+ "Advanced", "Brightness (External)", "Volume (External)", "Mute", "Unmute", "Extra Dimming", "Off", "Input Source", "Refresh Rate — ", "Disconnect Display", "Reconnect All Displays", "Layout Presets", "Save Current Layout as Preset ", "Apply Preset ", "(empty)", "Remember Settings per Display", "Brightness Up  ⌃⌥⌘↑", "Brightness Down  ⌃⌥⌘↓",
 ]
 
 PM = "sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0"
@@ -48,7 +49,7 @@ LANGS = {
   f"将执行：\n{PM}\n\n效果：合盖 / 锁屏时不再切断 USB-C 供电。笔记本用电池时会更耗电。继续？",
   f"将删除 {PL} 及用户级显示配置，然后重启 Mac。\n不影响个人数据，但显示器排列 / 缩放设置会重置。继续？",
   f"macOS 菜单栏小工具：一键唤醒黑屏的 USB-C 外接显示器，解锁系统隐藏的 HiDPI 缩放模式。\n\n作者：{AUTH}\n\n开发工具：Claude Fable 5.1（Anthropic）\n开源协议：MIT",
-  "自动（跟随系统）", "发送匿名使用统计", "关于", "检查更新…", "自动安装更新", "已是最新版本。", "有新版本：", "安装并重启", "稍后", "更新失败："]),
+  "自动（跟随系统）", "发送匿名使用统计", "关于", "检查更新…", "自动安装更新", "已是最新版本。", "有新版本：", "安装并重启", "稍后", "更新失败：", "高级", "亮度（外接屏）", "音量（外接屏）", "静音", "取消静音", "额外调暗", "关", "输入源", "刷新率 — ", "断开显示器", "重新连接所有显示器", "布局预设", "保存当前布局为预设 ", "应用预设 ", "（空）", "按显示器记住设置", "亮度调高  ⌃⌥⌘↑", "亮度调低  ⌃⌥⌘↓"]),
  "zh-Hant": ("繁體中文", [
   "  HiDPI（清晰）", "顯示器 ", "喚醒顯示器    ⌘⇧R", "強制重置（關螢幕 → 重新交握，螢幕會閃一下）",
   "防止顯示器休眠", "自動喚醒（外接螢幕休眠而電腦使用中時自動點亮）", "戶外模式（亮度最大）  ⌃⌥⌘B",
@@ -64,7 +65,7 @@ LANGS = {
   f"將執行：\n{PM}\n\n效果：闔上螢幕 / 鎖定時不再切斷 USB-C 供電。筆電使用電池時會更耗電。繼續？",
   f"將刪除 {PL} 及使用者層級的顯示設定，然後重新啟動 Mac。\n不影響個人資料，但顯示器排列 / 縮放設定會重設。繼續？",
   f"macOS 選單列小工具：一鍵喚醒黑屏的 USB-C 外接顯示器，解鎖系統隱藏的 HiDPI 縮放模式。\n\n作者：{AUTH}\n\n開發工具：Claude Fable 5.1（Anthropic）\n授權：MIT",
-  "自動（跟隨系統）", "傳送匿名使用統計", "關於", "檢查更新項目…", "自動安裝更新", "已是最新版本。", "有新版本：", "安裝並重新啟動", "稍後", "更新失敗："]),
+  "自動（跟隨系統）", "傳送匿名使用統計", "關於", "檢查更新項目…", "自動安裝更新", "已是最新版本。", "有新版本：", "安裝並重新啟動", "稍後", "更新失敗：", "進階", "亮度（外接螢幕）", "音量（外接螢幕）", "靜音", "取消靜音", "額外調暗", "關閉", "輸入來源", "更新頻率 — ", "中斷顯示器連線", "重新連接所有顯示器", "排列預設", "將目前排列存為預設 ", "套用預設 ", "（空）", "依顯示器記住設定", "調高亮度  ⌃⌥⌘↑", "調低亮度  ⌃⌥⌘↓"]),
  "ja": ("日本語", [
   "  HiDPI（高精細）", "ディスプレイ ", "ディスプレイを起動    ⌘⇧R", "強制リセット（スリープ → 再接続、画面が一瞬点滅）",
   "ディスプレイのスリープを防止", "自動起動（Mac 使用中に外部ディスプレイがスリープしたら点灯）", "屋外モード（最大輝度）  ⌃⌥⌘B",
@@ -80,7 +81,7 @@ LANGS = {
   f"次のコマンドを実行します：\n{PM}\n\n効果：蓋を閉じてもロックしても USB-C の給電が切れなくなります。バッテリー駆動時は消費が増えます。続けますか？",
   f"{PL} とユーザーのディスプレイ設定を削除し、Mac を再起動します。\n個人データには影響しませんが、ディスプレイの配置 / 拡大設定はリセットされます。続けますか？",
   f"macOS メニューバーユーティリティ：真っ暗な USB-C 外部ディスプレイをワンクリックで起動し、macOS が隠している HiDPI 拡大モードを解放します。\n\n作者：{AUTH}\n\n開発ツール：Claude Fable 5.1（Anthropic）\nライセンス：MIT",
-  "自動（システムに従う）", "匿名の使用状況を送信", "情報", "アップデートを確認…", "アップデートを自動インストール", "最新バージョンです。", "新しいバージョンがあります：", "インストールして再起動", "あとで", "アップデートに失敗しました："]),
+  "自動（システムに従う）", "匿名の使用状況を送信", "情報", "アップデートを確認…", "アップデートを自動インストール", "最新バージョンです。", "新しいバージョンがあります：", "インストールして再起動", "あとで", "アップデートに失敗しました：", "詳細", "明るさ（外部）", "音量（外部）", "消音", "消音を解除", "さらに暗く", "オフ", "入力切替", "リフレッシュレート — ", "ディスプレイを切断", "すべてのディスプレイを再接続", "配置プリセット", "現在の配置をプリセットに保存 ", "プリセットを適用 ", "（空）", "ディスプレイごとに設定を記憶", "明るく  ⌃⌥⌘↑", "暗く  ⌃⌥⌘↓"]),
  "ko": ("한국어", [
   "  HiDPI (선명)", "디스플레이 ", "디스플레이 깨우기    ⌘⇧R", "강제 재설정 (잠자기 → 재연결, 화면 깜박임)",
   "디스플레이 잠자기 방지", "자동 깨우기 (Mac 사용 중 외부 화면이 꺼지면 켜기)", "야외 모드 (최대 밝기)  ⌃⌥⌘B",
@@ -96,7 +97,7 @@ LANGS = {
   f"다음을 실행합니다:\n{PM}\n\n효과: 덮개를 닫거나 화면을 잠가도 USB-C 전원이 끊기지 않습니다. 배터리 사용 시 소모가 늘어납니다. 계속할까요?",
   f"{PL} 및 사용자 디스플레이 설정을 삭제한 뒤 Mac을 재시동합니다.\n개인 데이터에는 영향이 없지만 디스플레이 배치 / 배율 설정이 초기화됩니다. 계속할까요?",
   f"macOS 메뉴 막대 유틸리티: 꺼진 USB-C 외부 디스플레이를 한 번에 깨우고, macOS가 숨긴 HiDPI 배율 모드를 열어 줍니다.\n\n제작자: {AUTH}\n\n개발 도구: Claude Fable 5.1 (Anthropic)\n라이선스: MIT",
-  "자동 (시스템 설정)", "익명 사용 통계 보내기", "정보", "업데이트 확인…", "업데이트 자동 설치", "최신 버전입니다.", "새 버전이 있습니다: ", "설치 후 다시 시작", "나중에", "업데이트 실패: "]),
+  "자동 (시스템 설정)", "익명 사용 통계 보내기", "정보", "업데이트 확인…", "업데이트 자동 설치", "최신 버전입니다.", "새 버전이 있습니다: ", "설치 후 다시 시작", "나중에", "업데이트 실패: ", "고급", "밝기 (외부)", "음량 (외부)", "음소거", "음소거 해제", "추가 어둡게", "끔", "입력 소스", "주사율 — ", "디스플레이 연결 해제", "모든 디스플레이 다시 연결", "배치 프리셋", "현재 배치를 프리셋으로 저장 ", "프리셋 적용 ", "(비어 있음)", "디스플레이별 설정 기억", "밝게  ⌃⌥⌘↑", "어둡게  ⌃⌥⌘↓"]),
  "es": ("Español", [
   "  HiDPI (nítido)", "Pantalla ", "Activar pantalla    ⌘⇧R", "Reinicio forzado (reposo → reconexión, las pantallas parpadean)",
   "Evitar reposo de la pantalla", "Activación automática (externa en reposo con el Mac en uso)", "Modo exterior (brillo máximo)  ⌃⌥⌘B",
@@ -112,7 +113,7 @@ LANGS = {
   f"Se ejecutará:\n{PM}\n\nEfecto: la alimentación USB-C ya no se corta al cerrar la tapa o bloquear la pantalla. Con batería, el portátil consumirá más. ¿Continuar?",
   f"Se eliminará {PL} y la configuración de pantalla del usuario, y se reiniciará el Mac.\nTus datos no se tocan, pero se restablecerán la disposición y el escalado de las pantallas. ¿Continuar?",
   f"Utilidad para la barra de menús de macOS: activa con un clic las pantallas USB-C externas que se quedan en negro y desbloquea los modos HiDPI que macOS oculta.\n\nAutor: {AUTH}\n\nCreado con: Claude Fable 5.1 (Anthropic)\nLicencia: MIT",
-  "Automático (sistema)", "Enviar estadísticas de uso anónimas", "Acerca de", "Buscar actualizaciones…", "Instalar actualizaciones automáticamente", "Tienes la última versión.", "Hay una nueva versión: ", "Instalar y reiniciar", "Más tarde", "Error al actualizar: "]),
+  "Automático (sistema)", "Enviar estadísticas de uso anónimas", "Acerca de", "Buscar actualizaciones…", "Instalar actualizaciones automáticamente", "Tienes la última versión.", "Hay una nueva versión: ", "Instalar y reiniciar", "Más tarde", "Error al actualizar: ", "Avanzado", "Brillo (externa)", "Volumen (externa)", "Silenciar", "Activar sonido", "Atenuación extra", "Desactivado", "Fuente de entrada", "Frecuencia — ", "Desconectar pantalla", "Reconectar todas las pantallas", "Disposiciones guardadas", "Guardar disposición actual como ", "Aplicar disposición ", "(vacía)", "Recordar ajustes por pantalla", "Subir brillo  ⌃⌥⌘↑", "Bajar brillo  ⌃⌥⌘↓"]),
  "fr": ("Français", [
   "  HiDPI (net)", "Écran ", "Réveiller l’écran    ⌘⇧R", "Réinitialisation forcée (veille → reconnexion, les écrans clignotent)",
   "Empêcher la mise en veille de l’écran", "Réveil auto (écran externe en veille pendant l’utilisation du Mac)", "Mode extérieur (luminosité max)  ⌃⌥⌘B",
@@ -128,7 +129,7 @@ LANGS = {
   f"Commande exécutée :\n{PM}\n\nEffet : l’alimentation USB-C n’est plus coupée quand le capot est fermé ou l’écran verrouillé. Sur batterie, l’autonomie baissera plus vite. Continuer ?",
   f"Suppression de {PL} et de la configuration d’affichage de l’utilisateur, puis redémarrage du Mac.\nVos données ne sont pas touchées, mais la disposition et la mise à l’échelle des écrans seront réinitialisées. Continuer ?",
   f"Utilitaire de barre des menus macOS : réveillez en un clic les écrans USB-C externes restés noirs et débloquez les modes HiDPI cachés par macOS.\n\nAuteur : {AUTH}\n\nConçu avec : Claude Fable 5.1 (Anthropic)\nLicence : MIT",
-  "Automatique (système)", "Envoyer des statistiques d’utilisation anonymes", "À propos", "Rechercher des mises à jour…", "Installer les mises à jour automatiquement", "Vous avez la dernière version.", "Nouvelle version disponible : ", "Installer et relancer", "Plus tard", "Échec de la mise à jour : "]),
+  "Automatique (système)", "Envoyer des statistiques d’utilisation anonymes", "À propos", "Rechercher des mises à jour…", "Installer les mises à jour automatiquement", "Vous avez la dernière version.", "Nouvelle version disponible : ", "Installer et relancer", "Plus tard", "Échec de la mise à jour : ", "Avancé", "Luminosité (externe)", "Volume (externe)", "Couper le son", "Rétablir le son", "Assombrissement supplémentaire", "Désactivé", "Source d’entrée", "Fréquence — ", "Déconnecter un écran", "Reconnecter tous les écrans", "Dispositions", "Enregistrer la disposition comme ", "Appliquer la disposition ", "(vide)", "Mémoriser les réglages par écran", "Plus lumineux  ⌃⌥⌘↑", "Moins lumineux  ⌃⌥⌘↓"]),
  "de": ("Deutsch", [
   "  HiDPI (scharf)", "Display ", "Display aufwecken    ⌘⇧R", "Erzwungener Reset (Ruhezustand → neu verbinden, Bildschirme flackern)",
   "Display-Ruhezustand verhindern", "Auto-Aufwecken (externes Display schläft, Mac in Benutzung)", "Outdoor-Modus (maximale Helligkeit)  ⌃⌥⌘B",
@@ -144,7 +145,7 @@ LANGS = {
   f"Folgender Befehl wird ausgeführt:\n{PM}\n\nWirkung: Die USB-C-Stromversorgung wird beim Zuklappen oder Sperren nicht mehr unterbrochen. Im Akkubetrieb sinkt die Laufzeit. Fortfahren?",
   f"{PL} und die Display-Konfiguration des Benutzers werden gelöscht, danach startet der Mac neu.\nPersönliche Daten bleiben erhalten, aber Anordnung und Skalierung der Displays werden zurückgesetzt. Fortfahren?",
   f"macOS-Menüleisten-Tool: Weckt dunkle externe USB-C-Displays mit einem Klick auf und schaltet die von macOS versteckten HiDPI-Modi frei.\n\nAutor: {AUTH}\n\nErstellt mit: Claude Fable 5.1 (Anthropic)\nLizenz: MIT",
-  "Automatisch (System)", "Anonyme Nutzungsstatistik senden", "Über", "Nach Updates suchen …", "Updates automatisch installieren", "Sie sind auf dem neuesten Stand.", "Neue Version verfügbar: ", "Installieren und neu starten", "Später", "Update fehlgeschlagen: "]),
+  "Automatisch (System)", "Anonyme Nutzungsstatistik senden", "Über", "Nach Updates suchen …", "Updates automatisch installieren", "Sie sind auf dem neuesten Stand.", "Neue Version verfügbar: ", "Installieren und neu starten", "Später", "Update fehlgeschlagen: ", "Erweitert", "Helligkeit (extern)", "Lautstärke (extern)", "Stumm", "Ton an", "Zusätzlich abdunkeln", "Aus", "Eingangsquelle", "Bildwiederholrate – ", "Display trennen", "Alle Displays wieder verbinden", "Anordnungs-Presets", "Aktuelle Anordnung speichern als Preset ", "Preset anwenden ", "(leer)", "Einstellungen pro Display merken", "Heller  ⌃⌥⌘↑", "Dunkler  ⌃⌥⌘↓"]),
  "pt": ("Português", [
   "  HiDPI (nítido)", "Tela ", "Despertar tela    ⌘⇧R", "Redefinição forçada (repouso → reconexão, as telas piscam)",
   "Impedir repouso da tela", "Despertar automático (tela externa em repouso com o Mac em uso)", "Modo externo (brilho máximo)  ⌃⌥⌘B",
@@ -160,7 +161,7 @@ LANGS = {
   f"Será executado:\n{PM}\n\nEfeito: a energia USB-C não é mais cortada ao fechar a tampa ou bloquear a tela. Na bateria, o consumo aumenta. Continuar?",
   f"Serão apagados {PL} e a configuração de tela do usuário, e o Mac será reiniciado.\nSeus dados não são afetados, mas a disposição e a escala das telas serão redefinidas. Continuar?",
   f"Utilitário de barra de menus do macOS: desperta com um clique telas USB-C externas apagadas e libera os modos HiDPI que o macOS esconde.\n\nAutor: {AUTH}\n\nFeito com: Claude Fable 5.1 (Anthropic)\nLicença: MIT",
-  "Automático (sistema)", "Enviar estatísticas de uso anônimas", "Sobre", "Verificar atualizações…", "Instalar atualizações automaticamente", "Você está na versão mais recente.", "Nova versão disponível: ", "Instalar e reabrir", "Mais tarde", "Falha na atualização: "]),
+  "Automático (sistema)", "Enviar estatísticas de uso anônimas", "Sobre", "Verificar atualizações…", "Instalar atualizações automaticamente", "Você está na versão mais recente.", "Nova versão disponível: ", "Instalar e reabrir", "Mais tarde", "Falha na atualização: ", "Avançado", "Brilho (externa)", "Volume (externa)", "Silenciar", "Ativar som", "Escurecimento extra", "Desligado", "Fonte de entrada", "Taxa de atualização — ", "Desconectar tela", "Reconectar todas as telas", "Predefinições de arranjo", "Salvar arranjo atual como ", "Aplicar predefinição ", "(vazia)", "Lembrar ajustes por tela", "Aumentar brilho  ⌃⌥⌘↑", "Diminuir brilho  ⌃⌥⌘↓"]),
  "it": ("Italiano", [
   "  HiDPI (nitido)", "Monitor ", "Riattiva monitor    ⌘⇧R", "Reset forzato (stop → riconnessione, gli schermi lampeggiano)",
   "Impedisci stop del monitor", "Riattivazione automatica (monitor esterno in stop col Mac in uso)", "Modalità esterni (luminosità max)  ⌃⌥⌘B",
@@ -176,7 +177,7 @@ LANGS = {
   f"Verrà eseguito:\n{PM}\n\nEffetto: l’alimentazione USB-C non viene più interrotta chiudendo il coperchio o bloccando lo schermo. A batteria il consumo aumenta. Continuare?",
   f"Verranno eliminati {PL} e la configurazione monitor dell’utente, poi il Mac si riavvierà.\nI dati personali restano intatti, ma disposizione e ridimensionamento dei monitor verranno reimpostati. Continuare?",
   f"Utility per la barra dei menu di macOS: riattiva con un clic i monitor USB-C esterni rimasti neri e sblocca le modalità HiDPI nascoste da macOS.\n\nAutore: {AUTH}\n\nRealizzato con: Claude Fable 5.1 (Anthropic)\nLicenza: MIT",
-  "Automatica (sistema)", "Invia statistiche d’uso anonime", "Info", "Controlla aggiornamenti…", "Installa aggiornamenti automaticamente", "Hai l’ultima versione.", "Nuova versione disponibile: ", "Installa e riavvia", "Più tardi", "Aggiornamento non riuscito: "]),
+  "Automatica (sistema)", "Invia statistiche d’uso anonime", "Info", "Controlla aggiornamenti…", "Installa aggiornamenti automaticamente", "Hai l’ultima versione.", "Nuova versione disponibile: ", "Installa e riavvia", "Più tardi", "Aggiornamento non riuscito: ", "Avanzate", "Luminosità (esterno)", "Volume (esterno)", "Disattiva audio", "Riattiva audio", "Oscuramento extra", "Disattivato", "Sorgente di ingresso", "Frequenza — ", "Disconnetti monitor", "Riconnetti tutti i monitor", "Disposizioni salvate", "Salva disposizione attuale come ", "Applica disposizione ", "(vuota)", "Ricorda impostazioni per monitor", "Aumenta luminosità  ⌃⌥⌘↑", "Riduci luminosità  ⌃⌥⌘↓"]),
  "ru": ("Русский", [
   "  HiDPI (чётко)", "Дисплей ", "Разбудить дисплей    ⌘⇧R", "Принудительный сброс (сон → переподключение, экраны мигнут)",
   "Не давать дисплею засыпать", "Автопробуждение (внешний экран спит, пока Mac используется)", "Уличный режим (макс. яркость)  ⌃⌥⌘B",
@@ -192,7 +193,7 @@ LANGS = {
   f"Будет выполнено:\n{PM}\n\nЭффект: питание USB-C больше не отключается при закрытой крышке или блокировке экрана. От батареи ноутбук будет разряжаться быстрее. Продолжить?",
   f"Будут удалены {PL} и пользовательские настройки дисплеев, затем Mac перезагрузится.\nЛичные данные не затрагиваются, но расположение и масштаб дисплеев сбросятся. Продолжить?",
   f"Утилита для строки меню macOS: будит тёмные внешние USB-C-дисплеи в один клик и открывает скрытые macOS режимы HiDPI.\n\nАвтор: {AUTH}\n\nСоздано с помощью: Claude Fable 5.1 (Anthropic)\nЛицензия: MIT",
-  "Автоматически (системный)", "Отправлять анонимную статистику", "О программе", "Проверить обновления…", "Устанавливать обновления автоматически", "У вас последняя версия.", "Доступна новая версия: ", "Установить и перезапустить", "Позже", "Ошибка обновления: "]),
+  "Автоматически (системный)", "Отправлять анонимную статистику", "О программе", "Проверить обновления…", "Устанавливать обновления автоматически", "У вас последняя версия.", "Доступна новая версия: ", "Установить и перезапустить", "Позже", "Ошибка обновления: ", "Дополнительно", "Яркость (внешний)", "Громкость (внешний)", "Выключить звук", "Включить звук", "Дополнительное затемнение", "Выкл.", "Источник входа", "Частота обновления — ", "Отключить дисплей", "Подключить все дисплеи", "Пресеты расположения", "Сохранить расположение как пресет ", "Применить пресет ", "(пусто)", "Запоминать настройки для каждого дисплея", "Ярче  ⌃⌥⌘↑", "Темнее  ⌃⌥⌘↓"]),
  "ar": ("العربية", [
   "  HiDPI (حاد)", "الشاشة ", "إيقاظ الشاشة    ⌘⇧R", "إعادة ضبط قسرية (سكون ← إعادة اتصال، تومض الشاشات)",
   "منع سكون الشاشة", "إيقاظ تلقائي (الشاشة الخارجية نائمة والماك قيد الاستخدام)", "الوضع الخارجي (أقصى سطوع)  ⌃⌥⌘B",
@@ -208,7 +209,7 @@ LANGS = {
   f"سيتم تنفيذ:\n{PM}\n\nالأثر: لن تنقطع طاقة USB-C عند إغلاق الغطاء أو قفل الشاشة. سيزيد استهلاك البطارية في الحاسوب المحمول. هل تريد المتابعة؟",
   f"سيتم حذف {PL} وإعدادات الشاشة الخاصة بالمستخدم، ثم إعادة تشغيل الماك.\nلن تتأثر بياناتك الشخصية، لكن ترتيب الشاشات وإعدادات التحجيم ستُعاد إلى الافتراضي. هل تريد المتابعة؟",
   f"أداة لشريط القوائم في macOS: توقظ شاشات USB-C الخارجية المطفأة بنقرة واحدة، وتفتح أوضاع HiDPI التي يخفيها macOS.\n\nالمطوّر: {AUTH}\n\nصُنع باستخدام: Claude Fable 5.1 (Anthropic)\nالترخيص: MIT",
-  "تلقائي (لغة النظام)", "إرسال إحصاءات استخدام مجهولة", "حول", "التحقق من التحديثات…", "تثبيت التحديثات تلقائيًا", "لديك أحدث إصدار.", "يتوفر إصدار جديد: ", "التثبيت وإعادة التشغيل", "لاحقًا", "فشل التحديث: "]),
+  "تلقائي (لغة النظام)", "إرسال إحصاءات استخدام مجهولة", "حول", "التحقق من التحديثات…", "تثبيت التحديثات تلقائيًا", "لديك أحدث إصدار.", "يتوفر إصدار جديد: ", "التثبيت وإعادة التشغيل", "لاحقًا", "فشل التحديث: ", "متقدم", "السطوع (الخارجية)", "مستوى الصوت (الخارجية)", "كتم الصوت", "إلغاء الكتم", "تعتيم إضافي", "إيقاف", "مصدر الإدخال", "معدل التحديث — ", "فصل الشاشة", "إعادة توصيل كل الشاشات", "إعدادات الترتيب", "حفظ الترتيب الحالي كإعداد ", "تطبيق الإعداد ", "(فارغ)", "تذكّر الإعدادات لكل شاشة", "زيادة السطوع  ⌃⌥⌘↑", "خفض السطوع  ⌃⌥⌘↓"]),
  "hi": ("हिन्दी", [
   "  HiDPI (स्पष्ट)", "डिस्प्ले ", "डिस्प्ले जगाएँ    ⌘⇧R", "ज़बरदस्ती रीसेट (स्लीप → दोबारा कनेक्ट, स्क्रीन झपकेगी)",
   "डिस्प्ले को स्लीप से रोकें", "ऑटो-वेक (Mac चालू रहते बाहरी स्क्रीन सो जाए तो जगाएँ)", "आउटडोर मोड (अधिकतम ब्राइटनेस)  ⌃⌥⌘B",
@@ -224,7 +225,7 @@ LANGS = {
   f"यह चलाया जाएगा:\n{PM}\n\nप्रभाव: ढक्कन बंद करने या स्क्रीन लॉक करने पर USB-C पावर नहीं कटेगी। बैटरी पर लैपटॉप जल्दी खत्म होगा। जारी रखें?",
   f"{PL} और उपयोगकर्ता की डिस्प्ले सेटिंग हटाकर Mac रीस्टार्ट होगा।\nनिजी डेटा सुरक्षित रहेगा, पर डिस्प्ले व्यवस्था / स्केलिंग रीसेट हो जाएगी। जारी रखें?",
   f"macOS मेनू-बार यूटिलिटी: एक क्लिक में बंद पड़े USB-C बाहरी डिस्प्ले जगाएँ और macOS द्वारा छिपे HiDPI स्केलिंग मोड खोलें।\n\nलेखक: {AUTH}\n\nबनाया गया: Claude Fable 5.1 (Anthropic) से\nलाइसेंस: MIT",
-  "स्वचालित (सिस्टम)", "गुमनाम उपयोग आँकड़े भेजें", "परिचय", "अपडेट जाँचें…", "अपडेट अपने-आप इंस्टॉल करें", "आपके पास नवीनतम संस्करण है।", "नया संस्करण उपलब्ध है: ", "इंस्टॉल करके फिर से खोलें", "बाद में", "अपडेट विफल: "]),
+  "स्वचालित (सिस्टम)", "गुमनाम उपयोग आँकड़े भेजें", "परिचय", "अपडेट जाँचें…", "अपडेट अपने-आप इंस्टॉल करें", "आपके पास नवीनतम संस्करण है।", "नया संस्करण उपलब्ध है: ", "इंस्टॉल करके फिर से खोलें", "बाद में", "अपडेट विफल: ", "उन्नत", "ब्राइटनेस (बाहरी)", "वॉल्यूम (बाहरी)", "म्यूट", "अनम्यूट", "अतिरिक्त डिम", "बंद", "इनपुट स्रोत", "रिफ़्रेश रेट — ", "डिस्प्ले डिस्कनेक्ट करें", "सभी डिस्प्ले फिर जोड़ें", "लेआउट प्रीसेट", "मौजूदा लेआउट को प्रीसेट के रूप में सहेजें ", "प्रीसेट लागू करें ", "(खाली)", "हर डिस्प्ले की सेटिंग याद रखें", "ब्राइटनेस बढ़ाएँ  ⌃⌥⌘↑", "ब्राइटनेस घटाएँ  ⌃⌥⌘↓"]),
  "id": ("Bahasa Indonesia", [
   "  HiDPI (tajam)", "Layar ", "Bangunkan Layar    ⌘⇧R", "Reset Paksa (tidur → sambung ulang, layar berkedip)",
   "Cegah Layar Tidur", "Bangun Otomatis (layar eksternal tidur saat Mac dipakai)", "Mode Luar Ruangan (kecerahan maks)  ⌃⌥⌘B",
@@ -240,7 +241,7 @@ LANGS = {
   f"Akan menjalankan:\n{PM}\n\nEfek: daya USB-C tidak lagi diputus saat tutup ditutup atau layar dikunci. Laptop yang memakai baterai akan lebih boros. Lanjutkan?",
   f"Akan menghapus {PL} dan konfigurasi layar pengguna, lalu memulai ulang Mac.\nData pribadi tidak tersentuh, tetapi tata letak dan penskalaan layar akan direset. Lanjutkan?",
   f"Utilitas bar menu macOS: bangunkan layar eksternal USB-C yang gelap dengan sekali klik dan buka mode HiDPI yang disembunyikan macOS.\n\nPembuat: {AUTH}\n\nDibuat dengan: Claude Fable 5.1 (Anthropic)\nLisensi: MIT",
-  "Otomatis (Sistem)", "Kirim Statistik Penggunaan Anonim", "Tentang", "Periksa Pembaruan…", "Pasang Pembaruan Otomatis", "Anda sudah memakai versi terbaru.", "Versi baru tersedia: ", "Pasang dan Buka Ulang", "Nanti", "Pembaruan gagal: "]),
+  "Otomatis (Sistem)", "Kirim Statistik Penggunaan Anonim", "Tentang", "Periksa Pembaruan…", "Pasang Pembaruan Otomatis", "Anda sudah memakai versi terbaru.", "Versi baru tersedia: ", "Pasang dan Buka Ulang", "Nanti", "Pembaruan gagal: ", "Lanjutan", "Kecerahan (Eksternal)", "Volume (Eksternal)", "Bisukan", "Bunyikan", "Peredupan Ekstra", "Mati", "Sumber Input", "Refresh Rate — ", "Putuskan Layar", "Sambungkan Ulang Semua Layar", "Preset Tata Letak", "Simpan Tata Letak sebagai Preset ", "Terapkan Preset ", "(kosong)", "Ingat Pengaturan per Layar", "Kecerahan Naik  ⌃⌥⌘↑", "Kecerahan Turun  ⌃⌥⌘↓"]),
  "tr": ("Türkçe", [
   "  HiDPI (keskin)", "Ekran ", "Ekranı Uyandır    ⌘⇧R", "Zorla Sıfırla (uyku → yeniden bağlan, ekranlar yanıp söner)",
   "Ekranın Uyumasını Engelle", "Otomatik Uyandır (Mac kullanılırken harici ekran uyursa)", "Dış Mekân Modu (en yüksek parlaklık)  ⌃⌥⌘B",
@@ -256,7 +257,7 @@ LANGS = {
   f"Şu komut çalıştırılacak:\n{PM}\n\nEtki: Kapak kapatıldığında veya ekran kilitlendiğinde USB-C gücü artık kesilmez. Pilde dizüstü bilgisayar daha hızlı tükenir. Devam edilsin mi?",
   f"{PL} ve kullanıcı ekran yapılandırması silinecek, ardından Mac yeniden başlatılacak.\nKişisel verilere dokunulmaz, ancak ekran yerleşimi / ölçekleme ayarları sıfırlanır. Devam edilsin mi?",
   f"macOS menü çubuğu aracı: Kararan harici USB-C ekranları tek tıkla uyandırır ve macOS’un gizlediği HiDPI ölçekleme modlarını açar.\n\nGeliştirici: {AUTH}\n\nGeliştirme aracı: Claude Fable 5.1 (Anthropic)\nLisans: MIT",
-  "Otomatik (Sistem)", "Anonim Kullanım İstatistikleri Gönder", "Hakkında", "Güncellemeleri Denetle…", "Güncellemeleri Otomatik Yükle", "En güncel sürümü kullanıyorsunuz.", "Yeni sürüm mevcut: ", "Yükle ve Yeniden Başlat", "Daha Sonra", "Güncelleme başarısız: "]),
+  "Otomatik (Sistem)", "Anonim Kullanım İstatistikleri Gönder", "Hakkında", "Güncellemeleri Denetle…", "Güncellemeleri Otomatik Yükle", "En güncel sürümü kullanıyorsunuz.", "Yeni sürüm mevcut: ", "Yükle ve Yeniden Başlat", "Daha Sonra", "Güncelleme başarısız: ", "Gelişmiş", "Parlaklık (Harici)", "Ses (Harici)", "Sessiz", "Sesi Aç", "Ek Karartma", "Kapalı", "Giriş Kaynağı", "Yenileme Hızı — ", "Ekranın Bağlantısını Kes", "Tüm Ekranları Yeniden Bağla", "Yerleşim Ön Ayarları", "Geçerli Yerleşimi Ön Ayar Olarak Kaydet ", "Ön Ayarı Uygula ", "(boş)", "Ayarları Ekran Başına Hatırla", "Parlaklığı Artır  ⌃⌥⌘↑", "Parlaklığı Azalt  ⌃⌥⌘↓"]),
  "vi": ("Tiếng Việt", [
   "  HiDPI (sắc nét)", "Màn hình ", "Đánh thức màn hình    ⌘⇧R", "Đặt lại cưỡng bức (ngủ → kết nối lại, màn hình nhấp nháy)",
   "Ngăn màn hình ngủ", "Tự đánh thức (màn hình ngoài ngủ khi Mac đang dùng)", "Chế độ ngoài trời (độ sáng tối đa)  ⌃⌥⌘B",
@@ -272,5 +273,5 @@ LANGS = {
   f"Sẽ chạy:\n{PM}\n\nTác dụng: nguồn USB-C không còn bị ngắt khi gập nắp hoặc khóa màn hình. Laptop dùng pin sẽ hao pin nhanh hơn. Tiếp tục?",
   f"Sẽ xóa {PL} và cấu hình màn hình của người dùng, sau đó khởi động lại Mac.\nDữ liệu cá nhân không bị ảnh hưởng, nhưng bố cục và thu phóng màn hình sẽ được đặt lại. Tiếp tục?",
   f"Tiện ích thanh menu macOS: đánh thức màn hình ngoài USB-C bị tối chỉ với một cú nhấp và mở khóa các chế độ HiDPI mà macOS ẩn đi.\n\nTác giả: {AUTH}\n\nPhát triển bằng: Claude Fable 5.1 (Anthropic)\nGiấy phép: MIT",
-  "Tự động (theo hệ thống)", "Gửi thống kê sử dụng ẩn danh", "Giới thiệu", "Kiểm tra cập nhật…", "Tự động cài bản cập nhật", "Bạn đang dùng bản mới nhất.", "Có phiên bản mới: ", "Cài đặt và mở lại", "Để sau", "Cập nhật thất bại: "]),
+  "Tự động (theo hệ thống)", "Gửi thống kê sử dụng ẩn danh", "Giới thiệu", "Kiểm tra cập nhật…", "Tự động cài bản cập nhật", "Bạn đang dùng bản mới nhất.", "Có phiên bản mới: ", "Cài đặt và mở lại", "Để sau", "Cập nhật thất bại: ", "Nâng cao", "Độ sáng (màn hình ngoài)", "Âm lượng (màn hình ngoài)", "Tắt tiếng", "Bật tiếng", "Làm tối thêm", "Tắt", "Nguồn đầu vào", "Tần số quét — ", "Ngắt màn hình", "Kết nối lại mọi màn hình", "Bố cục đã lưu", "Lưu bố cục hiện tại làm mẫu ", "Áp dụng mẫu ", "(trống)", "Ghi nhớ cài đặt theo màn hình", "Tăng độ sáng  ⌃⌥⌘↑", "Giảm độ sáng  ⌃⌥⌘↓"]),
 }
