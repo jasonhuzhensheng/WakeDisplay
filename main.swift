@@ -549,7 +549,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     let launchAgent = NSString(string: "~/Library/LaunchAgents/com.jason.wakedisplay.plist").expandingTildeInPath
 
     func applicationDidFinishLaunching(_ n: Notification) {
+        // On notched MacBooks, overflowing menu-bar icons hide behind the notch, and a newly launched
+        // app lands nearest to it. Ask macOS to place ours at the far right (next to Control Center)
+        // the first time; after that, the user's own ⌘-drag position is remembered.
+        let posKey = "NSStatusItem Preferred Position WakeDisplay"
+        if !UserDefaults.standard.bool(forKey: "didSetInitialPosition") {
+            UserDefaults.standard.set(0.0, forKey: posKey)
+            UserDefaults.standard.set(true, forKey: "didSetInitialPosition")
+        }
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        statusItem.autosaveName = "WakeDisplay"
         statusItem.button?.image = NSImage(systemSymbolName: "display", accessibilityDescription: "WakeDisplay")
         // Any click (left or right) opens the menu; contents are rebuilt each time it opens
         let menu = NSMenu()
@@ -560,6 +569,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     func applicationWillTerminate(_ n: Notification) { outdoor.stop() }
+
+    /// ⌃⌥⌘M: open the menu at the mouse pointer (works even if the icon is hidden behind the notch)
+    func popMenuAtMouse() {
+        let m = buildMenu()
+        NSApp.activate(ignoringOtherApps: true)
+        m.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
+    }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
@@ -753,6 +769,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             case 2: if let d = physicalExternals().first { stepScaled(d, larger: true) }
             case 3: if let d = physicalExternals().first { stepScaled(d, larger: false) }
             case 4: outdoor.toggle()
+            case 5: (NSApp.delegate as? AppDelegate)?.popMenuAtMouse()
             default: break
             }
             return noErr
@@ -766,6 +783,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         var ref4: EventHotKeyRef?
         RegisterEventHotKey(UInt32(kVK_ANSI_B), UInt32(cmdKey | optionKey | controlKey), EventHotKeyID(signature: 0x57414B45, id: 4), GetApplicationEventTarget(), 0, &ref4)
         hotKeyRefs.append(ref4)
+        var ref5: EventHotKeyRef?
+        RegisterEventHotKey(UInt32(kVK_ANSI_M), UInt32(cmdKey | optionKey | controlKey), EventHotKeyID(signature: 0x57414B45, id: 5), GetApplicationEventTarget(), 0, &ref5)
+        hotKeyRefs.append(ref5)
     }
 
     // MARK: dialogs

@@ -85,6 +85,7 @@ open /Applications/WakeDisplay.app
 | ⌘⇧+ | 更大文本（下一个更低的 HiDPI 分辨率） |
 | ⌘⇧− | 更小文本 |
 | ⌃⌥⌘B | 户外模式开 / 关 |
+| ⌃⌥⌘M | 在鼠标位置弹出菜单（图标被刘海挡住时用） |
 
 ### 常见问题
 
@@ -186,6 +187,7 @@ open /Applications/WakeDisplay.app
 | ⌘⇧+ | Larger text (next lower HiDPI resolution) |
 | ⌘⇧− | Smaller text |
 | ⌃⌥⌘B | Outdoor mode on / off |
+| ⌃⌥⌘M | Open the menu at the mouse pointer (if the icon is hidden behind the notch) |
 
 ### FAQ
 
