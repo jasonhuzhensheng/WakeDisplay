@@ -498,7 +498,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.autosaveName = "WakeDisplay"
-        statusItem.button?.image = NSImage(systemSymbolName: "display", accessibilityDescription: "WakeDisplay")
+        updateIcon()
         // Any click (left or right) opens the menu; contents are rebuilt each time it opens
         let menu = NSMenu()
         menu.delegate = self
@@ -676,7 +676,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc func actToggleOutdoor() {
         outdoor.toggle()
         if outdoor.isOn { Telemetry.feature("outdoorMode") }
-        statusItem.button?.image = NSImage(systemSymbolName: outdoor.isOn ? "sun.max.fill" : "display", accessibilityDescription: nil)
+        updateIcon()
         if outdoor.isOn && outdoor.boost <= 1.01 {
             info(L("Outdoor Mode"), L("Brightness set to 100%. This display has no XDR headroom, so no extra boost is available beyond that."))
         }
@@ -732,7 +732,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                                         IOPMAssertionLevel(kIOPMAssertionLevelOn),
                                         "WakeDisplay keep awake" as CFString, &preventSleepID)
         }
-        statusItem.button?.image = NSImage(systemSymbolName: preventSleepID != 0 ? "display.and.arrow.down" : "display", accessibilityDescription: nil)
+        updateIcon()
+    }
+
+    /// Menu-bar icon, drawn in code (no image files): a display with a rising sun.
+    /// Outdoor Mode on → solid sun; Prevent Sleep on → small dot top-right. Template image, so it follows light/dark.
+    func updateIcon() {
+        let sunOn = outdoor.isOn, keepAwake = preventSleepID != 0
+        let img = NSImage(size: NSSize(width: 18, height: 18), flipped: true) { _ in
+            NSColor.black.set()
+            let screen = NSBezierPath(roundedRect: NSRect(x: 2.25, y: 3.25, width: 13.5, height: 9.5), xRadius: 1.6, yRadius: 1.6)
+            screen.lineWidth = 1.5; screen.stroke()
+            let sun = NSBezierPath()
+            sun.appendArc(withCenter: NSPoint(x: 9, y: 12), radius: 3.2, startAngle: 180, endAngle: 0, clockwise: false)
+            if sunOn { sun.close(); sun.fill() } else { sun.lineWidth = 1.4; sun.stroke() }
+            let rays = NSBezierPath(); rays.lineWidth = 1.3; rays.lineCapStyle = .round
+            for (a, b) in [((9.0, 6.6), (9.0, 7.6)), ((5.6, 8.4), (6.4, 9.0)), ((12.4, 8.4), (11.6, 9.0))] {
+                rays.move(to: NSPoint(x: a.0, y: a.1)); rays.line(to: NSPoint(x: b.0, y: b.1))
+            }
+            rays.stroke()
+            let stand = NSBezierPath(); stand.lineWidth = 1.5; stand.lineCapStyle = .round
+            stand.move(to: NSPoint(x: 6, y: 15.6)); stand.line(to: NSPoint(x: 12, y: 15.6)); stand.stroke()
+            if keepAwake { NSBezierPath(ovalIn: NSRect(x: 13.6, y: 0.4, width: 4, height: 4)).fill() }
+            return true
+        }
+        img.isTemplate = true
+        img.accessibilityDescription = "WakeDisplay"
+        statusItem.button?.image = img
     }
 
     @objc func actApplyPmset() {

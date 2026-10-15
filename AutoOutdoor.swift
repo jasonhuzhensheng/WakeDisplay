@@ -97,12 +97,14 @@ enum AutoOutdoor {
 
         if !outdoor.isOn, !suppressed, brightSeconds >= 10 {
             outdoor.start()
+            (NSApp.delegate as? AppDelegate)?.updateIcon()
             turnedOnByUs = true
             brightSeconds = 0
             WakeReminder.show("☀️ " + L("Outdoor Mode is on"), L("Turned on automatically: bright light detected"))
             Telemetry.feature("autoOutdoorOn", source: "sensor")
         } else if outdoor.isOn, turnedOnByUs, darkSeconds >= 30 {
             outdoor.stop()
+            (NSApp.delegate as? AppDelegate)?.updateIcon()
             turnedOnByUs = false
             darkSeconds = 0
             WakeReminder.show(L("Outdoor Mode is off"), L("Turned off automatically: back indoors"))

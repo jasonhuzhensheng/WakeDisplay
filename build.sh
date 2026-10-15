@@ -5,10 +5,11 @@
 set -e
 cd "$(dirname "$0")"
 
-VERSION="1.22"
+VERSION="1.23"
 APP=WakeDisplay.app
 rm -rf "$APP"
-mkdir -p "$APP/Contents/MacOS"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+cp AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"   # 7 KB, pre-optimised (see tools/icon)
 
 cat > "$APP/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -22,6 +23,7 @@ cat > "$APP/Contents/Info.plist" <<EOF
   <key>CFBundleExecutable</key><string>WakeDisplay</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>LSMinimumSystemVersion</key><string>12.0</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>LSUIElement</key><true/>
   <key>NSHighResolutionCapable</key><true/>
   <key>CFBundleURLTypes</key><array><dict>

@@ -1,4 +1,6 @@
-# WakeDisplay
+<p align="center"><img src="docs/icon.png" width="128" alt="WakeDisplay icon"></p>
+
+<h1 align="center">WakeDisplay</h1>
 
 <p align="center">
   <a href="https://github.com/jasonhuzhensheng/WakeDisplay/releases/latest"><img src="https://img.shields.io/github/v/release/jasonhuzhensheng/WakeDisplay?label=release" alt="Latest release"></a>
