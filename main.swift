@@ -459,6 +459,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     var statusItem: NSStatusItem!
     var preventSleepID: IOPMAssertionID = 0
     var autoWakeTimer: Timer?
+    var telemetryTimer: Timer?
     var hotKeyRefs: [EventHotKeyRef?] = []
 
     let launchAgent = NSString(string: "~/Library/LaunchAgents/com.jason.wakedisplay.plist").expandingTildeInPath
@@ -481,6 +482,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem.menu = menu
         registerHotKeys()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { restoreSharpScaling() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            Telemetry.send("App.launched")
+            Telemetry.dailyActiveIfNeeded()
+        }
+        telemetryTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { _ in Telemetry.dailyActiveIfNeeded() }
     }
 
     func applicationWillTerminate(_ n: Notification) { outdoor.stop() }
@@ -488,6 +494,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     /// Commands from the desktop widget (and anything else): wakedisplay://wake | reset | outdoor | larger | smaller | menu
     func application(_ application: NSApplication, open urls: [URL]) {
         for url in urls where url.scheme == "wakedisplay" {
+            Telemetry.feature(url.host ?? "unknown", source: "widget")
             switch url.host ?? "" {
             case "wake":    wakeSoft()
             case "reset":   wakeHard()
@@ -575,22 +582,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let langParent = NSMenuItem(title: "🌐 " + langTitle, action: nil, keyEquivalent: "")
         m.addItem(langParent); m.setSubmenu(langSub, for: langParent)
         m.addItem(item(L("Launch at Login"), #selector(actToggleLogin), state: FileManager.default.fileExists(atPath: launchAgent)))
+        m.addItem(item(L("Send Anonymous Usage Stats"), #selector(actToggleTelemetry), state: Telemetry.enabled))
         m.addItem(item(L("About WakeDisplay…"), #selector(actAbout)))
         m.addItem(NSMenuItem(title: L("Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         return m
     }
 
     // MARK: actions
-    @objc func actWakeSoft() { wakeSoft() }
-    @objc func actWakeHard() { wakeHard() }
+    @objc func actWakeSoft() { wakeSoft(); Telemetry.feature("wake") }
+    @objc func actWakeHard() { wakeHard(); Telemetry.feature("forceReset") }
 
     @objc func actToggleOutdoor() {
         outdoor.toggle()
+        if outdoor.isOn { Telemetry.feature("outdoorMode") }
         statusItem.button?.image = NSImage(systemSymbolName: outdoor.isOn ? "sun.max.fill" : "display", accessibilityDescription: nil)
         if outdoor.isOn && outdoor.boost <= 1.01 {
             info(L("Outdoor Mode"), L("Brightness set to 100%. This display has no XDR headroom, so no extra boost is available beyond that."))
         }
     }
+
+    @objc func actToggleTelemetry() { Telemetry.enabled.toggle() }
 
     @objc func actSetLang(_ s: NSMenuItem) {
         guard let code = s.representedObject as? String, let l = Lang(rawValue: code) else { return }
@@ -609,13 +620,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc func actToggleSharp(_ s: NSMenuItem) {
         guard let d = s.representedObject as? CGDirectDisplayID else { return }
         if hidpiVirtuals[d] != nil { disableSharpScaling(d) }
-        else if !enableSharpScaling(d) { info(L("Failed"), L("Could not create the HiDPI virtual display on this Mac.")) }
+        else if enableSharpScaling(d) { Telemetry.feature("sharpScaling") }
+        else { info(L("Failed"), L("Could not create the HiDPI virtual display on this Mac.")) }
     }
     @objc func actHiDPIHelp() { info(L("No HiDPI modes — what now?"), L(hidpiHelpEN)) }
 
     /// Every 5 s: built-in awake but an external display asleep → wake
     @objc func actToggleAutoWake() {
         if let t = autoWakeTimer { t.invalidate(); autoWakeTimer = nil; return }
+        Telemetry.feature("autoWake")
         autoWakeTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
             let exts = physicalExternals()
             let builtinAwake = CGDisplayIsAsleep(CGMainDisplayID()) == 0

@@ -96,6 +96,15 @@ open /Applications/WakeDisplay.app
 | ⌃⌥⌘B | 户外模式开 / 关 |
 | ⌃⌥⌘M | 在鼠标位置弹出菜单（图标被刘海挡住时用） |
 
+### 隐私 / 匿名统计
+
+WakeDisplay 通过 [TelemetryDeck](https://telemetrydeck.com) 发送**匿名**使用统计，用来了解有多少人在用、哪些功能有用。
+
+- **发送：** 版本号、macOS 版本、芯片架构、界面语言、外接屏数量、用了哪个功能（如「唤醒」「户外模式」）
+- **不发送：** 姓名、文件、显示器序列号或任何个人信息；用户标识是随机安装 ID 的加盐 SHA-256 哈希
+- **关闭：** 菜单 → 取消勾选「发送匿名使用统计」，之后不再发送任何数据
+- 代码完全公开：[`Telemetry.swift`](Telemetry.swift)
+
 ### 常见问题
 
 **点了没反应？** 先确认显示器 OSD 调得出来。调不出来且电源灯亮 → 彻底断电放电（拔掉所有线、按住电源键 15 秒、等 30 秒）；仍不亮 → 用手机 / iPad 直连测试显示器本身是否故障。
@@ -199,6 +208,15 @@ open /Applications/WakeDisplay.app
 | ⌘⇧− | Smaller text |
 | ⌃⌥⌘B | Outdoor mode on / off |
 | ⌃⌥⌘M | Open the menu at the mouse pointer (if the icon is hidden behind the notch) |
+
+### Privacy / anonymous stats
+
+WakeDisplay sends **anonymous** usage statistics via [TelemetryDeck](https://telemetrydeck.com) to learn how many people use it and which features matter.
+
+- **Sent:** app version, macOS version, CPU architecture, UI language, number of external displays, which feature was used (e.g. "wake", "outdoor mode")
+- **Never sent:** names, files, display serials or anything personal; the user ID is a salted SHA-256 hash of a random install ID
+- **Turn off:** menu → untick "Send Anonymous Usage Stats"; nothing is sent after that
+- Fully open code: [`Telemetry.swift`](Telemetry.swift)
 
 ### FAQ
 

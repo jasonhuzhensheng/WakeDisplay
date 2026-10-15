@@ -115,6 +115,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "将删除 /Library/Preferences/com.apple.windowserver.displays.plist 及用户级显示配置，然后重启 Mac。\n不影响个人数据，但显示器排列 / 缩放设置会重置。继续？",
         aboutEN: "macOS 菜单栏小工具：一键唤醒黑屏的 USB-C 外接显示器，解锁系统隐藏的 HiDPI 缩放模式。\n\n作者：Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\n开发工具：Claude Fable 5.1（Anthropic）\n开源协议：MIT",
         "Automatic (System)": "自动（跟随系统）",
+        "Send Anonymous Usage Stats": "发送匿名使用统计",
     ],
     .zhHant: [
         "  HiDPI (sharp)": "  HiDPI（清晰）",
@@ -159,6 +160,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "將刪除 /Library/Preferences/com.apple.windowserver.displays.plist 及使用者層級的顯示設定，然後重新啟動 Mac。\n不影響個人資料，但顯示器排列 / 縮放設定會重設。繼續？",
         aboutEN: "macOS 選單列小工具：一鍵喚醒黑屏的 USB-C 外接顯示器，解鎖系統隱藏的 HiDPI 縮放模式。\n\n作者：Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\n開發工具：Claude Fable 5.1（Anthropic）\n授權：MIT",
         "Automatic (System)": "自動（跟隨系統）",
+        "Send Anonymous Usage Stats": "傳送匿名使用統計",
     ],
     .ja: [
         "  HiDPI (sharp)": "  HiDPI（高精細）",
@@ -203,6 +205,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "/Library/Preferences/com.apple.windowserver.displays.plist とユーザーのディスプレイ設定を削除し、Mac を再起動します。\n個人データには影響しませんが、ディスプレイの配置 / 拡大設定はリセットされます。続けますか？",
         aboutEN: "macOS メニューバーユーティリティ：真っ暗な USB-C 外部ディスプレイをワンクリックで起動し、macOS が隠している HiDPI 拡大モードを解放します。\n\n作者：Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\n開発ツール：Claude Fable 5.1（Anthropic）\nライセンス：MIT",
         "Automatic (System)": "自動（システムに従う）",
+        "Send Anonymous Usage Stats": "匿名の使用状況を送信",
     ],
     .ko: [
         "  HiDPI (sharp)": "  HiDPI (선명)",
@@ -247,6 +250,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "/Library/Preferences/com.apple.windowserver.displays.plist 및 사용자 디스플레이 설정을 삭제한 뒤 Mac을 재시동합니다.\n개인 데이터에는 영향이 없지만 디스플레이 배치 / 배율 설정이 초기화됩니다. 계속할까요?",
         aboutEN: "macOS 메뉴 막대 유틸리티: 꺼진 USB-C 외부 디스플레이를 한 번에 깨우고, macOS가 숨긴 HiDPI 배율 모드를 열어 줍니다.\n\n제작자: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\n개발 도구: Claude Fable 5.1 (Anthropic)\n라이선스: MIT",
         "Automatic (System)": "자동 (시스템 설정)",
+        "Send Anonymous Usage Stats": "익명 사용 통계 보내기",
     ],
     .es: [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -291,6 +295,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "Se eliminará /Library/Preferences/com.apple.windowserver.displays.plist y la configuración de pantalla del usuario, y se reiniciará el Mac.\nTus datos no se tocan, pero se restablecerán la disposición y el escalado de las pantallas. ¿Continuar?",
         aboutEN: "Utilidad para la barra de menús de macOS: activa con un clic las pantallas USB-C externas que se quedan en negro y desbloquea los modos HiDPI que macOS oculta.\n\nAutor: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nCreado con: Claude Fable 5.1 (Anthropic)\nLicencia: MIT",
         "Automatic (System)": "Automático (sistema)",
+        "Send Anonymous Usage Stats": "Enviar estadísticas de uso anónimas",
     ],
     .fr: [
         "  HiDPI (sharp)": "  HiDPI (net)",
@@ -335,6 +340,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "Suppression de /Library/Preferences/com.apple.windowserver.displays.plist et de la configuration d’affichage de l’utilisateur, puis redémarrage du Mac.\nVos données ne sont pas touchées, mais la disposition et la mise à l’échelle des écrans seront réinitialisées. Continuer ?",
         aboutEN: "Utilitaire de barre des menus macOS : réveillez en un clic les écrans USB-C externes restés noirs et débloquez les modes HiDPI cachés par macOS.\n\nAuteur : Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nConçu avec : Claude Fable 5.1 (Anthropic)\nLicence : MIT",
         "Automatic (System)": "Automatique (système)",
+        "Send Anonymous Usage Stats": "Envoyer des statistiques d’utilisation anonymes",
     ],
     .de: [
         "  HiDPI (sharp)": "  HiDPI (scharf)",
@@ -379,6 +385,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "/Library/Preferences/com.apple.windowserver.displays.plist und die Display-Konfiguration des Benutzers werden gelöscht, danach startet der Mac neu.\nPersönliche Daten bleiben erhalten, aber Anordnung und Skalierung der Displays werden zurückgesetzt. Fortfahren?",
         aboutEN: "macOS-Menüleisten-Tool: Weckt dunkle externe USB-C-Displays mit einem Klick auf und schaltet die von macOS versteckten HiDPI-Modi frei.\n\nAutor: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nErstellt mit: Claude Fable 5.1 (Anthropic)\nLizenz: MIT",
         "Automatic (System)": "Automatisch (System)",
+        "Send Anonymous Usage Stats": "Anonyme Nutzungsstatistik senden",
     ],
     .pt: [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -423,6 +430,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "Serão apagados /Library/Preferences/com.apple.windowserver.displays.plist e a configuração de tela do usuário, e o Mac será reiniciado.\nSeus dados não são afetados, mas a disposição e a escala das telas serão redefinidas. Continuar?",
         aboutEN: "Utilitário de barra de menus do macOS: desperta com um clique telas USB-C externas apagadas e libera os modos HiDPI que o macOS esconde.\n\nAutor: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nFeito com: Claude Fable 5.1 (Anthropic)\nLicença: MIT",
         "Automatic (System)": "Automático (sistema)",
+        "Send Anonymous Usage Stats": "Enviar estatísticas de uso anônimas",
     ],
     .it: [
         "  HiDPI (sharp)": "  HiDPI (nitido)",
@@ -467,6 +475,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "Verranno eliminati /Library/Preferences/com.apple.windowserver.displays.plist e la configurazione monitor dell’utente, poi il Mac si riavvierà.\nI dati personali restano intatti, ma disposizione e ridimensionamento dei monitor verranno reimpostati. Continuare?",
         aboutEN: "Utility per la barra dei menu di macOS: riattiva con un clic i monitor USB-C esterni rimasti neri e sblocca le modalità HiDPI nascoste da macOS.\n\nAutore: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nRealizzato con: Claude Fable 5.1 (Anthropic)\nLicenza: MIT",
         "Automatic (System)": "Automatica (sistema)",
+        "Send Anonymous Usage Stats": "Invia statistiche d’uso anonime",
     ],
     .ru: [
         "  HiDPI (sharp)": "  HiDPI (чётко)",
@@ -511,6 +520,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "Будут удалены /Library/Preferences/com.apple.windowserver.displays.plist и пользовательские настройки дисплеев, затем Mac перезагрузится.\nЛичные данные не затрагиваются, но расположение и масштаб дисплеев сбросятся. Продолжить?",
         aboutEN: "Утилита для строки меню macOS: будит тёмные внешние USB-C-дисплеи в один клик и открывает скрытые macOS режимы HiDPI.\n\nАвтор: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nСоздано с помощью: Claude Fable 5.1 (Anthropic)\nЛицензия: MIT",
         "Automatic (System)": "Автоматически (системный)",
+        "Send Anonymous Usage Stats": "Отправлять анонимную статистику",
     ],
     .ar: [
         "  HiDPI (sharp)": "  HiDPI (حاد)",
@@ -555,6 +565,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "سيتم حذف /Library/Preferences/com.apple.windowserver.displays.plist وإعدادات الشاشة الخاصة بالمستخدم، ثم إعادة تشغيل الماك.\nلن تتأثر بياناتك الشخصية، لكن ترتيب الشاشات وإعدادات التحجيم ستُعاد إلى الافتراضي. هل تريد المتابعة؟",
         aboutEN: "أداة لشريط القوائم في macOS: توقظ شاشات USB-C الخارجية المطفأة بنقرة واحدة، وتفتح أوضاع HiDPI التي يخفيها macOS.\n\nالمطوّر: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nصُنع باستخدام: Claude Fable 5.1 (Anthropic)\nالترخيص: MIT",
         "Automatic (System)": "تلقائي (لغة النظام)",
+        "Send Anonymous Usage Stats": "إرسال إحصاءات استخدام مجهولة",
     ],
     .hi: [
         "  HiDPI (sharp)": "  HiDPI (स्पष्ट)",
@@ -599,6 +610,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "/Library/Preferences/com.apple.windowserver.displays.plist और उपयोगकर्ता की डिस्प्ले सेटिंग हटाकर Mac रीस्टार्ट होगा।\nनिजी डेटा सुरक्षित रहेगा, पर डिस्प्ले व्यवस्था / स्केलिंग रीसेट हो जाएगी। जारी रखें?",
         aboutEN: "macOS मेनू-बार यूटिलिटी: एक क्लिक में बंद पड़े USB-C बाहरी डिस्प्ले जगाएँ और macOS द्वारा छिपे HiDPI स्केलिंग मोड खोलें।\n\nलेखक: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nबनाया गया: Claude Fable 5.1 (Anthropic) से\nलाइसेंस: MIT",
         "Automatic (System)": "स्वचालित (सिस्टम)",
+        "Send Anonymous Usage Stats": "गुमनाम उपयोग आँकड़े भेजें",
     ],
     .id: [
         "  HiDPI (sharp)": "  HiDPI (tajam)",
@@ -643,6 +655,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "Akan menghapus /Library/Preferences/com.apple.windowserver.displays.plist dan konfigurasi layar pengguna, lalu memulai ulang Mac.\nData pribadi tidak tersentuh, tetapi tata letak dan penskalaan layar akan direset. Lanjutkan?",
         aboutEN: "Utilitas bar menu macOS: bangunkan layar eksternal USB-C yang gelap dengan sekali klik dan buka mode HiDPI yang disembunyikan macOS.\n\nPembuat: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nDibuat dengan: Claude Fable 5.1 (Anthropic)\nLisensi: MIT",
         "Automatic (System)": "Otomatis (Sistem)",
+        "Send Anonymous Usage Stats": "Kirim Statistik Penggunaan Anonim",
     ],
     .tr: [
         "  HiDPI (sharp)": "  HiDPI (keskin)",
@@ -687,6 +700,7 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "/Library/Preferences/com.apple.windowserver.displays.plist ve kullanıcı ekran yapılandırması silinecek, ardından Mac yeniden başlatılacak.\nKişisel verilere dokunulmaz, ancak ekran yerleşimi / ölçekleme ayarları sıfırlanır. Devam edilsin mi?",
         aboutEN: "macOS menü çubuğu aracı: Kararan harici USB-C ekranları tek tıkla uyandırır ve macOS’un gizlediği HiDPI ölçekleme modlarını açar.\n\nGeliştirici: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nGeliştirme aracı: Claude Fable 5.1 (Anthropic)\nLisans: MIT",
         "Automatic (System)": "Otomatik (Sistem)",
+        "Send Anonymous Usage Stats": "Anonim Kullanım İstatistikleri Gönder",
     ],
     .vi: [
         "  HiDPI (sharp)": "  HiDPI (sắc nét)",
@@ -731,5 +745,6 @@ let translations: [Lang: [String: String]] = [
         edidMsgEN: "Sẽ xóa /Library/Preferences/com.apple.windowserver.displays.plist và cấu hình màn hình của người dùng, sau đó khởi động lại Mac.\nDữ liệu cá nhân không bị ảnh hưởng, nhưng bố cục và thu phóng màn hình sẽ được đặt lại. Tiếp tục?",
         aboutEN: "Tiện ích thanh menu macOS: đánh thức màn hình ngoài USB-C bị tối chỉ với một cú nhấp và mở khóa các chế độ HiDPI mà macOS ẩn đi.\n\nTác giả: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nPhát triển bằng: Claude Fable 5.1 (Anthropic)\nGiấy phép: MIT",
         "Automatic (System)": "Tự động (theo hệ thống)",
+        "Send Anonymous Usage Stats": "Gửi thống kê sử dụng ẩn danh",
     ],
 ]

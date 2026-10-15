@@ -5,7 +5,7 @@
 set -e
 cd "$(dirname "$0")"
 
-VERSION="1.9"
+VERSION="1.10"
 APP=WakeDisplay.app
 WIDGET="$APP/Contents/PlugIns/WakeDisplayWidget.appex"
 rm -rf "$APP"
@@ -33,7 +33,7 @@ cat > "$APP/Contents/Info.plist" <<EOF
 EOF
 
 echo "▶ 编译主程序 / Building app…"
-swiftc -O -import-objc-header CGVirtualDisplay.h main.swift Localization.swift -o "$APP/Contents/MacOS/WakeDisplay" \
+swiftc -O -import-objc-header CGVirtualDisplay.h main.swift Localization.swift Telemetry.swift -o "$APP/Contents/MacOS/WakeDisplay" \
   -framework Cocoa -framework Carbon -framework IOKit -framework Metal -framework QuartzCore
 
 # Widget needs macOS 14 (WidgetKit on macOS + containerBackground). Skip quietly on older SDKs.
