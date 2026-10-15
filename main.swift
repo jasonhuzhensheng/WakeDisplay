@@ -129,7 +129,7 @@ func wakeSoft() {
     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { ddcPowerOn(); probeDisplays(); declareUserActivity() }
 }
 
-/// Clicking the menu-bar icon: wake right away (off the main thread, so the menu opens instantly).
+/// Hovering over / clicking the menu-bar icon: wake right away (off the main thread, so the menu opens instantly).
 /// Throttled so opening the menu repeatedly doesn't spam the monitors with DDC commands.
 private var lastClickWake = Date.distantPast
 func wakeOnClick() {
@@ -510,10 +510,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.autosaveName = "WakeDisplay"
         updateIcon()
-        // Any click wakes the external display and opens the menu; contents are rebuilt each time it opens
+        // Hover wakes the external display; a click also opens the menu; contents are rebuilt each time it opens
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
+        // Hovering over the icon is enough to wake the external display (no click needed)
+        if let b = statusItem.button {
+            b.addTrackingArea(NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
+                                             owner: self, userInfo: nil))
+        }
         registerHotKeys()
         CrashReporter.start()
         WakeReminder.start()
@@ -557,6 +562,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSApp.activate(ignoringOtherApps: true)
         m.popUp(positioning: nil, at: NSEvent.mouseLocation, in: nil)
     }
+
+    @objc func mouseEntered(with event: NSEvent) { wakeOnClick() }
+    @objc func mouseExited(with event: NSEvent) {}
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         wakeOnClick()          // clicking the icon wakes the external display and opens the menu
