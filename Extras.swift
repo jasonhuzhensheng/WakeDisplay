@@ -21,7 +21,7 @@ enum Sponsor {
 // MARK: - What's New (shown once after the version changes)
 
 enum WhatsNew {
-    /// Call at launch. If the app was updated since the last run, show that release's notes.
+    /// (Not called at launch any more — What's New is only shown from About ▸ Updates ▸ What's New…)
     static func showIfUpdated() {
         let cur = Updater.currentVersion
         let last = ud.string(forKey: "lastRunVersion")

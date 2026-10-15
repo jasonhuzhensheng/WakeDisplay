@@ -489,7 +489,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         CrashReporter.start()
         WakeReminder.start()
         if AutoOutdoor.enabled { AutoOutdoor.start() }
-        WhatsNew.showIfUpdated()
         SoftDisconnect.reconnectAll()          // never leave a monitor switched off from a previous run
         startDisplayWatcher()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { PerDisplay.restoreAll() }
@@ -602,10 +601,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         m.addItem(item(L("Launch at Login"), #selector(actToggleLogin), state: FileManager.default.fileExists(atPath: launchAgent)))
         let aboutSub = NSMenu()
         aboutSub.addItem(item(L("About WakeDisplay…"), #selector(actAbout)))
-        aboutSub.addItem(ExtrasMenu.shared.whatsNewItem())
-        aboutSub.addItem(.separator())
-        aboutSub.addItem(item(L("Check for Updates…"), #selector(actCheckUpdates)))
-        aboutSub.addItem(item(L("Install Updates Automatically"), #selector(actToggleAutoUpdate), state: Updater.autoUpdate))
+        // Level 3: About ▸ Updates ▸ (What's New, Check for Updates, auto-install)
+        let upd = NSMenu()
+        upd.addItem(item(L("Check for Updates…"), #selector(actCheckUpdates)))
+        upd.addItem(item(L("Install Updates Automatically"), #selector(actToggleAutoUpdate), state: Updater.autoUpdate))
+        upd.addItem(.separator())
+        upd.addItem(ExtrasMenu.shared.whatsNewItem())
+        let updParent = NSMenuItem(title: "🔄 " + L("Updates"), action: nil, keyEquivalent: "")
+        updParent.submenu = upd
+        aboutSub.addItem(updParent)
         aboutSub.addItem(.separator())
         aboutSub.addItem(ExtrasMenu.shared.reportIssueItem())
         aboutSub.addItem(ExtrasMenu.shared.sponsorMenu())

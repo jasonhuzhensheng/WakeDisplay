@@ -173,6 +173,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "上",
         "Below": "下",
         "Right": "右",
+        "Updates": "更新",
     ],
     .zhHant: [
         "  HiDPI (sharp)": "  HiDPI（清晰）",
@@ -275,6 +276,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "上",
         "Below": "下",
         "Right": "右",
+        "Updates": "更新",
     ],
     .ja: [
         "  HiDPI (sharp)": "  HiDPI（高精細）",
@@ -377,6 +379,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "上",
         "Below": "下",
         "Right": "右",
+        "Updates": "アップデート",
     ],
     .ko: [
         "  HiDPI (sharp)": "  HiDPI (선명)",
@@ -479,6 +482,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "위",
         "Below": "아래",
         "Right": "오른쪽",
+        "Updates": "업데이트",
     ],
     .es: [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -581,6 +585,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "Arriba",
         "Below": "Abajo",
         "Right": "Derecha",
+        "Updates": "Actualizaciones",
     ],
     .fr: [
         "  HiDPI (sharp)": "  HiDPI (net)",
@@ -683,6 +688,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "Au-dessus",
         "Below": "En dessous",
         "Right": "Droite",
+        "Updates": "Mises à jour",
     ],
     .de: [
         "  HiDPI (sharp)": "  HiDPI (scharf)",
@@ -785,6 +791,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "Oben",
         "Below": "Unten",
         "Right": "Rechts",
+        "Updates": "Updates",
     ],
     .pt: [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -887,6 +894,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "Acima",
         "Below": "Abaixo",
         "Right": "Direita",
+        "Updates": "Atualizações",
     ],
     .it: [
         "  HiDPI (sharp)": "  HiDPI (nitido)",
@@ -989,6 +997,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "Sopra",
         "Below": "Sotto",
         "Right": "Destra",
+        "Updates": "Aggiornamenti",
     ],
     .ru: [
         "  HiDPI (sharp)": "  HiDPI (чётко)",
@@ -1091,6 +1100,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "Сверху",
         "Below": "Снизу",
         "Right": "Справа",
+        "Updates": "Обновления",
     ],
     .ar: [
         "  HiDPI (sharp)": "  HiDPI (حاد)",
@@ -1193,6 +1203,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "أعلى",
         "Below": "أسفل",
         "Right": "يمين",
+        "Updates": "التحديثات",
     ],
     .hi: [
         "  HiDPI (sharp)": "  HiDPI (स्पष्ट)",
@@ -1295,6 +1306,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "ऊपर",
         "Below": "नीचे",
         "Right": "दाएँ",
+        "Updates": "अपडेट",
     ],
     .id: [
         "  HiDPI (sharp)": "  HiDPI (tajam)",
@@ -1397,6 +1409,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "Atas",
         "Below": "Bawah",
         "Right": "Kanan",
+        "Updates": "Pembaruan",
     ],
     .tr: [
         "  HiDPI (sharp)": "  HiDPI (keskin)",
@@ -1499,6 +1512,7 @@ let translations: [Lang: [String: String]] = [
         "Above": "Üst",
         "Below": "Alt",
         "Right": "Sağ",
+        "Updates": "Güncellemeler",
     ],
     .vi: [
         "  HiDPI (sharp)": "  HiDPI (sắc nét)",
@@ -1601,5 +1615,6 @@ let translations: [Lang: [String: String]] = [
         "Above": "Trên",
         "Below": "Dưới",
         "Right": "Phải",
+        "Updates": "Cập nhật",
     ],
 ]
