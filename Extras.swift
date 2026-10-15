@@ -35,7 +35,7 @@ enum WhatsNew {
         var req = URLRequest(url: URL(string: "https://api.github.com/repos/jasonhuzhensheng/WakeDisplay/releases/tags/v\(version)")!)
         req.setValue("WakeDisplay/\(version)", forHTTPHeaderField: "User-Agent")
         req.timeoutInterval = 15
-        URLSession.shared.dataTask(with: req) { data, _, _ in
+        net.dataTask(with: req) { data, _, _ in
             var notes = ""
             if let data, let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let body = json["body"] as? String {
@@ -122,7 +122,9 @@ enum CrashReporter {
             let reason = ud.string(forKey: "lastExceptionReason") ?? "unknown"
             let ver = ud.string(forKey: "runningVersion") ?? "?"
             if enabled {
-                Telemetry.sendAlways("App.abnormalExit", ["Crash.version": ver, "Crash.reason": String(reason.prefix(200))])
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {   // keep launch free of network work
+                    Telemetry.sendAlways("App.abnormalExit", ["Crash.version": ver, "Crash.reason": String(reason.prefix(200))])
+                }
             }
         }
         ud.removeObject(forKey: "lastExceptionReason")

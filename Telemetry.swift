@@ -69,7 +69,7 @@ enum Telemetry {
         req.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         req.httpBody = data
         req.timeoutInterval = 15
-        URLSession.shared.dataTask(with: req).resume()   // fire-and-forget; failures are ignored
+        net.dataTask(with: req).resume()   // fire-and-forget; failures are ignored
     }
 
     /// Feature usage: Feature.used with Feature.name / Feature.source
@@ -89,3 +89,23 @@ enum Telemetry {
         send("App.dailyActive")
     }
 }
+
+// MARK: - Lightweight shared helpers
+
+/// Cache-free network session: no in-memory/on-disk URL cache, one connection per host.
+let net: URLSession = {
+    let c = URLSessionConfiguration.ephemeral
+    c.urlCache = nil
+    c.requestCachePolicy = .reloadIgnoringLocalCacheData
+    c.httpMaximumConnectionsPerHost = 1
+    return URLSession(configuration: c)
+}()
+
+/// Repeating timer with tolerance, so macOS can coalesce wakeups (lower CPU / energy use)
+@discardableResult
+func every(_ interval: TimeInterval, tolerance: TimeInterval, _ block: @escaping () -> Void) -> Timer {
+    let t = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { _ in block() }
+    t.tolerance = tolerance
+    return t
+}
+

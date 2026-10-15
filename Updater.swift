@@ -7,7 +7,6 @@ enum Updater {
     static let latestAPI = URL(string: "https://api.github.com/repos/jasonhuzhensheng/WakeDisplay/releases/latest")!
     static let bundleID = "com.jason.wakedisplay"
     private static var busy = false
-    private static var timer: Timer?
 
     /// On by default
     static var autoUpdate: Bool {
@@ -36,7 +35,7 @@ enum Updater {
         req.setValue("WakeDisplay/\(currentVersion)", forHTTPHeaderField: "User-Agent")
         req.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
         req.timeoutInterval = 20
-        URLSession.shared.dataTask(with: req) { data, _, _ in
+        net.dataTask(with: req) { data, _, _ in
             guard let data, let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let tag = json["tag_name"] as? String, tag.hasPrefix("v"),
                   let assets = json["assets"] as? [[String: Any]],
@@ -53,10 +52,17 @@ enum Updater {
     /// Background schedule: 1 min after launch, then every 6 hours. Installs silently when auto-update is on.
     static func start() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 60) { backgroundCheck() }
-        timer = Timer.scheduledTimer(withTimeInterval: 6 * 3600, repeats: true) { _ in backgroundCheck() }
+    }
+
+    /// Called from the app's hourly tick; checks at most every 6 hours
+    private static var lastCheck = Date()
+    static func hourlyTick() {
+        guard Date().timeIntervalSince(lastCheck) >= 6 * 3600 - 600 else { return }
+        backgroundCheck()
     }
 
     private static func backgroundCheck() {
+        lastCheck = Date()
         guard autoUpdate, !busy, !outdoor.isOn else { return }   // don't yank the screen out from under outdoor mode
         fetchLatest { r in
             guard let r, isNewer(r.version, than: currentVersion) else { return }
@@ -93,7 +99,7 @@ enum Updater {
         let fail: (String) -> Void = { msg in
             DispatchQueue.main.async { busy = false; if interactive { alert(L("Update failed: ") + msg, "") } }
         }
-        URLSession.shared.downloadTask(with: r.zipURL) { tmp, _, err in
+        net.downloadTask(with: r.zipURL) { tmp, _, err in
             guard let tmp else { fail(err?.localizedDescription ?? "download"); return }
             let fm = FileManager.default
             let work = fm.temporaryDirectory.appendingPathComponent("WakeDisplayUpdate-\(UUID().uuidString)")

@@ -5,7 +5,7 @@
 set -e
 cd "$(dirname "$0")"
 
-VERSION="1.21"
+VERSION="1.22"
 APP=WakeDisplay.app
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS"
@@ -33,8 +33,8 @@ EOF
 
 echo "▶ 编译主程序 / Building app…"
 # -Osize: optimise for size · -dead_strip: drop unused code · strip -x: drop local symbols
-swiftc -Osize -wmo -import-objc-header CGVirtualDisplay.h main.swift Localization.swift Telemetry.swift Updater.swift Advanced.swift Extras.swift AutoOutdoor.swift -o "$APP/Contents/MacOS/WakeDisplay" \
-  -Xlinker -dead_strip -framework Cocoa -framework Carbon -framework IOKit -framework Metal -framework QuartzCore
+swiftc -Osize -wmo -enforce-exclusivity=unchecked -import-objc-header CGVirtualDisplay.h main.swift Localization.swift Telemetry.swift Updater.swift Advanced.swift Extras.swift AutoOutdoor.swift -o "$APP/Contents/MacOS/WakeDisplay" \
+  -Xlinker -dead_strip -Xlinker -dead_strip_dylibs -framework Cocoa -framework Carbon -framework IOKit -framework Metal -framework QuartzCore
 strip -x "$APP/Contents/MacOS/WakeDisplay"
 
 codesign --force --sign - "$APP"   # ad-hoc 签名 / ad-hoc signature

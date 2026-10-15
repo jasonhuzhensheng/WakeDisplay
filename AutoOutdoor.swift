@@ -75,7 +75,7 @@ enum AutoOutdoor {
     static func start() {
         guard timer == nil else { return }
         brightSeconds = 0; darkSeconds = 0
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in tick() }
+        timer = every(2, tolerance: 0.5) { tick() }   // sample every 2 s; counters below are in seconds
     }
     static func stop() { timer?.invalidate(); timer = nil }
 
@@ -89,8 +89,8 @@ enum AutoOutdoor {
         guard let lux = LightSensor.lux() else { return }
         lastLux = lux
         let s = sensitivity
-        if lux >= s.onLux { brightSeconds += 1; darkSeconds = 0 }
-        else if lux < s.offLux { darkSeconds += 1; brightSeconds = 0 }
+        if lux >= s.onLux { brightSeconds += 2; darkSeconds = 0 }
+        else if lux < s.offLux { darkSeconds += 2; brightSeconds = 0 }
         else { brightSeconds = 0; darkSeconds = 0 }
 
         if darkSeconds >= 30 { suppressed = false }

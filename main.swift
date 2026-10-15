@@ -373,9 +373,11 @@ final class OutdoorMode {
             boost = OutdoorMode.available(screen)
             if boost > 1.01 { captureBaseTable(); showEDRPixel(on: screen) }
         }
-        apply()
-        // macOS resets brightness (auto-brightness) and gamma (Night Shift, reconfig) now and then → re-apply
-        timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in self?.apply() }
+        ticks = 0
+        apply(force: true)
+        // macOS resets brightness (auto-brightness) and gamma (Night Shift, reconfig) now and then → re-check.
+        // Cheap reads every 2 s; writes only when something actually changed.
+        timer = every(2, tolerance: 0.5) { [weak self] in self?.apply() }
     }
 
     func stop() {
@@ -384,27 +386,41 @@ final class OutdoorMode {
         timer?.invalidate(); timer = nil
         window?.orderOut(nil); window = nil; metalLayer = nil
         if !baseR.isEmpty { CGSetDisplayTransferByTable(display, UInt32(baseR.count), baseR, baseG, baseB) }  // back to normal
-        baseR = []; baseG = []; baseB = []
+        baseR = []; baseG = []; baseB = []; boostR = []; boostG = []; boostB = []
         if let b = savedBrightness { _ = dsSetBrightness?(display, b) }
         savedBrightness = nil
         boost = 1.0
     }
 
     /// Re-apply brightness / EDR / gamma right away (e.g. after the Mac wakes)
-    func refresh() { apply() }
+    func refresh() { ticks = 0; apply(force: true) }
 
-    private func apply() {
+    private var ticks = 0
+    private func apply(force: Bool = false) {
         guard isOn else { return }
-        _ = dsSetBrightness?(display, 1.0)
-        renderEDR()
-        guard boost > 1.01, !baseR.isEmpty else { return }
-        // Base table × boost. Values > 1.0 only take effect while EDR is active.
-        let k = CGGammaValue(boost)
-        let r = baseR.map { $0 * k }, g = baseG.map { $0 * k }, b = baseB.map { $0 * k }
-        CGSetDisplayTransferByTable(display, UInt32(r.count), r, g, b)
+        var cur: Float = 0
+        if force || dsGetBrightness?(display, &cur) != 0 || cur < 0.995 { _ = dsSetBrightness?(display, 1.0) }
+        // The EDR frame stays on screen by itself; repaint it only occasionally (every ~10 s)
+        if force || ticks % 5 == 0 { renderEDR() }
+        ticks &+= 1
+        guard boost > 1.01, !boostR.isEmpty else { return }
+        // Base table × boost (precomputed). Values > 1.0 only take effect while EDR is active.
+        if !force, gammaStillApplied() { return }
+        CGSetDisplayTransferByTable(display, UInt32(boostR.count), boostR, boostG, boostB)
+    }
+
+    /// Compare the live gamma table with ours (a read is much cheaper than a write + recomposite)
+    private func gammaStillApplied() -> Bool {
+        let n = boostR.count
+        var r = [CGGammaValue](repeating: 0, count: n), g = r, b = r
+        var count: UInt32 = 0
+        guard CGGetDisplayTransferByTable(display, UInt32(n), &r, &g, &b, &count) == .success, Int(count) == n else { return false }
+        let i = n - 1, m = n / 2
+        return abs(r[i] - boostR[i]) < 0.002 && abs(g[m] - boostG[m]) < 0.002 && abs(b[i] - boostB[i]) < 0.002
     }
 
     private var baseR: [CGGammaValue] = [], baseG: [CGGammaValue] = [], baseB: [CGGammaValue] = []
+    private var boostR: [CGGammaValue] = [], boostG: [CGGammaValue] = [], boostB: [CGGammaValue] = []
     /// Read the normal (un-boosted) gamma table once, so re-applying never flickers
     private func captureBaseTable() {
         let cap: UInt32 = 256
@@ -412,6 +428,8 @@ final class OutdoorMode {
         var count: UInt32 = 0
         guard CGGetDisplayTransferByTable(display, cap, &r, &g, &b, &count) == .success, count > 0 else { return }
         baseR = Array(r.prefix(Int(count))); baseG = Array(g.prefix(Int(count))); baseB = Array(b.prefix(Int(count)))
+        let k = CGGammaValue(boost)
+        boostR = baseR.map { $0 * k }; boostG = baseG.map { $0 * k }; boostB = baseB.map { $0 * k }
     }
 
     /// A 1×1-point always-on-top window with EDR content: this is what makes macOS unlock XDR headroom
@@ -497,7 +515,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             Telemetry.dailyActiveIfNeeded()
         }
         Updater.start()
-        telemetryTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { _ in Telemetry.dailyActiveIfNeeded() }
+        // One low-priority hourly tick for all background housekeeping (tolerance lets macOS batch it)
+        telemetryTimer = every(3600, tolerance: 600) {
+            Telemetry.dailyActiveIfNeeded()
+            Updater.hourlyTick()
+        }
     }
 
     func applicationWillTerminate(_ n: Notification) { outdoor.stop(); SoftDisconnect.reconnectAll(); CrashReporter.cleanExit() }
@@ -695,7 +717,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc func actToggleAutoWake() {
         if let t = autoWakeTimer { t.invalidate(); autoWakeTimer = nil; return }
         Telemetry.feature("autoWake")
-        autoWakeTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { _ in
+        autoWakeTimer = every(5, tolerance: 1.5) {
             let exts = physicalExternals()
             let builtinAwake = CGDisplayIsAsleep(CGMainDisplayID()) == 0
             if builtinAwake && exts.contains(where: { CGDisplayIsAsleep($0) != 0 }) { wakeSoft() }
