@@ -60,16 +60,27 @@ out.append(f'let hidpiHelpEN = {lit(HIDPI_EN)}')
 out.append(f'let pmsetMsgEN = {lit(PMSET_EN)}')
 out.append(f'let edidMsgEN = {lit(EDID_EN)}')
 out.append(f'let aboutEN = {lit(ABOUT_EN)}\n')
+SEP = "\u001f"
+def blob(items): return lit(SEP.join(items)).replace(SEP, "\\u{1F}")
+eng = {"@HIDPI":HIDPI_EN,"@PMSET":PMSET_EN,"@EDID":EDID_EN,"@ABOUT":ABOUT_EN}
+for code,(name,arr) in LANGS.items():
+    for v in arr: assert SEP not in v
+out.append('// Compact storage: each language is ONE string literal (values in key order, separated by U+001F).')
+out.append('// A dictionary literal per language would compile to ~200 bytes of code per entry; this is ~0.')
+out.append('private let keysBlob = ' + blob([eng.get(k,k) for k in KEYS]))
+out.append('')
 out.append('private func buildTable(_ l: Lang) -> [String: String] {')
+out.append('    let blob: String')
 out.append('    switch l {')
 for c,(name,arr) in LANGS.items():
-    out.append(f'    case .{cn(c)}: return [')
-    for k,v in zip(KEYS,arr):
-        key = special.get(k) or lit(k)
-        out.append(f'        {key}: {lit(v)},')
-    out.append('    ]')
+    out.append(f'    case .{cn(c)}: blob = {blob(arr)}')
 out.append('    default: return [:]')
 out.append('    }')
+out.append('    let k = keysBlob.split(separator: "\\u{1F}", omittingEmptySubsequences: false)')
+out.append('    let v = blob.split(separator: "\\u{1F}", omittingEmptySubsequences: false)')
+out.append('    var t = [String: String](minimumCapacity: k.count)')
+out.append('    for (a, b) in zip(k, v) { t[String(a)] = String(b) }')
+out.append('    return t')
 out.append('}')
 open('Localization.swift','w').write('\n'.join(out)+'\n')
 print("ok", len(LANGS)+1, "languages,", len(KEYS), "strings")
