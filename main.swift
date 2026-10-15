@@ -542,8 +542,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func buildMenu() -> NSMenu {
         let m = NSMenu()
         m.addItem(item("🔆 " + L("Wake Display    ⌘⇧R"), #selector(actWakeSoft)))
-        m.addItem(item("🔁 " + L("Force Reset (sleep → re-handshake, screens blink)"), #selector(actWakeHard)))
-        m.addItem(.separator())
         m.addItem(item("☀️ " + L("Outdoor Mode (max brightness)  ⌃⌥⌘B"), #selector(actToggleOutdoor), state: outdoor.isOn))
         m.addItem(.separator())
         for d in physicalExternals() {
@@ -576,10 +574,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         if let quick = QuickLayout.menuItem() { m.addItem(quick) }
         m.addItem(.separator())
-        m.addItem(item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0))
-        m.addItem(item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil))
-        m.addItem(.separator())
-        // Level 3: rarely used maintenance tools live in Advanced ▸ Maintenance
+        m.addItem(item("📤 " + L("Share WakeDisplay…"), #selector(actShare)))
+
+        // ── Everything else lives in ⚙️ Advanced (level 2), ordered by how often it is used ──
+        let head: [NSMenuItem] = [
+            item("🔁 " + L("Force Reset (sleep → re-handshake, screens blink)"), #selector(actWakeHard)),
+            item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0),
+            item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil),
+        ]
+
+        // Level 3: Maintenance ▸
         let maint = NSMenu()
         maint.addItem(item("⚡️ " + L("Apply Anti-Disconnect Power Policy (sudo pmset)"), #selector(actApplyPmset)))
         maint.addItem(item("↩️ " + L("Restore Default Power Policy"), #selector(actRestorePmset)))
@@ -588,7 +592,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         maint.addItem(item("🧹 " + L("Reset Display Cache (EDID) & Restart…"), #selector(actResetEDID)))
         let maintParent = NSMenuItem(title: "🛠 " + L("Maintenance"), action: nil, keyEquivalent: "")
         maintParent.submenu = maint
-        m.addItem(AdvancedMenu.shared.build(extra: [maintParent]))
+
+        // Level 3: Language ▸
         let langSub = NSMenu()
         for l in Lang.allCases {
             let title = l == .auto ? L("Automatic (System)") : (langNativeNames[l] ?? l.rawValue)
@@ -597,11 +602,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         let langTitle = effectiveLang() == .en ? "Language" : L("Language") + " · Language"
         let langParent = NSMenuItem(title: "🌐 " + langTitle, action: nil, keyEquivalent: "")
-        m.addItem(langParent); m.setSubmenu(langSub, for: langParent)
-        m.addItem(item(L("Launch at Login"), #selector(actToggleLogin), state: FileManager.default.fileExists(atPath: launchAgent)))
+        langParent.submenu = langSub
+
+        // Level 3: About ▸ (Updates ▸ and Sponsor ▸ Crypto ▸ go to levels 4–5)
         let aboutSub = NSMenu()
         aboutSub.addItem(item(L("About WakeDisplay…"), #selector(actAbout)))
-        // Level 3: About ▸ Updates ▸ (What's New, Check for Updates, auto-install)
         let upd = NSMenu()
         upd.addItem(item(L("Check for Updates…"), #selector(actCheckUpdates)))
         upd.addItem(item(L("Install Updates Automatically"), #selector(actToggleAutoUpdate), state: Updater.autoUpdate))
@@ -619,10 +624,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         ver.isEnabled = false
         aboutSub.addItem(ver)
         let aboutParent = NSMenuItem(title: "ℹ️ " + L("About"), action: nil, keyEquivalent: "")
-        m.addItem(aboutParent); m.setSubmenu(aboutSub, for: aboutParent)
-        m.addItem(.separator())
-        m.addItem(item("📤 " + L("Share WakeDisplay…"), #selector(actShare)))
-        m.addItem(NSMenuItem(title: L("Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        aboutParent.submenu = aboutSub
+
+        let tail: [NSMenuItem] = [
+            maintParent,
+            .separator(),
+            langParent,
+            item(L("Launch at Login"), #selector(actToggleLogin), state: FileManager.default.fileExists(atPath: launchAgent)),
+            aboutParent,
+            .separator(),
+            NSMenuItem(title: L("Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"),
+        ]
+        m.addItem(AdvancedMenu.shared.build(head: head, extra: tail))
         return m
     }
 

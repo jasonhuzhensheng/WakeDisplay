@@ -211,8 +211,10 @@ final class AdvancedMenu: NSObject {
         return p
     }
 
-    func build(extra: [NSMenuItem] = []) -> NSMenuItem {
-        var items: [NSMenuItem] = [AutoOutdoor.menuItem(), .separator()]
+    func build(head: [NSMenuItem] = [], extra: [NSMenuItem] = []) -> NSMenuItem {
+        var items: [NSMenuItem] = head
+        if !head.isEmpty { items.append(.separator()) }
+        items += [AutoOutdoor.menuItem(), .separator()]
         let exts = physicalExternals()
 
         // Brightness
