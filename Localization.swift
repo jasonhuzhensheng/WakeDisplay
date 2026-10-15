@@ -184,6 +184,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "下",
         "Right": "右",
         "Updates": "更新",
+        "External Displays": "外接显示器",
+        "Built-in Display": "内置屏幕",
     ]
     case .zhHant: return [
         "  HiDPI (sharp)": "  HiDPI（清晰）",
@@ -287,6 +289,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "下",
         "Right": "右",
         "Updates": "更新",
+        "External Displays": "外接顯示器",
+        "Built-in Display": "內建螢幕",
     ]
     case .ja: return [
         "  HiDPI (sharp)": "  HiDPI（高精細）",
@@ -390,6 +394,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "下",
         "Right": "右",
         "Updates": "アップデート",
+        "External Displays": "外部ディスプレイ",
+        "Built-in Display": "内蔵ディスプレイ",
     ]
     case .ko: return [
         "  HiDPI (sharp)": "  HiDPI (선명)",
@@ -493,6 +499,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "아래",
         "Right": "오른쪽",
         "Updates": "업데이트",
+        "External Displays": "외부 디스플레이",
+        "Built-in Display": "내장 디스플레이",
     ]
     case .es: return [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -596,6 +604,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "Abajo",
         "Right": "Derecha",
         "Updates": "Actualizaciones",
+        "External Displays": "Pantallas externas",
+        "Built-in Display": "Pantalla integrada",
     ]
     case .fr: return [
         "  HiDPI (sharp)": "  HiDPI (net)",
@@ -699,6 +709,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "En dessous",
         "Right": "Droite",
         "Updates": "Mises à jour",
+        "External Displays": "Écrans externes",
+        "Built-in Display": "Écran intégré",
     ]
     case .de: return [
         "  HiDPI (sharp)": "  HiDPI (scharf)",
@@ -802,6 +814,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "Unten",
         "Right": "Rechts",
         "Updates": "Updates",
+        "External Displays": "Externe Displays",
+        "Built-in Display": "Integriertes Display",
     ]
     case .pt: return [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -905,6 +919,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "Abaixo",
         "Right": "Direita",
         "Updates": "Atualizações",
+        "External Displays": "Telas externas",
+        "Built-in Display": "Tela integrada",
     ]
     case .it: return [
         "  HiDPI (sharp)": "  HiDPI (nitido)",
@@ -1008,6 +1024,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "Sotto",
         "Right": "Destra",
         "Updates": "Aggiornamenti",
+        "External Displays": "Monitor esterni",
+        "Built-in Display": "Schermo integrato",
     ]
     case .ru: return [
         "  HiDPI (sharp)": "  HiDPI (чётко)",
@@ -1111,6 +1129,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "Снизу",
         "Right": "Справа",
         "Updates": "Обновления",
+        "External Displays": "Внешние дисплеи",
+        "Built-in Display": "Встроенный дисплей",
     ]
     case .ar: return [
         "  HiDPI (sharp)": "  HiDPI (حاد)",
@@ -1214,6 +1234,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "أسفل",
         "Right": "يمين",
         "Updates": "التحديثات",
+        "External Displays": "الشاشات الخارجية",
+        "Built-in Display": "الشاشة المدمجة",
     ]
     case .hi: return [
         "  HiDPI (sharp)": "  HiDPI (स्पष्ट)",
@@ -1317,6 +1339,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "नीचे",
         "Right": "दाएँ",
         "Updates": "अपडेट",
+        "External Displays": "बाहरी डिस्प्ले",
+        "Built-in Display": "बिल्ट-इन डिस्प्ले",
     ]
     case .id: return [
         "  HiDPI (sharp)": "  HiDPI (tajam)",
@@ -1420,6 +1444,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "Bawah",
         "Right": "Kanan",
         "Updates": "Pembaruan",
+        "External Displays": "Layar Eksternal",
+        "Built-in Display": "Layar Bawaan",
     ]
     case .tr: return [
         "  HiDPI (sharp)": "  HiDPI (keskin)",
@@ -1523,6 +1549,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "Alt",
         "Right": "Sağ",
         "Updates": "Güncellemeler",
+        "External Displays": "Harici Ekranlar",
+        "Built-in Display": "Yerleşik Ekran",
     ]
     case .vi: return [
         "  HiDPI (sharp)": "  HiDPI (sắc nét)",
@@ -1626,6 +1654,8 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Below": "Dưới",
         "Right": "Phải",
         "Updates": "Cập nhật",
+        "External Displays": "Màn hình ngoài",
+        "Built-in Display": "Màn hình tích hợp",
     ]
     default: return [:]
     }

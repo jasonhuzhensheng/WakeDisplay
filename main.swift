@@ -577,12 +577,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         m.addItem(.separator())
 
         // ── Everything else lives in ⚙️ Advanced (level 2), ordered by how often it is used ──
-        var head: [NSMenuItem] = scaleItems
-        if !scaleItems.isEmpty { head.append(.separator()) }
-        head += [
+        // External Displays ▸ : scaling first, then wake tools
+        var extHead: [NSMenuItem] = scaleItems
+        if !scaleItems.isEmpty { extHead.append(.separator()) }
+        extHead += [
             item("🔁 " + L("Force Reset (sleep → re-handshake, screens blink)"), #selector(actWakeHard)),
-            item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0),
             item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil),
+        ]
+        // Built-in Display ▸ : Outdoor Mode (+ Auto Outdoor Mode added by AdvancedMenu)
+        let builtinHead: [NSMenuItem] = [
+            item("☀️ " + L("Outdoor Mode (max brightness)  ⌃⌥⌘B"), #selector(actToggleOutdoor), state: outdoor.isOn),
         ]
 
         // Level 3: Maintenance ▸
@@ -628,7 +632,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let aboutParent = NSMenuItem(title: "ℹ️ " + L("About"), action: nil, keyEquivalent: "")
         aboutParent.submenu = aboutSub
 
-        let tail: [NSMenuItem] = [
+        let general: [NSMenuItem] = [
+            item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0),
             maintParent,
             .separator(),
             langParent,
@@ -637,7 +642,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             .separator(),
             NSMenuItem(title: L("Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"),
         ]
-        m.addItem(AdvancedMenu.shared.build(head: head, extra: tail))
+        m.addItem(AdvancedMenu.shared.build(externalHead: extHead, builtinHead: builtinHead, general: general))
         m.addItem(item("📤 " + L("Share WakeDisplay…"), #selector(actShare)))
         return m
     }

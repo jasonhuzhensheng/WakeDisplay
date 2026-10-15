@@ -211,10 +211,13 @@ final class AdvancedMenu: NSObject {
         return p
     }
 
-    func build(head: [NSMenuItem] = [], extra: [NSMenuItem] = []) -> NSMenuItem {
-        var items: [NSMenuItem] = head
-        if !head.isEmpty { items.append(.separator()) }
-        items += [AutoOutdoor.menuItem(), .separator()]
+    /// ⚙️ Advanced ▸
+    ///    🖥 External Displays ▸  (externalHead + DDC / dimming / input / refresh / disconnect / layouts / memory)
+    ///    💻 Built-in Display ▸   (builtinHead + Auto Outdoor Mode)
+    ///    general…  (prevent sleep, maintenance, language, login, about, quit)
+    func build(externalHead: [NSMenuItem], builtinHead: [NSMenuItem], general: [NSMenuItem]) -> NSMenuItem {
+        var items: [NSMenuItem] = externalHead
+        if !externalHead.isEmpty { items.append(.separator()) }
         let exts = physicalExternals()
 
         // Brightness
@@ -263,9 +266,10 @@ final class AdvancedMenu: NSObject {
 
         items.append(.separator())
         items.append(it(L("Remember Settings per Display"), #selector(toggleRemember), on: PerDisplay.enabled))
-        if !extra.isEmpty { items.append(.separator()); items += extra }
 
-        return sub("⚙️ " + L("Advanced"), items)
+        let external = sub("🖥 " + L("External Displays"), items)
+        let builtin = sub("💻 " + L("Built-in Display"), builtinHead + [AutoOutdoor.menuItem()])
+        return sub("⚙️ " + L("Advanced"), [external, builtin, .separator()] + general)
     }
 
     @objc func brightUp() { DDC.step(10); Telemetry.feature("brightness") }
