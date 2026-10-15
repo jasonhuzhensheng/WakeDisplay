@@ -358,7 +358,7 @@ final class OutdoorMode {
         Float(min(screen.maximumPotentialExtendedDynamicRangeColorComponentValue, 1.6))
     }
 
-    /// Manual toggle (menu / hotkey / widget); the light-sensor automation uses start()/stop() directly
+    /// Manual toggle (menu / hotkey / URL); the light-sensor automation uses start()/stop() directly
     func toggle() { isOn ? stop() : start(); AutoOutdoor.manualToggled(isOnNow: isOn) }
 
     func start() {
@@ -502,10 +502,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     func applicationWillTerminate(_ n: Notification) { outdoor.stop(); SoftDisconnect.reconnectAll(); CrashReporter.cleanExit() }
 
-    /// Commands from the desktop widget (and anything else): wakedisplay://wake | reset | outdoor | larger | smaller | menu
+    /// URL commands (handy for Shortcuts / scripts): wakedisplay://wake | reset | outdoor | larger | smaller | menu
     func application(_ application: NSApplication, open urls: [URL]) {
         for url in urls where url.scheme == "wakedisplay" {
-            Telemetry.feature(url.host ?? "unknown", source: "widget")
+            Telemetry.feature(url.host ?? "unknown", source: "url")
             switch url.host ?? "" {
             case "wake":    wakeSoft()
             case "reset":   wakeHard()

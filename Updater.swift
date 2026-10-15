@@ -115,7 +115,7 @@ enum Updater {
 
                 let target = Bundle.main.bundleURL
                 _ = try fm.replaceItemAt(target, withItemAt: newApp)
-                // Re-register URL scheme + widget for the new bundle
+                // Re-register the URL scheme for the new bundle
                 let reg = Process()
                 reg.launchPath = "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
                 reg.arguments = ["-f", target.path]

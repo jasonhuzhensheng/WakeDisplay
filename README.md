@@ -38,7 +38,6 @@
 - ☕️ **阻止显示器休眠** — 等价于常驻 `caffeinate -d`
 - ☀️ **户外模式（⌃⌥⌘B）** — MacBook 内建屏亮度拉满；Liquid Retina XDR 机型再借用 HDR 余量把整个画面提亮约 1.6 倍（全屏约 800 尼特），阳光下也看得清。关闭即恢复原亮度
 - 🌤 **自动户外模式**（⚙️ 高级里开启）：读取 MacBook 环境光传感器，强光下持续约 10 秒自动开启户外模式，回到室内约 30 秒后自动关闭；可调灵敏度，菜单里显示实时光照（lux）。合盖再打开时若户外模式仍开着，会提示 1 秒
-- 🧩 **桌面 / 通知中心小组件**（macOS 14+）— 小号：点一下唤醒；中号：唤醒、强制重置、户外模式、字体变大 / 变小、菜单六个按钮。右键桌面 →「编辑小组件」→ 搜索 WakeDisplay 添加
 - 🌐 **16 种界面语言**，默认跟随系统语言：English、简体中文、繁體中文、日本語、한국어、Español、Français、Deutsch、Português、Italiano、Русский、العربية、हिन्दी、Bahasa Indonesia、Türkçe、Tiếng Việt
 - 🔄 **自动更新** — 每 6 小时检查 GitHub 最新版本，自动下载、校验并安装后重启（户外模式开启时暂缓）。菜单 → ℹ️ 关于 → 可手动「检查更新」或关闭自动更新
 - 📰 **新功能**：菜单 → ℹ️ 关于 → 🔄 更新 → 新功能…，查看本次更新内容 · 🐞 **反馈问题**：一键打开 GitHub Issue，自动附上版本、系统和显示器信息 · ❤️ **赞助**（菜单 → ℹ️ 关于）
@@ -169,7 +168,6 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 - ☕️ **Prevent display sleep** — a persistent `caffeinate -d`
 - ☀️ **Outdoor mode (⌃⌥⌘B)** — built-in MacBook display to 100% brightness; on Liquid Retina XDR models it also uses the HDR headroom to brighten the whole desktop ~1.6× (≈800 nits full-screen) for direct sunlight. Turning it off restores your previous brightness
 - 🌤 **Auto Outdoor Mode** (enable in ⚙️ Advanced): reads the MacBook ambient light sensor, turns Outdoor Mode on after ~10 s of bright light and off ~30 s after you are back indoors; adjustable sensitivity, live lux reading in the menu. A 1-second reminder appears if Outdoor Mode is still on when you open the lid
-- 🧩 **Desktop / Notification Center widget** (macOS 14+) — small: tap to wake; medium: six buttons for Wake, Force Reset, Outdoor, Larger / Smaller Text and Menu. Right-click the desktop → Edit Widgets → search "WakeDisplay"
 - 🌐 **16 UI languages**, following your system language by default: English, 简体中文, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português, Italiano, Русский, العربية, हिन्दी, Bahasa Indonesia, Türkçe, Tiếng Việt
 - 🔄 **Auto-update** — checks GitHub every 6 hours, downloads, verifies and installs the new version, then relaunches (postponed while Outdoor Mode is on). Menu → ℹ️ About → "Check for Updates…" or turn auto-update off
 - 📰 **What's New**: menu → ℹ️ About → 🔄 Updates → What's New… · 🐞 **Report an Issue**: opens a GitHub issue pre-filled with version, macOS and display info · ❤️ **Sponsor** (menu → ℹ️ About)

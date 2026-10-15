@@ -6,7 +6,7 @@ name: Release
 on:
   push:
     branches: [main]
-    paths: ['build.sh', 'main.swift', 'CGVirtualDisplay.h', 'Localization.swift', 'Telemetry.swift', 'Updater.swift', 'Advanced.swift', 'Extras.swift', 'AutoOutdoor.swift', 'Widget/**']
+    paths: ['build.sh', 'main.swift', 'CGVirtualDisplay.h', 'Localization.swift', 'Telemetry.swift', 'Updater.swift', 'Advanced.swift', 'Extras.swift', 'AutoOutdoor.swift']
   workflow_dispatch:
 
 permissions:
