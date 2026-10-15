@@ -186,6 +186,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "更新",
         "External Displays": "外接显示器",
         "Built-in Display": "内置屏幕",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "墨水屏模式（看书）  ⌃⌥⌘E",
+        "E-ink Mode is on": "墨水屏模式已开启",
+        "Press ⌃⌥⌘E to switch back to color": "按 ⌃⌥⌘E 切回彩色",
+        "Back to color": "已切回彩色",
     ]
     case .zhHant: return [
         "  HiDPI (sharp)": "  HiDPI（清晰）",
@@ -291,6 +295,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "更新",
         "External Displays": "外接顯示器",
         "Built-in Display": "內建螢幕",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "墨水屏模式（閱讀）  ⌃⌥⌘E",
+        "E-ink Mode is on": "墨水屏模式已開啟",
+        "Press ⌃⌥⌘E to switch back to color": "按 ⌃⌥⌘E 切回彩色",
+        "Back to color": "已切回彩色",
     ]
     case .ja: return [
         "  HiDPI (sharp)": "  HiDPI（高精細）",
@@ -396,6 +404,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "アップデート",
         "External Displays": "外部ディスプレイ",
         "Built-in Display": "内蔵ディスプレイ",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "電子ペーパーモード（読書）  ⌃⌥⌘E",
+        "E-ink Mode is on": "電子ペーパーモード オン",
+        "Press ⌃⌥⌘E to switch back to color": "⌃⌥⌘E でカラーに戻す",
+        "Back to color": "カラーに戻しました",
     ]
     case .ko: return [
         "  HiDPI (sharp)": "  HiDPI (선명)",
@@ -501,6 +513,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "업데이트",
         "External Displays": "외부 디스플레이",
         "Built-in Display": "내장 디스플레이",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "전자잉크 모드 (독서)  ⌃⌥⌘E",
+        "E-ink Mode is on": "전자잉크 모드 켜짐",
+        "Press ⌃⌥⌘E to switch back to color": "⌃⌥⌘E를 눌러 컬러로 돌아가기",
+        "Back to color": "컬러로 돌아왔습니다",
     ]
     case .es: return [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -606,6 +622,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "Actualizaciones",
         "External Displays": "Pantallas externas",
         "Built-in Display": "Pantalla integrada",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "Modo tinta electrónica (lectura)  ⌃⌥⌘E",
+        "E-ink Mode is on": "Modo tinta electrónica activado",
+        "Press ⌃⌥⌘E to switch back to color": "Pulsa ⌃⌥⌘E para volver al color",
+        "Back to color": "Color restaurado",
     ]
     case .fr: return [
         "  HiDPI (sharp)": "  HiDPI (net)",
@@ -711,6 +731,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "Mises à jour",
         "External Displays": "Écrans externes",
         "Built-in Display": "Écran intégré",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "Mode encre électronique (lecture)  ⌃⌥⌘E",
+        "E-ink Mode is on": "Mode encre électronique activé",
+        "Press ⌃⌥⌘E to switch back to color": "Appuyez sur ⌃⌥⌘E pour revenir à la couleur",
+        "Back to color": "Retour à la couleur",
     ]
     case .de: return [
         "  HiDPI (sharp)": "  HiDPI (scharf)",
@@ -816,6 +840,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "Updates",
         "External Displays": "Externe Displays",
         "Built-in Display": "Integriertes Display",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "E-Ink-Modus (Lesen)  ⌃⌥⌘E",
+        "E-ink Mode is on": "E-Ink-Modus ist an",
+        "Press ⌃⌥⌘E to switch back to color": "⌃⌥⌘E drücken, um zur Farbe zurückzukehren",
+        "Back to color": "Wieder in Farbe",
     ]
     case .pt: return [
         "  HiDPI (sharp)": "  HiDPI (nítido)",
@@ -921,6 +949,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "Atualizações",
         "External Displays": "Telas externas",
         "Built-in Display": "Tela integrada",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "Modo tinta eletrônica (leitura)  ⌃⌥⌘E",
+        "E-ink Mode is on": "Modo tinta eletrônica ativado",
+        "Press ⌃⌥⌘E to switch back to color": "Pressione ⌃⌥⌘E para voltar às cores",
+        "Back to color": "Cores restauradas",
     ]
     case .it: return [
         "  HiDPI (sharp)": "  HiDPI (nitido)",
@@ -1026,6 +1058,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "Aggiornamenti",
         "External Displays": "Monitor esterni",
         "Built-in Display": "Schermo integrato",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "Modalità e-ink (lettura)  ⌃⌥⌘E",
+        "E-ink Mode is on": "Modalità e-ink attiva",
+        "Press ⌃⌥⌘E to switch back to color": "Premi ⌃⌥⌘E per tornare ai colori",
+        "Back to color": "Colori ripristinati",
     ]
     case .ru: return [
         "  HiDPI (sharp)": "  HiDPI (чётко)",
@@ -1131,6 +1167,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "Обновления",
         "External Displays": "Внешние дисплеи",
         "Built-in Display": "Встроенный дисплей",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "Режим e-ink (чтение)  ⌃⌥⌘E",
+        "E-ink Mode is on": "Режим e-ink включён",
+        "Press ⌃⌥⌘E to switch back to color": "Нажмите ⌃⌥⌘E, чтобы вернуть цвет",
+        "Back to color": "Цвет восстановлен",
     ]
     case .ar: return [
         "  HiDPI (sharp)": "  HiDPI (حاد)",
@@ -1236,6 +1276,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "التحديثات",
         "External Displays": "الشاشات الخارجية",
         "Built-in Display": "الشاشة المدمجة",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "وضع الحبر الإلكتروني (للقراءة)  ⌃⌥⌘E",
+        "E-ink Mode is on": "وضع الحبر الإلكتروني مفعّل",
+        "Press ⌃⌥⌘E to switch back to color": "اضغط ⌃⌥⌘E للعودة إلى الألوان",
+        "Back to color": "تمت العودة إلى الألوان",
     ]
     case .hi: return [
         "  HiDPI (sharp)": "  HiDPI (स्पष्ट)",
@@ -1341,6 +1385,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "अपडेट",
         "External Displays": "बाहरी डिस्प्ले",
         "Built-in Display": "बिल्ट-इन डिस्प्ले",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "ई-इंक मोड (पढ़ने के लिए)  ⌃⌥⌘E",
+        "E-ink Mode is on": "ई-इंक मोड चालू है",
+        "Press ⌃⌥⌘E to switch back to color": "रंगीन पर लौटने के लिए ⌃⌥⌘E दबाएँ",
+        "Back to color": "रंग वापस आ गए",
     ]
     case .id: return [
         "  HiDPI (sharp)": "  HiDPI (tajam)",
@@ -1446,6 +1494,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "Pembaruan",
         "External Displays": "Layar Eksternal",
         "Built-in Display": "Layar Bawaan",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "Mode E-ink (membaca)  ⌃⌥⌘E",
+        "E-ink Mode is on": "Mode E-ink aktif",
+        "Press ⌃⌥⌘E to switch back to color": "Tekan ⌃⌥⌘E untuk kembali ke warna",
+        "Back to color": "Kembali ke warna",
     ]
     case .tr: return [
         "  HiDPI (sharp)": "  HiDPI (keskin)",
@@ -1551,6 +1603,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "Güncellemeler",
         "External Displays": "Harici Ekranlar",
         "Built-in Display": "Yerleşik Ekran",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "E-mürekkep Modu (okuma)  ⌃⌥⌘E",
+        "E-ink Mode is on": "E-mürekkep Modu açık",
+        "Press ⌃⌥⌘E to switch back to color": "Renkliye dönmek için ⌃⌥⌘E’ye basın",
+        "Back to color": "Renkliye dönüldü",
     ]
     case .vi: return [
         "  HiDPI (sharp)": "  HiDPI (sắc nét)",
@@ -1656,6 +1712,10 @@ private func buildTable(_ l: Lang) -> [String: String] {
         "Updates": "Cập nhật",
         "External Displays": "Màn hình ngoài",
         "Built-in Display": "Màn hình tích hợp",
+        "E-ink Mode (for reading)  ⌃⌥⌘E": "Chế độ mực điện tử (đọc sách)  ⌃⌥⌘E",
+        "E-ink Mode is on": "Đã bật chế độ mực điện tử",
+        "Press ⌃⌥⌘E to switch back to color": "Nhấn ⌃⌥⌘E để trở lại màu",
+        "Back to color": "Đã trở lại màu",
     ]
     default: return [:]
     }

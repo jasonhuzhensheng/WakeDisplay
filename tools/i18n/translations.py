@@ -281,3 +281,26 @@ LANGS = {
   f"Tiện ích thanh menu macOS: đánh thức màn hình ngoài USB-C bị tối chỉ với một cú nhấp và mở khóa các chế độ HiDPI mà macOS ẩn đi.\n\nTác giả: {AUTH}\n\nPhát triển bằng: Claude Fable 5.1 (Anthropic)\nGiấy phép: MIT",
   "Tự động (theo hệ thống)", "Gửi thống kê sử dụng ẩn danh", "Giới thiệu", "Kiểm tra cập nhật…", "Tự động cài bản cập nhật", "Bạn đang dùng bản mới nhất.", "Có phiên bản mới: ", "Cài đặt và mở lại", "Để sau", "Cập nhật thất bại: ", "Nâng cao", "Độ sáng (màn hình ngoài)", "Âm lượng (màn hình ngoài)", "Tắt tiếng", "Bật tiếng", "Làm tối thêm", "Tắt", "Nguồn đầu vào", "Tần số quét — ", "Ngắt màn hình", "Kết nối lại mọi màn hình", "Bố cục đã lưu", "Lưu bố cục hiện tại làm mẫu ", "Áp dụng mẫu ", "(trống)", "Ghi nhớ cài đặt theo màn hình", "Tăng độ sáng  ⌃⌥⌘↑", "Giảm độ sáng  ⌃⌥⌘↓", "Có gì mới…", "Có gì mới trong ", "Báo lỗi…", "Ủng hộ", "Tiền mã hóa", "Đã sao chép địa chỉ vào bộ nhớ tạm.", "Quyền riêng tư", "Gửi báo cáo sự cố", "Bảo trì", "Chế độ ngoài trời đang bật", "Nhấn ⌃⌥⌘B để tắt và tiết kiệm pin", "Tự động chế độ ngoài trời (cảm biến ánh sáng)", "Ánh sáng môi trường: ", "Không đọc được cảm biến ánh sáng", "Độ nhạy", "Thấp", "Trung bình", "Cao", "Đã tự bật: phát hiện ánh sáng mạnh", "Chế độ ngoài trời đã tắt", "Đã tự tắt: đã vào trong nhà", "Chia sẻ WakeDisplay…", "WakeDisplay: ứng dụng thanh menu macOS miễn phí giúp đánh thức màn hình ngoài bị tối, mở khóa thu phóng HiDPI sắc nét và giúp MacBook dễ nhìn dưới nắng.", "Đăng lên X", "Sao chép liên kết", "Đã sao chép liên kết", "Vị trí màn hình ngoài", "Trái", "Trên", "Dưới", "Phải", "Cập nhật", "Màn hình ngoài", "Màn hình tích hợp"]),
 }
+
+# ---- v1.27: E-ink mode ----
+_EINK_KEYS = ["E-ink Mode (for reading)  ⌃⌥⌘E", "E-ink Mode is on", "Press ⌃⌥⌘E to switch back to color", "Back to color"]
+_EINK = {
+ "zh-Hans": ["墨水屏模式（看书）  ⌃⌥⌘E", "墨水屏模式已开启", "按 ⌃⌥⌘E 切回彩色", "已切回彩色"],
+ "zh-Hant": ["墨水屏模式（閱讀）  ⌃⌥⌘E", "墨水屏模式已開啟", "按 ⌃⌥⌘E 切回彩色", "已切回彩色"],
+ "ja": ["電子ペーパーモード（読書）  ⌃⌥⌘E", "電子ペーパーモード オン", "⌃⌥⌘E でカラーに戻す", "カラーに戻しました"],
+ "ko": ["전자잉크 모드 (독서)  ⌃⌥⌘E", "전자잉크 모드 켜짐", "⌃⌥⌘E를 눌러 컬러로 돌아가기", "컬러로 돌아왔습니다"],
+ "es": ["Modo tinta electrónica (lectura)  ⌃⌥⌘E", "Modo tinta electrónica activado", "Pulsa ⌃⌥⌘E para volver al color", "Color restaurado"],
+ "fr": ["Mode encre électronique (lecture)  ⌃⌥⌘E", "Mode encre électronique activé", "Appuyez sur ⌃⌥⌘E pour revenir à la couleur", "Retour à la couleur"],
+ "de": ["E-Ink-Modus (Lesen)  ⌃⌥⌘E", "E-Ink-Modus ist an", "⌃⌥⌘E drücken, um zur Farbe zurückzukehren", "Wieder in Farbe"],
+ "pt": ["Modo tinta eletrônica (leitura)  ⌃⌥⌘E", "Modo tinta eletrônica ativado", "Pressione ⌃⌥⌘E para voltar às cores", "Cores restauradas"],
+ "it": ["Modalità e-ink (lettura)  ⌃⌥⌘E", "Modalità e-ink attiva", "Premi ⌃⌥⌘E per tornare ai colori", "Colori ripristinati"],
+ "ru": ["Режим e-ink (чтение)  ⌃⌥⌘E", "Режим e-ink включён", "Нажмите ⌃⌥⌘E, чтобы вернуть цвет", "Цвет восстановлен"],
+ "ar": ["وضع الحبر الإلكتروني (للقراءة)  ⌃⌥⌘E", "وضع الحبر الإلكتروني مفعّل", "اضغط ⌃⌥⌘E للعودة إلى الألوان", "تمت العودة إلى الألوان"],
+ "hi": ["ई-इंक मोड (पढ़ने के लिए)  ⌃⌥⌘E", "ई-इंक मोड चालू है", "रंगीन पर लौटने के लिए ⌃⌥⌘E दबाएँ", "रंग वापस आ गए"],
+ "id": ["Mode E-ink (membaca)  ⌃⌥⌘E", "Mode E-ink aktif", "Tekan ⌃⌥⌘E untuk kembali ke warna", "Kembali ke warna"],
+ "tr": ["E-mürekkep Modu (okuma)  ⌃⌥⌘E", "E-mürekkep Modu açık", "Renkliye dönmek için ⌃⌥⌘E’ye basın", "Renkliye dönüldü"],
+ "vi": ["Chế độ mực điện tử (đọc sách)  ⌃⌥⌘E", "Đã bật chế độ mực điện tử", "Nhấn ⌃⌥⌘E để trở lại màu", "Đã trở lại màu"],
+}
+KEYS += _EINK_KEYS
+for _c, (_n, _arr) in LANGS.items():
+    _arr.extend(_EINK[_c])

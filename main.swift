@@ -374,6 +374,7 @@ final class OutdoorMode {
 
     func start() {
         guard !isOn, let d = builtinDisplay() else { return }
+        if EInk.isOn { EInk.stop(quiet: true) }
         display = d
         isOn = true
         var cur: Float = 0
@@ -487,6 +488,62 @@ final class OutdoorMode {
 }
 let outdoor = OutdoorMode()
 
+// MARK: - E-ink mode (for reading): grayscale + warm "paper" tint, lifted blacks, softer contrast
+//
+// 1. Grayscale: private CoreGraphics CGDisplayForceToGray (the same switch the Accessibility
+//    grayscale filter uses), looked up at runtime so a missing symbol never breaks launch.
+// 2. Paper tint: per-display gamma formula — white becomes warm off-white, black a deep grey.
+// Turning it off restores ColorSync gamma and full colour.
+
+private typealias ForceGrayFn = @convention(c) (Bool) -> Void
+private let cgForceToGray: ForceGrayFn? = {
+    guard let s = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "CGDisplayForceToGray") else { return nil }  // RTLD_DEFAULT
+    return unsafeBitCast(s, to: ForceGrayFn.self)
+}()
+
+enum EInk {
+    private(set) static var isOn = false
+    private static var observing = false
+
+    static func toggle() { isOn ? stop() : start() }
+
+    static func start() {
+        guard !isOn else { return }
+        if outdoor.isOn { outdoor.stop() }          // the two modes both drive gamma; reading wins
+        isOn = true
+        apply()
+        if !observing {                             // macOS resets gamma on wake / reconfiguration
+            observing = true
+            let re: (Notification) -> Void = { _ in if isOn { DispatchQueue.main.asyncAfter(deadline: .now() + 1) { apply() } } }
+            NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main, using: re)
+            NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.screensDidWakeNotification, object: nil, queue: .main, using: re)
+        }
+        (NSApp.delegate as? AppDelegate)?.updateIcon()
+        WakeReminder.show("📖 " + L("E-ink Mode is on"), L("Press ⌃⌥⌘E to switch back to color"))
+    }
+
+    static func stop(quiet: Bool = false) {
+        guard isOn else { return }
+        isOn = false
+        cgForceToGray?(false)
+        CGDisplayRestoreColorSyncSettings()
+        (NSApp.delegate as? AppDelegate)?.updateIcon()
+        if !quiet { WakeReminder.show("🎨 " + L("Back to color"), "") }
+    }
+
+    private static func apply() {
+        cgForceToGray?(true)
+        var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
+        CGGetOnlineDisplayList(16, &ids, &n)
+        for d in ids.prefix(Int(n)) where !isVirtual(d) {
+            //                              min   max   gamma   → paper white (0.96,0.93,0.84), ink black ≈ 0.09
+            CGSetDisplayTransferByFormula(d, 0.10, 0.96, 1.15,
+                                             0.09, 0.93, 1.15,
+                                             0.07, 0.84, 1.15)
+        }
+    }
+}
+
 // MARK: - Menu-bar app
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
@@ -538,7 +595,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    func applicationWillTerminate(_ n: Notification) { outdoor.stop(); SoftDisconnect.reconnectAll(); CrashReporter.cleanExit() }
+    func applicationWillTerminate(_ n: Notification) { outdoor.stop(); EInk.stop(quiet: true); SoftDisconnect.reconnectAll(); CrashReporter.cleanExit() }
 
     /// URL commands (handy for Shortcuts / scripts): wakedisplay://wake | reset | outdoor | larger | smaller | menu
     func application(_ application: NSApplication, open urls: [URL]) {
@@ -548,6 +605,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             case "wake":    wakeSoft()
             case "reset":   wakeHard()
             case "outdoor": actToggleOutdoor()
+            case "eink":    actToggleEInk()
             case "larger":  if let d = physicalExternals().first { stepScaled(d, larger: true) }
             case "smaller": if let d = physicalExternals().first { stepScaled(d, larger: false) }
             case "menu":    popMenuAtMouse()
@@ -602,6 +660,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let m = NSMenu()
         m.addItem(item("🔆 " + L("Wake Display    ⌘⇧R"), #selector(actWakeSoft)))
         m.addItem(item("☀️ " + L("Outdoor Mode (max brightness)  ⌃⌥⌘B"), #selector(actToggleOutdoor), state: outdoor.isOn))
+        m.addItem(item("📖 " + L("E-ink Mode (for reading)  ⌃⌥⌘E"), #selector(actToggleEInk), state: EInk.isOn))
         var scaleItems: [NSMenuItem] = []     // → top of ⚙️ Advanced
         for d in physicalExternals() {
             let sub = NSMenu()
@@ -710,6 +769,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc func actWakeSoft() { wakeSoft(); Telemetry.feature("wake") }
     @objc func actWakeHard() { wakeHard(); Telemetry.feature("forceReset") }
 
+    @objc func actToggleEInk() {
+        EInk.toggle()
+        if EInk.isOn { Telemetry.feature("einkMode") }
+    }
+
     @objc func actToggleOutdoor() {
         outdoor.toggle()
         if outdoor.isOn { Telemetry.feature("outdoorMode") }
@@ -797,6 +861,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let stand = NSBezierPath(); stand.lineWidth = 1.5; stand.lineCapStyle = .round
             stand.move(to: NSPoint(x: 6, y: 15.6)); stand.line(to: NSPoint(x: 12, y: 15.6)); stand.stroke()
             if keepAwake { NSBezierPath(ovalIn: NSRect(x: 13.6, y: 0.4, width: 4, height: 4)).fill() }
+            if EInk.isOn { NSBezierPath(rect: NSRect(x: 0.4, y: 0.4, width: 3.6, height: 3.6)).fill() }   // e-ink: small square badge
             return true
         }
         img.isTemplate = true
@@ -882,6 +947,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             case 5: (NSApp.delegate as? AppDelegate)?.popMenuAtMouse()
             case 6: DDC.step(10)
             case 7: DDC.step(-10)
+            case 8: EInk.toggle()
             default: break
             }
             return noErr
@@ -895,6 +961,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         var ref4: EventHotKeyRef?
         RegisterEventHotKey(UInt32(kVK_ANSI_B), UInt32(cmdKey | optionKey | controlKey), EventHotKeyID(signature: 0x57414B45, id: 4), GetApplicationEventTarget(), 0, &ref4)
         hotKeyRefs.append(ref4)
+        var ref8: EventHotKeyRef?
+        RegisterEventHotKey(UInt32(kVK_ANSI_E), UInt32(cmdKey | optionKey | controlKey), EventHotKeyID(signature: 0x57414B45, id: 8), GetApplicationEventTarget(), 0, &ref8)
+        hotKeyRefs.append(ref8)
         var ref5: EventHotKeyRef?
         RegisterEventHotKey(UInt32(kVK_ANSI_M), UInt32(cmdKey | optionKey | controlKey), EventHotKeyID(signature: 0x57414B45, id: 5), GetApplicationEventTarget(), 0, &ref5)
         hotKeyRefs.append(ref5)
