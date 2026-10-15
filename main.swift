@@ -7,6 +7,8 @@ import Cocoa
 import Carbon
 import IOKit
 import IOKit.pwr_mgt
+import Metal
+import QuartzCore
 
 // MARK: - Localization (English by default, Chinese selectable / 默认英文，可切换中文)
 
@@ -66,6 +68,9 @@ let zhTable: [String: String] = [
     "  HiDPI (sharp)": "  HiDPI（清晰）",
     "⚠️ No HiDPI modes for this display (help)": "⚠️ 此显示器没有可用的 HiDPI 模式（见帮助）",
     "Display ": "显示器 ",
+    "Outdoor Mode (max brightness)  ⌃⌥⌘B": "户外模式（亮度拉满）  ⌃⌥⌘B",
+    "Outdoor Mode": "户外模式",
+    "Brightness set to 100%. This display has no XDR headroom, so no extra boost is available beyond that.": "亮度已调到 100%。这块屏没有 XDR 余量，无法再额外提亮。",
     "Sharp Scaling at Native Resolution": "原生分辨率清晰缩放",
     "Looks like ": "看起来像 ",
     "⚠️ No HiDPI modes — turn on Sharp Scaling above (help)": "⚠️ 没有 HiDPI 模式，请打开上面的清晰缩放（帮助）",
@@ -397,6 +402,142 @@ func stepScaled(_ physical: CGDirectDisplayID, larger: Bool) {
     }
 }
 
+
+// MARK: - Outdoor mode (built-in display): max brightness + XDR boost
+//
+// 1. Push the built-in panel's backlight to 100% (private DisplayServices, loaded at runtime).
+// 2. On Liquid Retina XDR MacBook Pros, show a 1-pixel EDR (HDR) layer so macOS unlocks the panel's
+//    extra headroom, then scale the display's gamma table above 1.0. The whole SDR desktop gets
+//    ~1.6× brighter (≈1000 nits full-screen instead of 500). Same technique as BrightIntosh.
+// Turning it off restores the previous brightness and the normal gamma table.
+
+typealias DSGetBrightnessFn = @convention(c) (CGDirectDisplayID, UnsafeMutablePointer<Float>) -> Int32
+typealias DSSetBrightnessFn = @convention(c) (CGDirectDisplayID, Float) -> Int32
+let dsHandle = dlopen("/System/Library/PrivateFrameworks/DisplayServices.framework/DisplayServices", RTLD_NOW)
+let dsGetBrightness: DSGetBrightnessFn? = dsHandle.flatMap { dlsym($0, "DisplayServicesGetBrightness") }.map { unsafeBitCast($0, to: DSGetBrightnessFn.self) }
+let dsSetBrightness: DSSetBrightnessFn? = dsHandle.flatMap { dlsym($0, "DisplayServicesSetBrightness") }.map { unsafeBitCast($0, to: DSSetBrightnessFn.self) }
+
+func builtinDisplay() -> CGDirectDisplayID? {
+    var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
+    CGGetOnlineDisplayList(16, &ids, &n)
+    return ids.prefix(Int(n)).first { CGDisplayIsBuiltin($0) != 0 }
+}
+func screenFor(_ d: CGDirectDisplayID) -> NSScreen? {
+    NSScreen.screens.first { ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID) == d }
+}
+
+final class OutdoorMode {
+    private(set) var isOn = false
+    private(set) var boost: Float = 1.0          // gamma multiplier actually applied
+    private var savedBrightness: Float?
+    private var window: NSWindow?
+    private var metalLayer: CAMetalLayer?
+    private let device = MTLCreateSystemDefaultDevice()
+    private lazy var queue = device?.makeCommandQueue()
+    private var timer: Timer?
+    private var display: CGDirectDisplayID = 0
+
+    /// How much extra brightness this panel can give (1.0 = none, i.e. not an XDR display)
+    static func available(_ screen: NSScreen) -> Float {
+        Float(min(screen.maximumPotentialExtendedDynamicRangeColorComponentValue, 1.6))
+    }
+
+    func toggle() { isOn ? stop() : start() }
+
+    func start() {
+        guard !isOn, let d = builtinDisplay() else { return }
+        display = d
+        isOn = true
+        var cur: Float = 0
+        if let get = dsGetBrightness, get(d, &cur) == 0 { savedBrightness = cur }
+        _ = dsSetBrightness?(d, 1.0)
+
+        if let screen = screenFor(d) {
+            boost = OutdoorMode.available(screen)
+            if boost > 1.01 { captureBaseTable(); showEDRPixel(on: screen) }
+        }
+        apply()
+        // macOS resets brightness (auto-brightness) and gamma (Night Shift, reconfig) now and then → re-apply
+        timer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] _ in self?.apply() }
+    }
+
+    func stop() {
+        guard isOn else { return }
+        isOn = false
+        timer?.invalidate(); timer = nil
+        window?.orderOut(nil); window = nil; metalLayer = nil
+        if !baseR.isEmpty { CGSetDisplayTransferByTable(display, UInt32(baseR.count), baseR, baseG, baseB) }  // back to normal
+        baseR = []; baseG = []; baseB = []
+        if let b = savedBrightness { _ = dsSetBrightness?(display, b) }
+        savedBrightness = nil
+        boost = 1.0
+    }
+
+    private func apply() {
+        guard isOn else { return }
+        _ = dsSetBrightness?(display, 1.0)
+        renderEDR()
+        guard boost > 1.01, !baseR.isEmpty else { return }
+        // Base table × boost. Values > 1.0 only take effect while EDR is active.
+        let k = CGGammaValue(boost)
+        let r = baseR.map { $0 * k }, g = baseG.map { $0 * k }, b = baseB.map { $0 * k }
+        CGSetDisplayTransferByTable(display, UInt32(r.count), r, g, b)
+    }
+
+    private var baseR: [CGGammaValue] = [], baseG: [CGGammaValue] = [], baseB: [CGGammaValue] = []
+    /// Read the normal (un-boosted) gamma table once, so re-applying never flickers
+    private func captureBaseTable() {
+        let cap: UInt32 = 256
+        var r = [CGGammaValue](repeating: 0, count: Int(cap)), g = r, b = r
+        var count: UInt32 = 0
+        guard CGGetDisplayTransferByTable(display, cap, &r, &g, &b, &count) == .success, count > 0 else { return }
+        baseR = Array(r.prefix(Int(count))); baseG = Array(g.prefix(Int(count))); baseB = Array(b.prefix(Int(count)))
+    }
+
+    /// A 1×1-point always-on-top window with EDR content: this is what makes macOS unlock XDR headroom
+    private func showEDRPixel(on screen: NSScreen) {
+        let f = NSRect(x: screen.frame.minX, y: screen.frame.minY, width: 1, height: 1)
+        let w = NSWindow(contentRect: f, styleMask: .borderless, backing: .buffered, defer: false)
+        w.level = .screenSaver
+        w.isOpaque = false
+        w.backgroundColor = .clear
+        w.ignoresMouseEvents = true
+        w.hasShadow = false
+        w.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
+        let v = NSView(frame: NSRect(x: 0, y: 0, width: 1, height: 1))
+        let ml = CAMetalLayer()
+        ml.device = device
+        ml.pixelFormat = .rgba16Float
+        ml.wantsExtendedDynamicRangeContent = true
+        ml.colorspace = CGColorSpace(name: CGColorSpace.extendedLinearDisplayP3)
+        ml.isOpaque = false
+        ml.drawableSize = CGSize(width: 2, height: 2)
+        ml.frame = v.bounds
+        v.wantsLayer = true
+        v.layer = ml
+        w.contentView = v
+        w.setFrame(f, display: true)
+        w.orderFrontRegardless()
+        window = w
+        metalLayer = ml
+    }
+
+    private func renderEDR() {
+        guard let ml = metalLayer, let q = queue, let drawable = ml.nextDrawable(),
+              let cb = q.makeCommandBuffer() else { return }
+        let pass = MTLRenderPassDescriptor()
+        pass.colorAttachments[0].texture = drawable.texture
+        pass.colorAttachments[0].loadAction = .clear
+        pass.colorAttachments[0].storeAction = .store
+        let v = Double(boost)
+        pass.colorAttachments[0].clearColor = MTLClearColor(red: v, green: v, blue: v, alpha: 1)
+        cb.makeRenderCommandEncoder(descriptor: pass)?.endEncoding()
+        cb.present(drawable)
+        cb.commit()
+    }
+}
+let outdoor = OutdoorMode()
+
 // MARK: - Menu-bar app
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
@@ -417,6 +558,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         registerHotKeys()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { restoreSharpScaling() }
     }
+
+    func applicationWillTerminate(_ n: Notification) { outdoor.stop() }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
         menu.removeAllItems()
@@ -439,6 +582,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         m.addItem(.separator())
         m.addItem(item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0))
         m.addItem(item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil))
+        m.addItem(.separator())
+        m.addItem(item("☀️ " + L("Outdoor Mode (max brightness)  ⌃⌥⌘B"), #selector(actToggleOutdoor), state: outdoor.isOn))
         m.addItem(.separator())
         for d in physicalExternals() {
             let sub = NSMenu()
@@ -488,6 +633,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     // MARK: actions
     @objc func actWakeSoft() { wakeSoft() }
     @objc func actWakeHard() { wakeHard() }
+
+    @objc func actToggleOutdoor() {
+        outdoor.toggle()
+        statusItem.button?.image = NSImage(systemSymbolName: outdoor.isOn ? "sun.max.fill" : "display", accessibilityDescription: nil)
+        if outdoor.isOn && outdoor.boost <= 1.01 {
+            info(L("Outdoor Mode"), L("Brightness set to 100%. This display has no XDR headroom, so no extra boost is available beyond that."))
+        }
+    }
 
     @objc func actSetLang(_ s: NSMenuItem) {
         guard let code = s.representedObject as? String, let l = Lang(rawValue: code) else { return }
@@ -599,6 +752,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             case 1: wakeSoft()
             case 2: if let d = physicalExternals().first { stepScaled(d, larger: true) }
             case 3: if let d = physicalExternals().first { stepScaled(d, larger: false) }
+            case 4: outdoor.toggle()
             default: break
             }
             return noErr
@@ -609,6 +763,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             RegisterEventHotKey(code, UInt32(cmdKey | shiftKey), EventHotKeyID(signature: 0x57414B45, id: id), GetApplicationEventTarget(), 0, &ref)
             hotKeyRefs.append(ref)
         }
+        var ref4: EventHotKeyRef?
+        RegisterEventHotKey(UInt32(kVK_ANSI_B), UInt32(cmdKey | optionKey | controlKey), EventHotKeyID(signature: 0x57414B45, id: 4), GetApplicationEventTarget(), 0, &ref4)
+        hotKeyRefs.append(ref4)
     }
 
     // MARK: dialogs

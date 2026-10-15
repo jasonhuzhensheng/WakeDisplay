@@ -29,6 +29,7 @@
 - 🔁 **强制重置** — 先让所有屏休眠再唤醒，再镜像开/关强制重新建立链路（屏幕会闪一下）
 - 🤖 **自动唤醒** — 每 5 秒检测：内屏醒着、外屏却在休眠 → 自动点亮
 - ☕️ **阻止显示器休眠** — 等价于常驻 `caffeinate -d`
+- ☀️ **户外模式（⌃⌥⌘B）** — MacBook 内建屏亮度拉满；Liquid Retina XDR 机型再借用 HDR 余量把整个画面提亮约 1.6 倍（全屏约 1000 尼特），阳光下也看得清。关闭即恢复原亮度
 - 🔍 **缩放 / 字体大小** — 每块外接屏一个子菜单，列出系统隐藏的 HiDPI 分辨率；「更大文本 / 更小文本」与系统设置滑块等价
 - ✨ **原生分辨率清晰缩放** — 系统不给 HiDPI 选项的屏（如 2880×1800 便携屏）：显示器保持原生分辨率输出，界面「看起来像」1920×1200 等更大字号，依然清晰（虚拟 HiDPI 屏 + 镜像，BetterDisplay 同款原理）
 - ⚡️ **写入防断连电源策略** — 一键执行 `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0`（弹系统密码框，可随时恢复默认）
@@ -83,6 +84,7 @@ open /Applications/WakeDisplay.app
 | ⌘⇧R | 唤醒显示器 |
 | ⌘⇧+ | 更大文本（下一个更低的 HiDPI 分辨率） |
 | ⌘⇧− | 更小文本 |
+| ⌃⌥⌘B | 户外模式开 / 关 |
 
 ### 常见问题
 
@@ -128,6 +130,7 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 - 🔁 **Force reset** — sleep all displays, wake them, then toggle mirroring to force a fresh link (screens blink once)
 - 🤖 **Auto-wake** — every 5 s: if the built-in display is awake but an external one is asleep, wake it
 - ☕️ **Prevent display sleep** — a persistent `caffeinate -d`
+- ☀️ **Outdoor mode (⌃⌥⌘B)** — built-in MacBook display to 100% brightness; on Liquid Retina XDR models it also uses the HDR headroom to brighten the whole desktop ~1.6× (≈1000 nits full-screen) for direct sunlight. Turning it off restores your previous brightness
 - 🔍 **Scaling / text size** — one submenu per external display listing hidden HiDPI resolutions; "Larger / Smaller Text" behave like the System Settings slider
 - ✨ **Sharp scaling at native resolution** — for panels macOS gives no HiDPI options (e.g. a 2880×1800 portable screen): the panel keeps its native signal while the UI "looks like" 1920×1200 or another larger size, still sharp (HiDPI virtual display + mirroring, the same technique as BetterDisplay)
 - ⚡️ **Apply anti-disconnect power policy** — runs `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0` via the system password prompt (restore defaults any time)
@@ -182,6 +185,7 @@ open /Applications/WakeDisplay.app
 | ⌘⇧R | Wake display |
 | ⌘⇧+ | Larger text (next lower HiDPI resolution) |
 | ⌘⇧− | Smaller text |
+| ⌃⌥⌘B | Outdoor mode on / off |
 
 ### FAQ
 

@@ -15,8 +15,8 @@ cat > "$APP/Contents/Info.plist" <<'EOF'
   <key>CFBundleName</key><string>WakeDisplay</string>
   <key>CFBundleDisplayName</key><string>WakeDisplay</string>
   <key>CFBundleIdentifier</key><string>com.jason.wakedisplay</string>
-  <key>CFBundleVersion</key><string>1.6.1</string>
-  <key>CFBundleShortVersionString</key><string>1.6.1</string>
+  <key>CFBundleVersion</key><string>1.7</string>
+  <key>CFBundleShortVersionString</key><string>1.7</string>
   <key>CFBundleExecutable</key><string>WakeDisplay</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>LSMinimumSystemVersion</key><string>12.0</string>
@@ -27,7 +27,7 @@ EOF
 
 echo "▶ 编译中…"
 swiftc -O -import-objc-header CGVirtualDisplay.h main.swift -o "$APP/Contents/MacOS/WakeDisplay" \
-  -framework Cocoa -framework Carbon -framework IOKit
+  -framework Cocoa -framework Carbon -framework IOKit -framework Metal -framework QuartzCore
 
 codesign --force --deep --sign - "$APP"   # ad-hoc 签名，避免 Gatekeeper 阻止
 
