@@ -615,6 +615,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         aboutSub.addItem(ver)
         let aboutParent = NSMenuItem(title: "ℹ️ " + L("About"), action: nil, keyEquivalent: "")
         m.addItem(aboutParent); m.setSubmenu(aboutSub, for: aboutParent)
+        m.addItem(.separator())
+        m.addItem(item("📤 " + L("Share WakeDisplay…"), #selector(actShare)))
         m.addItem(NSMenuItem(title: L("Quit"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
         return m
     }
@@ -632,6 +634,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
+    @objc func actShare() {
+        // Let the menu finish closing before anchoring the share sheet to the icon
+        DispatchQueue.main.async { ShareController.shared.show(from: self.statusItem.button) }
+    }
     @objc func actCheckUpdates() { Updater.checkInteractively() }
     @objc func actToggleAutoUpdate() { Updater.autoUpdate.toggle() }
     @objc func actToggleTelemetry() { Telemetry.enabled.toggle() }

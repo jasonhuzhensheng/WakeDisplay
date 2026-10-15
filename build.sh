@@ -5,7 +5,7 @@
 set -e
 cd "$(dirname "$0")"
 
-VERSION="1.15"
+VERSION="1.16"
 APP=WakeDisplay.app
 WIDGET="$APP/Contents/PlugIns/WakeDisplayWidget.appex"
 rm -rf "$APP"

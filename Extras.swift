@@ -268,3 +268,62 @@ enum WakeReminder {
         }
     }
 }
+
+// MARK: - Share with friends (system share sheet + Post on X + Copy Link)
+// 一键分享：系统分享面板（信息 / 邮件 / AirDrop …）+ 发到 X + 复制链接
+
+final class ShareController: NSObject, NSSharingServicePickerDelegate {
+    static let shared = ShareController()
+
+    static var text: String {
+        L("WakeDisplay: a free macOS menu-bar app that wakes dark external displays, unlocks sharp HiDPI scaling and makes your MacBook readable in the sun.")
+    }
+    static var url: URL { URL(string: repoURL)! }
+
+    /// Show the share sheet anchored to the menu-bar icon (or the mouse if the icon is hidden)
+    func show(from button: NSView?) {
+        let picker = NSSharingServicePicker(items: [ShareController.text, ShareController.url])
+        picker.delegate = self
+        NSApp.activate(ignoringOtherApps: true)
+        if let b = button, b.window != nil {
+            picker.show(relativeTo: b.bounds, of: b, preferredEdge: .minY)
+        } else {
+            // Fallback: tiny transparent window at the mouse to anchor the picker
+            let p = NSEvent.mouseLocation
+            let w = NSWindow(contentRect: NSRect(x: p.x, y: p.y, width: 1, height: 1), styleMask: .borderless, backing: .buffered, defer: false)
+            w.isOpaque = false; w.backgroundColor = .clear; w.level = .popUpMenu
+            w.orderFrontRegardless()
+            picker.show(relativeTo: .zero, of: w.contentView!, preferredEdge: .minY)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 30) { w.orderOut(nil) }
+        }
+        Telemetry.feature("shareOpened")
+    }
+
+    // Add "Post on X" and "Copy Link" to the system services
+    func sharingServicePicker(_ picker: NSSharingServicePicker, sharingServicesForItems items: [Any],
+                              proposedSharingServices proposed: [NSSharingService]) -> [NSSharingService] {
+        let icon = NSImage(systemSymbolName: "square.and.arrow.up", accessibilityDescription: nil) ?? NSImage()
+        let x = NSSharingService(title: L("Post on X"), image: NSImage(systemSymbolName: "bubble.left", accessibilityDescription: nil) ?? icon,
+                                 alternateImage: nil) {
+            var c = URLComponents(string: "https://x.com/intent/post")!
+            c.queryItems = [URLQueryItem(name: "text", value: ShareController.text + " @HUZHENSHENG"),
+                            URLQueryItem(name: "url", value: repoURL)]
+            if let u = c.url { openURL(u.absoluteString) }
+            Telemetry.feature("share", source: "x")
+        }
+        let copy = NSSharingService(title: L("Copy Link"), image: NSImage(systemSymbolName: "link", accessibilityDescription: nil) ?? icon,
+                                    alternateImage: nil) {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(ShareController.text + "\n" + repoURL, forType: .string)
+            WakeReminder.show("🔗 " + L("Link copied"), repoURL.replacingOccurrences(of: "https://", with: ""))
+            Telemetry.feature("share", source: "copy")
+        }
+        return [x, copy] + proposed
+    }
+
+    func sharingServicePicker(_ picker: NSSharingServicePicker, didChoose service: NSSharingService?) {
+        if let s = service, s.title != L("Post on X"), s.title != L("Copy Link") {
+            Telemetry.feature("share", source: "system")
+        }
+    }
+}
