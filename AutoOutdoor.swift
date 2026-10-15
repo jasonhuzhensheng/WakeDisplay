@@ -22,8 +22,11 @@ enum LightSensor {
     private static let kTypeALS: Int64 = 12                       // kIOHIDEventTypeAmbientLightSensor
     private static let kFieldLevel: Int32 = Int32(12 << 16)       // kIOHIDEventFieldAmbientLightSensorLevel
 
+    // The client owns its services: keep both alive for the app's lifetime (releasing the client
+    // early leaves the service dangling and crashes on the next read).
+    private static let client: CFTypeRef? = IOHIDEventSystemClientCreate(kCFAllocatorDefault)?.takeRetainedValue()
     private static let service: CFTypeRef? = {
-        guard let client = IOHIDEventSystemClientCreate(kCFAllocatorDefault)?.takeRetainedValue() else { return nil }
+        guard let client else { return nil }
         // Apple vendor page 0xFF00, usage 4 = ambient light sensor
         let match = ["PrimaryUsagePage": 0xFF00, "PrimaryUsage": 4] as CFDictionary
         _ = IOHIDEventSystemClientSetMatching(client, match)
@@ -116,11 +119,14 @@ enum AutoOutdoor {
         toggle.target = target; toggle.state = enabled ? .on : .off
         sub.addItem(toggle)
 
-        let reading: String
-        if let l = LightSensor.lux() { reading = L("Ambient light: ") + "\(Int(l.rounded()).formatted()) lux" }
-        else { reading = L("Light sensor not available") }
-        let r = NSMenuItem(title: reading, action: nil, keyEquivalent: ""); r.isEnabled = false
-        sub.addItem(r)
+        // Only read the (private-API) sensor when the feature is on, so the default path never touches it
+        if enabled {
+            let reading: String
+            if let l = lastLux ?? LightSensor.lux() { reading = L("Ambient light: ") + "\(Int(l.rounded()).formatted()) lux" }
+            else { reading = L("Light sensor not available") }
+            let r = NSMenuItem(title: reading, action: nil, keyEquivalent: ""); r.isEnabled = false
+            sub.addItem(r)
+        }
         sub.addItem(.separator())
 
         let head = NSMenuItem(title: L("Sensitivity"), action: nil, keyEquivalent: ""); head.isEnabled = false

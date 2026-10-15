@@ -115,19 +115,26 @@ enum Updater {
 
                 let target = Bundle.main.bundleURL
                 _ = try fm.replaceItemAt(target, withItemAt: newApp)
-                // Re-register URL scheme + widget, then relaunch from the same path
-                let path = target.path.replacingOccurrences(of: "'", with: "'\\''")
-                let relaunch = Process()
-                relaunch.launchPath = "/bin/sh"
-                relaunch.arguments = ["-c", """
-                    sleep 1
-                    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f '\(path)' >/dev/null 2>&1
-                    pluginkit -a '\(path)/Contents/PlugIns/WakeDisplayWidget.appex' >/dev/null 2>&1
-                    open '\(path)'
-                    """]
-                try relaunch.run()
+                // Re-register URL scheme + widget for the new bundle
+                let reg = Process()
+                reg.launchPath = "/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
+                reg.arguments = ["-f", target.path]
+                try? reg.run(); reg.waitUntilExit()
                 Telemetry.send("App.updated", ["Update.from": currentVersion, "Update.to": r.version])
-                DispatchQueue.main.async { NSApp.terminate(nil) }
+                // Start the NEW instance first, then quit this one. (A child "sleep; open" script gets
+                // killed together with us when launchd started the app at login, so never rely on it.)
+                DispatchQueue.main.async {
+                    CrashReporter.cleanExit()   // the new instance must not report this as a crash
+                    let cfg = NSWorkspace.OpenConfiguration()
+                    cfg.createsNewApplicationInstance = true
+                    cfg.activates = false
+                    NSWorkspace.shared.openApplication(at: target, configuration: cfg) { _, err in
+                        DispatchQueue.main.async {
+                            if let err { busy = false; if interactive { alert(L("Update failed: ") + err.localizedDescription, "") }; return }
+                            NSApp.terminate(nil)
+                        }
+                    }
+                }
             } catch {
                 fail(error.localizedDescription)
             }

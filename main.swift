@@ -721,6 +721,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
               <key>ProgramArguments</key><array><string>\(exe)</string></array>
               <key>RunAtLoad</key><true/>
               <key>KeepAlive</key><false/>
+              <key>AbandonProcessGroup</key><true/>
             </dict></plist>
             """
             try? FileManager.default.createDirectory(atPath: (launchAgent as NSString).deletingLastPathComponent, withIntermediateDirectories: true)
