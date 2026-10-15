@@ -25,7 +25,7 @@ jobs:
       - name: Build
         run: |
           chmod +x build.sh
-          SKIP_INSTALL=1 ./build.sh 2>&1 | tee build.log
+          SKIP_INSTALL=1 LINK_MAP=1 ./build.sh 2>&1 | tee build.log
 
       - name: Smoke test (launch, menu, screenshots in English and Chinese)
         run: |
@@ -56,6 +56,13 @@ jobs:
             else echo "[$L] after menu: CRASHED" >> out/summary.txt; fi
             pkill -x WakeDisplay; sleep 2
           done
+          # Startup cost: CPU time used and memory after 6 s idle (run the binary directly, 3 times)
+          BIN="$APP/Contents/MacOS/WakeDisplay"
+          for i in 1 2 3; do
+            "$BIN" & P=$!; sleep 6
+            echo "metrics run $i: rss=$(ps -o rss= -p $P | tr -d ' ') KB  cpu=$(ps -o time= -p $P | tr -d ' ')" >> out/summary.txt
+            kill $P; sleep 1
+          done
           if ls ~/Library/Logs/DiagnosticReports 2>/dev/null | grep -qi wakedisplay; then
             echo "crash reports: FOUND" >> out/summary.txt
             cp ~/Library/Logs/DiagnosticReports/*WakeDisplay* out/ 2>/dev/null
@@ -69,6 +76,7 @@ jobs:
         run: |
           mkdir -p out
           cp build.log out/ 2>/dev/null || echo "build did not produce a log" > out/build.log
+          cp linkmap.txt out/ 2>/dev/null || true
           [ -f out/summary.txt ] || echo "BUILD FAILED — see build.log" > out/summary.txt
           cd out
           git init -q -b test-results
