@@ -575,6 +575,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let parent = NSMenuItem(title: "🔍 " + L("Scaling / Text Size — ") + displayName(d), action: nil, keyEquivalent: "")
             m.addItem(parent); m.setSubmenu(sub, for: parent)
         }
+        if let quick = QuickLayout.menuItem() { m.addItem(quick) }
         m.addItem(.separator())
         m.addItem(item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0))
         m.addItem(item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil))

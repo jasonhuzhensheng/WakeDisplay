@@ -49,6 +49,7 @@
   - 🗂 布局预设：保存 / 应用 3 套多屏排列
   - 💾 按显示器记住设置：插上哪台屏自动恢复它的分辨率、刷新率和亮度
 - 🔍 **缩放 / 字体大小** — 每块外接屏一个子菜单，列出系统隐藏的 HiDPI 分辨率；「更大文本 / 更小文本」与系统设置滑块等价
+- 🧭 **一键布局**：主菜单一行四个箭头，点一下把外接屏放到 MacBook 的左 / 上 / 下 / 右（居中对齐，多台依次排开）
 - ✨ **原生分辨率清晰缩放** — 系统不给 HiDPI 选项的屏（如 2880×1800 便携屏）：显示器保持原生分辨率输出，界面「看起来像」1920×1200 等更大字号，依然清晰（虚拟 HiDPI 屏 + 镜像，BetterDisplay 同款原理）
 - ⚡️ **写入防断连电源策略** — 一键执行 `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0`（弹系统密码框，可随时恢复默认）
 - 🧹 **清除显示器缓存（EDID）** — 删除 `com.apple.windowserver.displays.plist` 并重启
@@ -179,6 +180,7 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
   - 🗂 Layout presets: save / apply 3 multi-display arrangements
   - 💾 Remember settings per display: resolution, refresh rate and brightness come back when that monitor is plugged in
 - 🔍 **Scaling / text size** — one submenu per external display listing hidden HiDPI resolutions; "Larger / Smaller Text" behave like the System Settings slider
+- 🧭 **One-click layout**: four arrows in the main menu put the external display(s) left / above / below / right of the MacBook (centered; multiple displays line up)
 - ✨ **Sharp scaling at native resolution** — for panels macOS gives no HiDPI options (e.g. a 2880×1800 portable screen): the panel keeps its native signal while the UI "looks like" 1920×1200 or another larger size, still sharp (HiDPI virtual display + mirroring, the same technique as BetterDisplay)
 - ⚡️ **Apply anti-disconnect power policy** — runs `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0` via the system password prompt (restore defaults any time)
 - 🧹 **Reset display cache (EDID)** — deletes `com.apple.windowserver.displays.plist` and reboots

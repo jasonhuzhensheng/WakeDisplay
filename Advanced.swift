@@ -285,3 +285,109 @@ final class AdvancedMenu: NSObject {
     @objc func applyLayout(_ s: NSMenuItem) { if let n = s.representedObject as? Int { Layouts.apply(n) } }
     @objc func toggleRemember() { PerDisplay.enabled.toggle() }
 }
+
+// MARK: - Quick layout: put external display(s) left / above / below / right of the MacBook (one click)
+// 一键布局：把外接屏放到 MacBook 的左 / 上 / 下 / 右，居中对齐；多台外接屏依次排开。
+
+enum QuickLayout: Int, CaseIterable {
+    case left, above, below, right
+
+    var symbol: String { ["arrow.left", "arrow.up", "arrow.down", "arrow.right"][rawValue] }
+    var title: String { [L("Left"), L("Above"), L("Below"), L("Right")][rawValue] }
+
+    /// Reference = built-in display (or main), others = every other active, non-mirrored display
+    static func displays() -> (ref: CGDirectDisplayID, others: [CGDirectDisplayID])? {
+        var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
+        CGGetActiveDisplayList(16, &ids, &n)
+        let active = ids.prefix(Int(n)).filter { CGDisplayMirrorsDisplay($0) == kCGNullDirectDisplay }
+        let ref = active.first { CGDisplayIsBuiltin($0) != 0 } ?? CGMainDisplayID()
+        let others = active.filter { $0 != ref }
+        return others.isEmpty ? nil : (ref, others)
+    }
+
+    func apply() {
+        guard let ds = QuickLayout.displays() else { return }
+        let (ref, others) = ds
+        let rb = CGDisplayBounds(ref)
+        var pos: [CGDirectDisplayID: CGPoint] = [ref: .zero]
+        var offset: CGFloat = 0
+        for d in others {
+            let b = CGDisplayBounds(d)
+            switch self {
+            case .right: pos[d] = CGPoint(x: rb.width + offset, y: (rb.height - b.height) / 2); offset += b.width
+            case .left:  offset += b.width;  pos[d] = CGPoint(x: -offset, y: (rb.height - b.height) / 2)
+            case .above: offset += b.height; pos[d] = CGPoint(x: (rb.width - b.width) / 2, y: -offset)
+            case .below: pos[d] = CGPoint(x: (rb.width - b.width) / 2, y: rb.height + offset); offset += b.height
+            }
+        }
+        // The main (menu-bar) display must stay at (0, 0): shift everything relative to it
+        let shift = pos[CGMainDisplayID()] ?? .zero
+        var cfg: CGDisplayConfigRef?
+        guard CGBeginDisplayConfiguration(&cfg) == .success else { return }
+        for (d, p) in pos {
+            CGConfigureDisplayOrigin(cfg, d, Int32((p.x - shift.x).rounded()), Int32((p.y - shift.y).rounded()))
+        }
+        CGCompleteDisplayConfiguration(cfg, .permanently)
+        Telemetry.feature("quickLayout")
+    }
+
+    /// Where the first external display currently sits relative to the MacBook
+    static func current() -> QuickLayout? {
+        guard let ds = displays(), let d = ds.others.first else { return nil }
+        let ref = ds.ref
+        let a = CGDisplayBounds(ref), b = CGDisplayBounds(d)
+        let dx = b.midX - a.midX, dy = b.midY - a.midY
+        if abs(dx) >= abs(dy) { return dx < 0 ? .left : .right }
+        return dy < 0 ? .above : .below
+    }
+
+    /// One menu row: label + four arrow buttons. nil when there is no second display.
+    static func menuItem() -> NSMenuItem? {
+        guard displays() != nil else { return nil }
+        let item = NSMenuItem()
+        item.view = LayoutBarView()
+        return item
+    }
+}
+
+final class LayoutBarView: NSView {
+    private let label = NSTextField(labelWithString: "🧭 " + L("External Display Position"))
+
+    init() {
+        label.font = .menuFont(ofSize: 0)
+        label.textColor = .labelColor
+        let labelW = ceil(label.intrinsicContentSize.width)
+        let btn: CGFloat = 28, gap: CGFloat = 4, left: CGFloat = 20, right: CGFloat = 14
+        let width = max(300, left + labelW + 16 + 4 * btn + 3 * gap + right)
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 30))
+
+        label.frame = NSRect(x: left, y: 6, width: labelW, height: 18)
+        addSubview(label)
+
+        let cur = QuickLayout.current()
+        var x = width - right - (4 * btn + 3 * gap)
+        for l in QuickLayout.allCases {
+            let b = NSButton(image: NSImage(systemSymbolName: l.symbol, accessibilityDescription: l.title) ?? NSImage(),
+                             target: self, action: #selector(tap(_:)))
+            b.tag = l.rawValue
+            b.isBordered = false
+            b.bezelStyle = .regularSquare
+            b.toolTip = l.title
+            b.frame = NSRect(x: x, y: 2, width: btn, height: 26)
+            b.contentTintColor = (l == cur) ? .controlAccentColor : .secondaryLabelColor
+            if l == cur {
+                b.wantsLayer = true
+                b.layer?.cornerRadius = 6
+                b.layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.18).cgColor
+            }
+            addSubview(b)
+            x += btn + gap
+        }
+    }
+    required init?(coder: NSCoder) { fatalError() }
+
+    @objc private func tap(_ b: NSButton) {
+        enclosingMenuItem?.menu?.cancelTracking()
+        if let l = QuickLayout(rawValue: b.tag) { DispatchQueue.main.async { l.apply() } }
+    }
+}
