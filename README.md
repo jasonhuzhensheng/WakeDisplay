@@ -1,6 +1,13 @@
 # WakeDisplay
 
 <p align="center">
+  <a href="https://github.com/jasonhuzhensheng/WakeDisplay/releases/latest"><img src="https://img.shields.io/github/v/release/jasonhuzhensheng/WakeDisplay?label=release" alt="Latest release"></a>
+  <a href="https://github.com/jasonhuzhensheng/WakeDisplay/releases"><img src="https://img.shields.io/github/downloads/jasonhuzhensheng/WakeDisplay/total?label=downloads" alt="Total downloads"></a>
+  <a href="https://github.com/jasonhuzhensheng/WakeDisplay/stargazers"><img src="https://img.shields.io/github/stars/jasonhuzhensheng/WakeDisplay?style=flat" alt="Stars"></a>
+  <img src="https://img.shields.io/badge/macOS-12%2B-black?logo=apple" alt="macOS 12+">
+</p>
+
+<p align="center">
   <b>macOS 菜单栏小工具：一键唤醒"系统看得见、屏幕却不亮"的 USB-C 外接显示器，并解锁系统隐藏的 HiDPI 缩放模式。</b><br>
   <b>A tiny macOS menu-bar utility that wakes USB-C external displays macOS can see but won't light up, and unlocks hidden HiDPI scaling modes.</b>
 </p>
@@ -31,6 +38,7 @@
 - ☕️ **阻止显示器休眠** — 等价于常驻 `caffeinate -d`
 - ☀️ **户外模式（⌃⌥⌘B）** — MacBook 内建屏亮度拉满；Liquid Retina XDR 机型再借用 HDR 余量把整个画面提亮约 1.6 倍（全屏约 800 尼特），阳光下也看得清。关闭即恢复原亮度
 - 🧩 **桌面 / 通知中心小组件**（macOS 14+）— 小号：点一下唤醒；中号：唤醒、强制重置、户外模式、字体变大 / 变小、菜单六个按钮。右键桌面 →「编辑小组件」→ 搜索 WakeDisplay 添加
+- 🌐 **16 种界面语言**，默认跟随系统语言：English、简体中文、繁體中文、日本語、한국어、Español、Français、Deutsch、Português、Italiano、Русский、العربية、हिन्दी、Bahasa Indonesia、Türkçe、Tiếng Việt
 - 🔍 **缩放 / 字体大小** — 每块外接屏一个子菜单，列出系统隐藏的 HiDPI 分辨率；「更大文本 / 更小文本」与系统设置滑块等价
 - ✨ **原生分辨率清晰缩放** — 系统不给 HiDPI 选项的屏（如 2880×1800 便携屏）：显示器保持原生分辨率输出，界面「看起来像」1920×1200 等更大字号，依然清晰（虚拟 HiDPI 屏 + 镜像，BetterDisplay 同款原理）
 - ⚡️ **写入防断连电源策略** — 一键执行 `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0`（弹系统密码框，可随时恢复默认）
@@ -134,6 +142,7 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 - ☕️ **Prevent display sleep** — a persistent `caffeinate -d`
 - ☀️ **Outdoor mode (⌃⌥⌘B)** — built-in MacBook display to 100% brightness; on Liquid Retina XDR models it also uses the HDR headroom to brighten the whole desktop ~1.6× (≈800 nits full-screen) for direct sunlight. Turning it off restores your previous brightness
 - 🧩 **Desktop / Notification Center widget** (macOS 14+) — small: tap to wake; medium: six buttons for Wake, Force Reset, Outdoor, Larger / Smaller Text and Menu. Right-click the desktop → Edit Widgets → search "WakeDisplay"
+- 🌐 **16 UI languages**, following your system language by default: English, 简体中文, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português, Italiano, Русский, العربية, हिन्दी, Bahasa Indonesia, Türkçe, Tiếng Việt
 - 🔍 **Scaling / text size** — one submenu per external display listing hidden HiDPI resolutions; "Larger / Smaller Text" behave like the System Settings slider
 - ✨ **Sharp scaling at native resolution** — for panels macOS gives no HiDPI options (e.g. a 2880×1800 portable screen): the panel keeps its native signal while the UI "looks like" 1920×1200 or another larger size, still sharp (HiDPI virtual display + mirroring, the same technique as BetterDisplay)
 - ⚡️ **Apply anti-disconnect power policy** — runs `sudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0` via the system password prompt (restore defaults any time)

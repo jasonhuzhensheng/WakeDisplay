@@ -10,93 +10,8 @@ import IOKit.pwr_mgt
 import Metal
 import QuartzCore
 
-// MARK: - Localization (English by default, Chinese selectable / 默认英文，可切换中文)
+// Localization (Lang, L(), translations) lives in Localization.swift
 
-enum Lang: String { case en, zh }
-var currentLang: Lang = Lang(rawValue: UserDefaults.standard.string(forKey: "lang") ?? "en") ?? .en
-
-/// L("English text") → text in the current language; falls back to English
-func L(_ en: String) -> String { currentLang == .zh ? (zhTable[en] ?? en) : en }
-
-let hidpiHelpEN = """
-macOS only generates HiDPI scaling modes for displays with high enough pixel density (usually ≥ 4K).
-1080p / 2K portable monitors typically expose native modes only, so System Settings offers no "Larger Text" either.
-
-Options:
-• Pick a lower non-HiDPI resolution here (e.g. 1600×900): bigger text, slightly soft.
-• For "big and sharp", turn on "Sharp Scaling at Native Resolution" in this submenu: WakeDisplay renders the desktop on a HiDPI virtual display and mirrors your panel onto it, so the panel keeps its native resolution while text gets larger.
-"""
-let hidpiHelpZH = """
-macOS 只对像素密度足够高的显示器（通常 ≥ 4K）自动提供 HiDPI 缩放模式。
-1080p / 2K 便携屏一般只有原生模式，所以系统设置里也没有「更大文本」。
-
-可选方案：
-• 先在本菜单里选一个较低的非 HiDPI 分辨率（如 1600×900），字体会变大但略模糊；
-• 要「既大又清晰」，打开本子菜单里的「原生分辨率清晰缩放」：WakeDisplay 会创建一块虚拟 HiDPI 屏并把物理屏镜像过去，显示器保持原生分辨率，字体变大且清晰。
-"""
-let aboutEN = """
-macOS menu-bar utility: wake dark USB-C external displays with one click and unlock the HiDPI scaling modes macOS hides.
-
-Author: Jason Hu 胡震生 (大老二)
-X: @HUZHENSHENG  ·  0xBig2
-
-Built with: Claude Fable 5.1 (Anthropic)
-License: MIT
-"""
-let aboutZH = """
-macOS 菜单栏小工具：一键唤醒黑屏的 USB-C 外接显示器，解锁系统隐藏的 HiDPI 缩放模式。
-
-作者：大老二 胡震生（Jason Hu）
-X：@HUZHENSHENG  ·  0xBig2
-
-开发工具：Claude Fable 5.1（Anthropic）
-开源协议：MIT
-"""
-let pmsetMsgEN = "Will run:\nsudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0\n\nEffect: USB-C power is no longer cut when the lid is closed or the screen is locked. A laptop on battery will drain faster. Continue?"
-let pmsetMsgZH = "将执行：\nsudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0\n\n效果：合盖/锁屏时不再切断 USB-C 供电。笔记本用电池时会更耗电。继续？"
-let edidMsgEN = "Will delete /Library/Preferences/com.apple.windowserver.displays.plist and the user-level display config, then restart the Mac.\nPersonal data is untouched, but display arrangement / scaling settings will reset. Continue?"
-let edidMsgZH = "将删除 /Library/Preferences/com.apple.windowserver.displays.plist 及用户级显示配置，然后重启 Mac。\n不影响个人数据，但显示器排列/缩放设置会重置。继续？"
-
-let zhTable: [String: String] = [
-    "Wake Display    ⌘⇧R": "唤醒显示器    ⌘⇧R",
-    "Force Reset (sleep → re-handshake, screens blink)": "强制重置（关屏 → 重新握手，屏幕会闪一下）",
-    "Prevent Display Sleep": "阻止显示器休眠",
-    "Auto-Wake (external asleep while Mac in use)": "自动唤醒（外屏休眠而电脑在用时自动点亮）",
-    "Scaling / Text Size — ": "缩放 / 字体大小 — ",
-    "Larger Text  ⌘⇧+": "更大文本  ⌘⇧+",
-    "Smaller Text  ⌘⇧−": "更小文本  ⌘⇧−",
-    "  HiDPI (sharp)": "  HiDPI（清晰）",
-    "⚠️ No HiDPI modes for this display (help)": "⚠️ 此显示器没有可用的 HiDPI 模式（见帮助）",
-    "Display ": "显示器 ",
-    "Outdoor Mode (max brightness)  ⌃⌥⌘B": "户外模式（亮度拉满）  ⌃⌥⌘B",
-    "Outdoor Mode": "户外模式",
-    "Brightness set to 100%. This display has no XDR headroom, so no extra boost is available beyond that.": "亮度已调到 100%。这块屏没有 XDR 余量，无法再额外提亮。",
-    "Sharp Scaling at Native Resolution": "原生分辨率清晰缩放",
-    "Looks like ": "看起来像 ",
-    "⚠️ No HiDPI modes — turn on Sharp Scaling above (help)": "⚠️ 没有 HiDPI 模式，请打开上面的清晰缩放（帮助）",
-    "Could not create the HiDPI virtual display on this Mac.": "无法在这台 Mac 上创建 HiDPI 虚拟显示器。",
-    "Apply Anti-Disconnect Power Policy (sudo pmset)": "写入防断连电源策略（sudo pmset）",
-    "Restore Default Power Policy": "恢复系统默认电源策略",
-    "Show Current Power Settings": "查看当前电源参数",
-    "Reset Display Cache (EDID) & Restart…": "清除显示器缓存（EDID）并重启…",
-    "Language": "语言 / Language",
-    "Launch at Login": "开机自动启动",
-    "About WakeDisplay…": "关于 WakeDisplay…",
-    "Quit": "退出",
-    "Continue": "继续", "Cancel": "取消", "Close": "关闭",
-    "Done": "已写入", "Failed": "失败", "Restored defaults": "已恢复默认",
-    "Apply power policy": "写入电源策略",
-    "Restore defaults": "恢复默认",
-    "Will run sudo pmset restoredefaults. Continue?": "将执行 sudo pmset restoredefaults，继续？",
-    "Reset display cache": "清除显示器缓存",
-    "No HiDPI modes — what now?": "没有 HiDPI 模式怎么办",
-    "Open GitHub": "打开 GitHub",
-    "Follow on X @HUZHENSHENG": "关注 X @HUZHENSHENG",
-    hidpiHelpEN: hidpiHelpZH,
-    aboutEN: aboutZH,
-    pmsetMsgEN: pmsetMsgZH,
-    edidMsgEN: edidMsgZH,
-]
 
 // MARK: - Core: wake logic
 
@@ -651,9 +566,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         m.addItem(item("🧹 " + L("Reset Display Cache (EDID) & Restart…"), #selector(actResetEDID)))
         m.addItem(.separator())
         let langSub = NSMenu()
-        langSub.addItem(item("English", #selector(actSetLang(_:)), state: currentLang == .en, obj: "en"))
-        langSub.addItem(item("中文", #selector(actSetLang(_:)), state: currentLang == .zh, obj: "zh"))
-        let langParent = NSMenuItem(title: "🌐 " + L("Language"), action: nil, keyEquivalent: "")
+        for l in Lang.allCases {
+            let title = l == .auto ? L("Automatic (System)") : (langNativeNames[l] ?? l.rawValue)
+            langSub.addItem(item(title, #selector(actSetLang(_:)), state: currentLang == l, obj: l.rawValue))
+            if l == .auto { langSub.addItem(.separator()) }
+        }
+        let langTitle = effectiveLang() == .en ? "Language" : L("Language") + " · Language"
+        let langParent = NSMenuItem(title: "🌐 " + langTitle, action: nil, keyEquivalent: "")
         m.addItem(langParent); m.setSubmenu(langSub, for: langParent)
         m.addItem(item(L("Launch at Login"), #selector(actToggleLogin), state: FileManager.default.fileExists(atPath: launchAgent)))
         m.addItem(item(L("About WakeDisplay…"), #selector(actAbout)))
