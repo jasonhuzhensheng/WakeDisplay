@@ -40,6 +40,7 @@
 - 🧩 **桌面 / 通知中心小组件**（macOS 14+）— 小号：点一下唤醒；中号：唤醒、强制重置、户外模式、字体变大 / 变小、菜单六个按钮。右键桌面 →「编辑小组件」→ 搜索 WakeDisplay 添加
 - 🌐 **16 种界面语言**，默认跟随系统语言：English、简体中文、繁體中文、日本語、한국어、Español、Français、Deutsch、Português、Italiano、Русский、العربية、हिन्दी、Bahasa Indonesia、Türkçe、Tiếng Việt
 - 🔄 **自动更新** — 每 6 小时检查 GitHub 最新版本，自动下载、校验并安装后重启（户外模式开启时暂缓）。菜单 → ℹ️ 关于 → 可手动「检查更新」或关闭自动更新
+- 📰 **新功能窗口**：自动更新后弹出本次更新内容 · 🐞 **反馈问题**：一键打开 GitHub Issue，自动附上版本、系统和显示器信息 · ❤️ **赞助**（菜单 → ℹ️ 关于）
 - ⚙️ **高级**（菜单 → ⚙️ 高级）
   - ☀︎ 外接屏亮度（DDC，⌃⌥⌘↑ / ⌃⌥⌘↓）· 🔊 音量 / 静音 · 🔌 切换输入源（USB-C / DP / HDMI）
   - 🌙 额外调暗：在显示器最低亮度之下再压暗 25% / 50% / 75%
@@ -64,13 +65,19 @@
 
 ### 安装
 
-**方式一：直接下载（推荐）**
+**方式一：Homebrew（推荐）**
+```bash
+brew tap jasonhuzhensheng/wakedisplay https://github.com/jasonhuzhensheng/WakeDisplay
+brew install --cask wakedisplay
+```
+
+**方式二：直接下载**
 到 [Releases](https://github.com/jasonhuzhensheng/WakeDisplay/releases/latest) 下载最新的 `WakeDisplay-vX.Y.zip`，解压后拖到「应用程序」。应用未经 Apple 公证，首次启动前执行：
 ```bash
 xattr -dr com.apple.quarantine /Applications/WakeDisplay.app
 ```
 
-**方式二：从源码编译**
+**方式三：从源码编译**
 
 ```bash
 git clone https://github.com/jasonhuzhensheng/WakeDisplay.git
@@ -110,7 +117,8 @@ WakeDisplay 通过 [TelemetryDeck](https://telemetrydeck.com) 发送**匿名**�
 
 - **发送：** 版本号、macOS 版本、芯片架构、界面语言、外接屏数量、用了哪个功能（如「唤醒」「户外模式」）
 - **不发送：** 姓名、文件、显示器序列号或任何个人信息；用户标识是随机安装 ID 的加盐 SHA-256 哈希
-- **关闭：** 菜单 → ℹ️ 关于 → 取消勾选「发送匿名使用统计」，之后不再发送任何数据
+- **崩溃报告：** 程序异常退出后，下次启动发送一条匿名信号（版本号 + 异常原因），可单独关闭
+- **关闭：** 菜单 → ℹ️ 关于 → 🔒 隐私 → 取消勾选「发送匿名使用统计」/「发送崩溃报告」，之后不再发送任何数据
 - 代码完全公开：[`Telemetry.swift`](Telemetry.swift)
 
 ### 常见问题
@@ -161,6 +169,7 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 - 🧩 **Desktop / Notification Center widget** (macOS 14+) — small: tap to wake; medium: six buttons for Wake, Force Reset, Outdoor, Larger / Smaller Text and Menu. Right-click the desktop → Edit Widgets → search "WakeDisplay"
 - 🌐 **16 UI languages**, following your system language by default: English, 简体中文, 繁體中文, 日本語, 한국어, Español, Français, Deutsch, Português, Italiano, Русский, العربية, हिन्दी, Bahasa Indonesia, Türkçe, Tiếng Việt
 - 🔄 **Auto-update** — checks GitHub every 6 hours, downloads, verifies and installs the new version, then relaunches (postponed while Outdoor Mode is on). Menu → ℹ️ About → "Check for Updates…" or turn auto-update off
+- 📰 **What's New** window after each update · 🐞 **Report an Issue**: opens a GitHub issue pre-filled with version, macOS and display info · ❤️ **Sponsor** (menu → ℹ️ About)
 - ⚙️ **Advanced** (menu → ⚙️ Advanced)
   - ☀︎ External brightness over DDC (⌃⌥⌘↑ / ⌃⌥⌘↓) · 🔊 volume / mute · 🔌 input source switch (USB-C / DP / HDMI)
   - 🌙 Extra dimming: 25% / 50% / 75% below the monitor's minimum brightness
@@ -185,13 +194,19 @@ Two chronic annoyances with single-cable USB-C portable monitors (especially 4K 
 
 ### Install
 
-**Option 1: download (recommended)**
+**Option 1: Homebrew (recommended)**
+```bash
+brew tap jasonhuzhensheng/wakedisplay https://github.com/jasonhuzhensheng/WakeDisplay
+brew install --cask wakedisplay
+```
+
+**Option 2: download**
 Grab the latest `WakeDisplay-vX.Y.zip` from [Releases](https://github.com/jasonhuzhensheng/WakeDisplay/releases/latest), unzip, and move it to Applications. The app is not notarized, so before the first launch run:
 ```bash
 xattr -dr com.apple.quarantine /Applications/WakeDisplay.app
 ```
 
-**Option 2: build from source**
+**Option 3: build from source**
 
 ```bash
 git clone https://github.com/jasonhuzhensheng/WakeDisplay.git
@@ -231,7 +246,8 @@ WakeDisplay sends **anonymous** usage statistics via [TelemetryDeck](https://tel
 
 - **Sent:** app version, macOS version, CPU architecture, UI language, number of external displays, which feature was used (e.g. "wake", "outdoor mode")
 - **Never sent:** names, files, display serials or anything personal; the user ID is a salted SHA-256 hash of a random install ID
-- **Turn off:** menu → ℹ️ About → untick "Send Anonymous Usage Stats"; nothing is sent after that
+- **Crash reports:** after an abnormal exit, one anonymous signal (version + exception reason) is sent at the next launch; can be turned off separately
+- **Turn off:** menu → ℹ️ About → 🔒 Privacy → untick "Send Anonymous Usage Stats" / "Send Crash Reports"; nothing is sent after that
 - Fully open code: [`Telemetry.swift`](Telemetry.swift)
 
 ### FAQ

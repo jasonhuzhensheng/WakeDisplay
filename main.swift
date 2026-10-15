@@ -482,6 +482,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.delegate = self
         statusItem.menu = menu
         registerHotKeys()
+        CrashReporter.start()
+        WhatsNew.showIfUpdated()
         SoftDisconnect.reconnectAll()          // never leave a monitor switched off from a previous run
         startDisplayWatcher()
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { PerDisplay.restoreAll() }
@@ -493,7 +495,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         telemetryTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { _ in Telemetry.dailyActiveIfNeeded() }
     }
 
-    func applicationWillTerminate(_ n: Notification) { outdoor.stop(); SoftDisconnect.reconnectAll() }
+    func applicationWillTerminate(_ n: Notification) { outdoor.stop(); SoftDisconnect.reconnectAll(); CrashReporter.cleanExit() }
 
     /// Commands from the desktop widget (and anything else): wakedisplay://wake | reset | outdoor | larger | smaller | menu
     func application(_ application: NSApplication, open urls: [URL]) {
@@ -537,9 +539,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         m.addItem(item("🔆 " + L("Wake Display    ⌘⇧R"), #selector(actWakeSoft)))
         m.addItem(item("🔁 " + L("Force Reset (sleep → re-handshake, screens blink)"), #selector(actWakeHard)))
         m.addItem(.separator())
-        m.addItem(item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0))
-        m.addItem(item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil))
-        m.addItem(.separator())
         m.addItem(item("☀️ " + L("Outdoor Mode (max brightness)  ⌃⌥⌘B"), #selector(actToggleOutdoor), state: outdoor.isOn))
         m.addItem(.separator())
         for d in physicalExternals() {
@@ -570,13 +569,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             let parent = NSMenuItem(title: "🔍 " + L("Scaling / Text Size — ") + displayName(d), action: nil, keyEquivalent: "")
             m.addItem(parent); m.setSubmenu(sub, for: parent)
         }
-        m.addItem(AdvancedMenu.shared.build())
         m.addItem(.separator())
-        m.addItem(item("⚡️ " + L("Apply Anti-Disconnect Power Policy (sudo pmset)"), #selector(actApplyPmset)))
-        m.addItem(item("↩️ " + L("Restore Default Power Policy"), #selector(actRestorePmset)))
-        m.addItem(item("🔍 " + L("Show Current Power Settings"), #selector(actShowPmset)))
-        m.addItem(item("🧹 " + L("Reset Display Cache (EDID) & Restart…"), #selector(actResetEDID)))
+        m.addItem(item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0))
+        m.addItem(item("🤖 " + L("Auto-Wake (external asleep while Mac in use)"), #selector(actToggleAutoWake), state: autoWakeTimer != nil))
         m.addItem(.separator())
+        // Level 3: rarely used maintenance tools live in Advanced ▸ Maintenance
+        let maint = NSMenu()
+        maint.addItem(item("⚡️ " + L("Apply Anti-Disconnect Power Policy (sudo pmset)"), #selector(actApplyPmset)))
+        maint.addItem(item("↩️ " + L("Restore Default Power Policy"), #selector(actRestorePmset)))
+        maint.addItem(item("🔍 " + L("Show Current Power Settings"), #selector(actShowPmset)))
+        maint.addItem(.separator())
+        maint.addItem(item("🧹 " + L("Reset Display Cache (EDID) & Restart…"), #selector(actResetEDID)))
+        let maintParent = NSMenuItem(title: "🛠 " + L("Maintenance"), action: nil, keyEquivalent: "")
+        maintParent.submenu = maint
+        m.addItem(AdvancedMenu.shared.build(extra: [maintParent]))
         let langSub = NSMenu()
         for l in Lang.allCases {
             let title = l == .auto ? L("Automatic (System)") : (langNativeNames[l] ?? l.rawValue)
@@ -589,11 +595,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         m.addItem(item(L("Launch at Login"), #selector(actToggleLogin), state: FileManager.default.fileExists(atPath: launchAgent)))
         let aboutSub = NSMenu()
         aboutSub.addItem(item(L("About WakeDisplay…"), #selector(actAbout)))
+        aboutSub.addItem(ExtrasMenu.shared.whatsNewItem())
         aboutSub.addItem(.separator())
         aboutSub.addItem(item(L("Check for Updates…"), #selector(actCheckUpdates)))
         aboutSub.addItem(item(L("Install Updates Automatically"), #selector(actToggleAutoUpdate), state: Updater.autoUpdate))
         aboutSub.addItem(.separator())
-        aboutSub.addItem(item(L("Send Anonymous Usage Stats"), #selector(actToggleTelemetry), state: Telemetry.enabled))
+        aboutSub.addItem(ExtrasMenu.shared.reportIssueItem())
+        aboutSub.addItem(ExtrasMenu.shared.sponsorMenu())
+        aboutSub.addItem(ExtrasMenu.shared.privacyMenu())
         aboutSub.addItem(.separator())
         let ver = NSMenuItem(title: "WakeDisplay v\(Updater.currentVersion)", action: nil, keyEquivalent: "")
         ver.isEnabled = false

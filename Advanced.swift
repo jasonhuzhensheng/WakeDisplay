@@ -211,7 +211,7 @@ final class AdvancedMenu: NSObject {
         return p
     }
 
-    func build() -> NSMenuItem {
+    func build(extra: [NSMenuItem] = []) -> NSMenuItem {
         var items: [NSMenuItem] = []
         let exts = physicalExternals()
 
@@ -261,6 +261,7 @@ final class AdvancedMenu: NSObject {
 
         items.append(.separator())
         items.append(it(L("Remember Settings per Display"), #selector(toggleRemember), on: PerDisplay.enabled))
+        if !extra.isEmpty { items.append(.separator()); items += extra }
 
         return sub("⚙️ " + L("Advanced"), items)
     }

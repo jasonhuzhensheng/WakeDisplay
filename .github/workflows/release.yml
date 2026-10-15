@@ -6,7 +6,7 @@ name: Release
 on:
   push:
     branches: [main]
-    paths: ['build.sh', 'main.swift', 'CGVirtualDisplay.h', 'Localization.swift', 'Telemetry.swift', 'Updater.swift', 'Advanced.swift', 'Widget/**']
+    paths: ['build.sh', 'main.swift', 'CGVirtualDisplay.h', 'Localization.swift', 'Telemetry.swift', 'Updater.swift', 'Advanced.swift', 'Extras.swift', 'Widget/**']
   workflow_dispatch:
 
 permissions:
@@ -56,8 +56,29 @@ jobs:
           Requires macOS 12+ on Apple Silicon / 需要 macOS 12+，Apple Silicon
 
           NOTES
+          PREV=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)
+          {
+            echo "## What's new"
+            echo
+            if [ -n "$PREV" ]; then RANGE="$PREV..HEAD"; else RANGE="HEAD~20..HEAD"; fi
+            git log --no-merges --pretty='- %s' $RANGE | grep -v -E '^- (Cask:|CI:|README)' || true
+            echo
+          } > whatsnew.md
+          cat whatsnew.md notes.md > body.md
           gh release create "v${VER}" "WakeDisplay-v${VER}.zip" \
             --title "WakeDisplay v${VER}" \
-            --notes-file notes.md \
-            --generate-notes \
+            --notes-file body.md \
             --target "$GITHUB_SHA"
+
+      - name: Update Homebrew cask
+        if: steps.v.outputs.exists == 'false'
+        env:
+          VER: ${{ steps.v.outputs.version }}
+        run: |
+          SHA=$(shasum -a 256 "WakeDisplay-v${VER}.zip" | cut -d' ' -f1)
+          sed -i '' -E "s/^  version \".*\"/  version \"${VER}\"/; s/^  sha256 .*/  sha256 \"${SHA}\"/" Casks/wakedisplay.rb
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/wakedisplay.rb
+          git commit -m "Cask: v${VER}" || exit 0
+          git push origin HEAD:main
