@@ -13,8 +13,33 @@
 </p>
 
 <p align="center">
-  <a href="#中文说明">中文</a> · <a href="#english">English</a>
+  <b>免费开源的 BetterDisplay / BrightIntosh / MonitorControl 替代品 · 安装包仅 168 KB</b><br>
+  <b>A free, open-source alternative to BetterDisplay Pro, BrightIntosh and MonitorControl — 168 KB download</b>
 </p>
+
+<p align="center">
+  <a href="#中文说明">中文</a> · <a href="#english">English</a> · <a href="#compare">对比 / Compare</a>
+</p>
+
+<p align="center"><img src="docs/share.png" alt="WakeDisplay menu" width="820"></p>
+
+<a id="compare"></a>
+## 对比同类工具 / Compared with similar tools
+
+| 功能 / Feature | **WakeDisplay** | BetterDisplay | BrightIntosh | MonitorControl | Lunar |
+|---|:-:|:-:|:-:|:-:|:-:|
+| 一键唤醒不亮的外接屏 / One-click wake for a dark external display | ✅ | ⚠️ | — | — | — |
+| 清晰 HiDPI 缩放 / Sharp HiDPI scaling | ✅ | Pro | — | — | — |
+| XDR 亮度提升（户外模式）/ XDR brightness boost (Outdoor Mode) | ✅ | Pro | ✅ | — | Pro |
+| 光感自动开关 / Auto on/off via the light sensor | ✅ | — | — | — | Pro |
+| DDC 亮度 / 音量 / 输入源 / DDC brightness · volume · input | ✅ | ✅ | — | ✅ | ✅ |
+| 一键布局、软断开 / One-click layout, soft disconnect | ✅ | Pro | — | — | — |
+| 快捷键 + URL 控制 / Hotkeys + URL scheme | ✅ | Pro | — | ✅ | ✅ |
+| 安装包大小 / Download size | **168 KB** | 数 MB / several MB | 数 MB / several MB | 数 MB / several MB | 数十 MB / tens of MB |
+| 价格 / Price | **免费开源 / Free, MIT** | Pro 收费 / Pro paid | 收费 / Paid (App Store) | 免费 / Free | 高级功能收费 / Pro paid |
+
+> 以上为作者整理，各工具功能和价格以其官网为准。BetterDisplay 有调色、3D LUT、画中画、串流、HDR 切换等更专业的功能，WakeDisplay 不做这些。
+> Compiled by the author; check each tool's site for current features and pricing. BetterDisplay also offers pro features WakeDisplay doesn't (color adjustments, 3D LUTs, picture-in-picture, streaming, HDR switching).
 
 ---
 
