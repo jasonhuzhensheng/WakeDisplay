@@ -129,6 +129,17 @@ func wakeSoft() {
     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { ddcPowerOn(); probeDisplays(); declareUserActivity() }
 }
 
+/// Clicking the menu-bar icon: wake right away (off the main thread, so the menu opens instantly).
+/// Throttled so opening the menu repeatedly doesn't spam the monitors with DDC commands.
+private var lastClickWake = Date.distantPast
+func wakeOnClick() {
+    guard Date().timeIntervalSince(lastClickWake) > 3 else { return }
+    lastClickWake = Date()
+    let q = DispatchQueue.global(qos: .userInitiated)
+    q.async { declareUserActivity(); ddcPowerOn(); probeDisplays() }
+    q.asyncAfter(deadline: .now() + 1.5) { ddcPowerOn(); probeDisplays() }
+}
+
 /// Level 2 wake: sleep all displays, then wake, forcing USB-C re-enumeration
 func wakeHard() {
     DispatchQueue.global().async {
@@ -499,7 +510,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.autosaveName = "WakeDisplay"
         updateIcon()
-        // Any click (left or right) opens the menu; contents are rebuilt each time it opens
+        // Any click wakes the external display and opens the menu; contents are rebuilt each time it opens
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
@@ -548,6 +559,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
+        wakeOnClick()          // clicking the icon wakes the external display and opens the menu
         menu.removeAllItems()
         let built = buildMenu()
         let items = built.items
