@@ -377,7 +377,7 @@ final class OutdoorMode {
 
     func start() {
         guard !isOn, let d = builtinDisplay() else { return }
-        EInk.stop(d, quiet: true)
+        EInk.set(d, nil, quiet: true)
         display = d
         isOn = true
         var cur: Float = 0
@@ -491,68 +491,145 @@ final class OutdoorMode {
 }
 let outdoor = OutdoorMode()
 
-// MARK: - E-ink mode (for reading), per display: warm "paper" tint, lifted blacks, softer contrast
+// MARK: - Display modes (per screen): Reading · E-ink · Coding · Movie · Gaming
 //
-// Applied with a per-display gamma formula, so each screen can be switched on its own and the
-// others stay in full colour. (macOS can only turn true grayscale on for all screens at once,
-// so this mode mutes colours into paper tones instead.) Off = ColorSync gamma restored.
+// Each mode is a per-display gamma formula (zero CPU, applied by the display pipeline), so every
+// screen can have its own mode while the others stay untouched. Gaming also switches the screen to
+// its highest refresh rate and restores the previous rate afterwards. "All Screens Black & White"
+// adds the system grayscale switch (CGDisplayForceToGray, global by nature) on top of E-ink.
+
+private typealias ForceGrayFn = @convention(c) (Bool) -> Void
+private let cgForceToGray: ForceGrayFn? = {
+    guard let s = dlsym(UnsafeMutableRawPointer(bitPattern: -2), "CGDisplayForceToGray") else { return nil }  // RTLD_DEFAULT
+    return unsafeBitCast(s, to: ForceGrayFn.self)
+}()
+
+enum ScreenMode: Int, CaseIterable {
+    case reading = 1, eink, coding, movie, gaming
+    var title: String { [L("Reading"), L("E-ink") + "  ⌃⌥⌘E", L("Coding"), L("Movie"), L("Gaming")][rawValue - 1] }
+    var icon: String { ["📖", "🗞", "💻", "🎬", "🎮"][rawValue - 1] }
+    /// (min, max, gamma) for R, G, B — output = min + (max − min) · input^gamma
+    var formula: [(Float, Float, Float)] {
+        switch self {
+        case .reading: return [(0.05, 0.98, 1.10), (0.04, 0.93, 1.10), (0.03, 0.80, 1.10)]  // warm paper, less blue
+        case .eink:    return [(0.12, 0.95, 1.20), (0.11, 0.91, 1.20), (0.09, 0.80, 1.20)]  // paper white, grey ink
+        case .coding:  return [(0.00, 0.97, 1.08), (0.00, 0.98, 1.08), (0.00, 1.00, 1.08)]  // neutral-cool, crisper text
+        case .movie:   return [(0.00, 1.00, 1.09), (0.00, 1.00, 1.09), (0.00, 1.00, 1.09)]  // ≈ gamma 2.4, deeper blacks
+        case .gaming:  return [(0.02, 1.00, 0.85), (0.02, 1.00, 0.85), (0.02, 1.00, 0.85)]  // lifted shadows
+        }
+    }
+}
 
 enum EInk {
-    private(set) static var displays = Set<CGDirectDisplayID>()
-    static var isOn: Bool { !displays.isEmpty }
+    private(set) static var modes: [CGDirectDisplayID: ScreenMode] = [:]
+    private(set) static var grayAll = false
+    private static var savedRefresh: [CGDirectDisplayID: CGDisplayMode] = [:]
+    static var isOn: Bool { !modes.isEmpty || grayAll }
     private static var observing = false
 
-    /// Hotkey / URL: toggle the screen under the mouse pointer
+    /// Hotkey / URL: E-ink on/off for the screen under the mouse pointer
     static func toggleUnderMouse() {
         let p = NSEvent.mouseLocation
         let scr = NSScreen.screens.first { NSMouseInRect(p, $0.frame, false) } ?? NSScreen.main
         guard let id = scr?.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID else { return }
-        toggle(id)
+        set(id, modes[id] == .eink ? nil : .eink)
     }
 
-    static func toggle(_ d: CGDirectDisplayID) { displays.contains(d) ? stop(d) : start(d) }
-
-    static func start(_ d: CGDirectDisplayID) {
-        guard !displays.contains(d) else { return }
-        if d == builtinDisplay(), outdoor.isOn { outdoor.stop() }   // both drive the built-in panel's gamma
-        displays.insert(d)
+    /// Set a screen's mode (nil = original)
+    static func set(_ d: CGDirectDisplayID, _ m: ScreenMode?, quiet: Bool = false) {
+        let old = modes[d]
+        guard old != m else { return }
+        if m != nil, d == builtinDisplay(), outdoor.isOn { outdoor.stop() }   // both drive the built-in panel's gamma
+        modes[d] = m
+        if old == .gaming { restoreRefresh(d) }
+        if m == .gaming { maxRefresh(d) }
+        if m == nil { CGDisplayRestoreColorSyncSettings(); if outdoor.isOn { outdoor.refresh() } }   // resets all → re-apply the rest
         apply()
-        if !observing {                             // macOS resets gamma on wake / reconfiguration
-            observing = true
-            let re: (Notification) -> Void = { _ in if isOn { DispatchQueue.main.asyncAfter(deadline: .now() + 1) { apply() } } }
-            NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main, using: re)
-            NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.screensDidWakeNotification, object: nil, queue: .main, using: re)
-        }
+        observe()
         (NSApp.delegate as? AppDelegate)?.updateIcon()
-        WakeReminder.show("📖 " + L("E-ink Mode is on"), displayName(d) + " · " + L("Press ⌃⌥⌘E to switch back to color"))
+        if quiet { return }
+        if let m { WakeReminder.show(m.icon + " " + L("Display Mode") + ": " + m.title, displayName(d)) }
+        else { WakeReminder.show("🎨 " + L("Back to color"), displayName(d)) }
     }
 
-    static func stop(_ d: CGDirectDisplayID, quiet: Bool = false) {
-        guard displays.remove(d) != nil else { return }
-        CGDisplayRestoreColorSyncSettings()         // resets every display…
-        apply()                                     // …so re-tint the ones still in e-ink mode
-        if outdoor.isOn { outdoor.refresh() }
+    /// All screens: true black & white (system grayscale) + E-ink paper tint
+    static func setGrayAll(_ on: Bool) {
+        grayAll = on
+        cgForceToGray?(on)
+        for d in onlineScreens() { set(d, on ? .eink : nil, quiet: true) }
         (NSApp.delegate as? AppDelegate)?.updateIcon()
-        if !quiet { WakeReminder.show("🎨 " + L("Back to color"), displayName(d)) }
+        WakeReminder.show(on ? "🗞 " + L("E-ink Mode is on") : "🎨 " + L("Back to color"),
+                          on ? L("Press ⌃⌥⌘E to switch back to color") : "")
     }
 
     static func stopAll() {
-        guard isOn else { return }
-        displays.removeAll()
-        CGDisplayRestoreColorSyncSettings()
+        if grayAll { cgForceToGray?(false); grayAll = false }
+        for d in modes.keys where modes[d] == .gaming { restoreRefresh(d) }
+        if !modes.isEmpty { modes.removeAll(); CGDisplayRestoreColorSyncSettings() }
+    }
+
+    static func onlineScreens() -> [CGDirectDisplayID] {
+        var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
+        CGGetOnlineDisplayList(16, &ids, &n)
+        return ids.prefix(Int(n)).filter { !isVirtual($0) }
     }
 
     private static func apply() {
-        var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
-        CGGetOnlineDisplayList(16, &ids, &n)
-        let online = Set(ids.prefix(Int(n)))
-        displays.formIntersection(online)           // forget unplugged screens
-        for d in displays {
-            //                              min   max   gamma   → paper white, ink ≈ deep warm grey
-            CGSetDisplayTransferByFormula(d, 0.12, 0.95, 1.2,
-                                             0.11, 0.91, 1.2,
-                                             0.09, 0.80, 1.2)
+        let online = Set(onlineScreens())
+        modes = modes.filter { online.contains($0.key) }          // forget unplugged screens
+        if grayAll { cgForceToGray?(true) }
+        for (d, m) in modes {
+            let f = m.formula
+            CGSetDisplayTransferByFormula(d, f[0].0, f[0].1, f[0].2, f[1].0, f[1].1, f[1].2, f[2].0, f[2].1, f[2].2)
         }
+    }
+
+    private static func observe() {
+        guard !observing else { return }                           // macOS resets gamma on wake / reconfiguration
+        observing = true
+        let re: (Notification) -> Void = { _ in if isOn { DispatchQueue.main.asyncAfter(deadline: .now() + 1) { apply() } } }
+        NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main, using: re)
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.screensDidWakeNotification, object: nil, queue: .main, using: re)
+    }
+
+    private static func maxRefresh(_ d: CGDirectDisplayID) {
+        guard let cur = CGDisplayCopyDisplayMode(d), let best = refreshModes(d).first,
+              best.refreshRate > cur.refreshRate + 0.5 else { return }
+        savedRefresh[d] = cur
+        setMode(d, best)
+    }
+    private static func restoreRefresh(_ d: CGDirectDisplayID) {
+        if let m = savedRefresh.removeValue(forKey: d) { setMode(d, m) }
+    }
+
+    /// Experimental ▸ one submenu per screen with its modes, plus the all-screens black & white switch
+    static func menuItems(target: AnyObject) -> [NSMenuItem] {
+        var out: [NSMenuItem] = []
+        for d in onlineScreens() {
+            let sub = NSMenu()
+            let orig = NSMenuItem(title: "🎨 " + L("Original"), action: #selector(AppDelegate.actSetScreenMode(_:)), keyEquivalent: "")
+            orig.target = target; orig.representedObject = [NSNumber(value: d), NSNumber(value: 0)]
+            orig.state = modes[d] == nil ? .on : .off
+            sub.addItem(orig)
+            sub.addItem(.separator())
+            for m in ScreenMode.allCases {
+                let it = NSMenuItem(title: m.icon + " " + m.title, action: #selector(AppDelegate.actSetScreenMode(_:)), keyEquivalent: "")
+                it.target = target; it.representedObject = [NSNumber(value: d), NSNumber(value: m.rawValue)]
+                it.state = modes[d] == m ? .on : .off
+                sub.addItem(it)
+            }
+            let icon = CGDisplayIsBuiltin(d) != 0 ? "💻 " : "🖥 "
+            let parent = NSMenuItem(title: icon + L("Display Mode") + " — " + displayName(d)
+                                    + (modes[d].map { "  " + $0.icon } ?? ""), action: nil, keyEquivalent: "")
+            parent.submenu = sub
+            out.append(parent)
+        }
+        out.append(.separator())
+        let g = NSMenuItem(title: "⚫️ " + L("All Screens Black & White (E-ink)"), action: #selector(AppDelegate.actToggleGrayAll), keyEquivalent: "")
+        g.target = target; g.state = grayAll ? .on : .off
+        g.isEnabled = cgForceToGray != nil
+        out.append(g)
+        return out
     }
 }
 
@@ -680,13 +757,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return it
     }
 
-    /// "📖 E-ink Mode" toggle for one screen (shown in Advanced ▸ External / Built-in)
-    func einkItem(_ d: CGDirectDisplayID, named: Bool) -> NSMenuItem {
-        let icon = CGDisplayIsBuiltin(d) != 0 ? "💻 " : "🖥 "
-        let title = "📖 " + L("E-ink Mode (for reading)  ⌃⌥⌘E") + (named ? " — " + icon + displayName(d) : "")
-        return item(title, #selector(actToggleEInkDisplay(_:)), state: EInk.displays.contains(d), obj: NSNumber(value: d))
-    }
-
     func buildMenu() -> NSMenu {
         let m = NSMenu()
         m.addItem(item("🔆 " + L("Wake Display    ⌘⇧R"), #selector(actWakeSoft)))
@@ -784,9 +854,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         // Level 3: 🧪 Experimental ▸ — E-ink Mode, one toggle per screen
         let labs = NSMenu()
-        var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
-        CGGetOnlineDisplayList(16, &ids, &n)
-        for d in ids.prefix(Int(n)) where !isVirtual(d) { labs.addItem(einkItem(d, named: true)) }
+        EInk.menuItems(target: self).forEach { labs.addItem($0) }
         let labsParent = NSMenuItem(title: "🧪 " + L("Experimental Features"), action: nil, keyEquivalent: "")
         labsParent.submenu = labs
 
@@ -814,10 +882,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         EInk.toggleUnderMouse()
         if EInk.isOn { Telemetry.feature("einkMode") }
     }
-    @objc func actToggleEInkDisplay(_ sender: NSMenuItem) {
-        guard let d = (sender.representedObject as? NSNumber)?.uint32Value else { return }
-        EInk.toggle(d)
-        if EInk.isOn { Telemetry.feature("einkMode") }
+    @objc func actSetScreenMode(_ sender: NSMenuItem) {
+        guard let a = sender.representedObject as? [NSNumber], a.count == 2 else { return }
+        let m = ScreenMode(rawValue: a[1].intValue)
+        EInk.set(a[0].uint32Value, m)
+        if let m { Telemetry.feature("screenMode." + String(m.rawValue)) }
+    }
+    @objc func actToggleGrayAll() {
+        EInk.setGrayAll(!EInk.grayAll)
+        if EInk.grayAll { Telemetry.feature("grayAll") }
     }
 
     @objc func actToggleOutdoor() {

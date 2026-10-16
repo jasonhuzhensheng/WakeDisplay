@@ -310,3 +310,26 @@ _LABS = {"zh-Hans":"测试功能","zh-Hant":"測試功能","ja":"試験的な機
 KEYS.append("Experimental Features")
 for _c, (_n, _arr) in LANGS.items():
     _arr.append(_LABS[_c])
+
+# ---- v1.31: display modes ----
+_DM_KEYS = ["Display Mode", "Original", "Reading", "E-ink", "Coding", "Movie", "Gaming", "All Screens Black & White (E-ink)"]
+_DM = {
+ "zh-Hans": ["显示模式", "原样", "阅读", "墨水屏", "写代码", "电影", "游戏", "全部屏幕黑白（墨水屏）"],
+ "zh-Hant": ["顯示模式", "原樣", "閱讀", "墨水屏", "寫程式", "電影", "遊戲", "全部螢幕黑白（墨水屏）"],
+ "ja": ["表示モード", "オリジナル", "読書", "電子ペーパー", "コーディング", "映画", "ゲーム", "全画面を白黒に（電子ペーパー）"],
+ "ko": ["디스플레이 모드", "원본", "독서", "전자잉크", "코딩", "영화", "게임", "모든 화면 흑백 (전자잉크)"],
+ "es": ["Modo de pantalla", "Original", "Lectura", "Tinta electrónica", "Programación", "Cine", "Juegos", "Todas las pantallas en blanco y negro (tinta electrónica)"],
+ "fr": ["Mode d’affichage", "Original", "Lecture", "Encre électronique", "Code", "Cinéma", "Jeu", "Tous les écrans en noir et blanc (encre électronique)"],
+ "de": ["Anzeigemodus", "Original", "Lesen", "E-Ink", "Programmieren", "Film", "Spiele", "Alle Bildschirme schwarz-weiß (E-Ink)"],
+ "pt": ["Modo de exibição", "Original", "Leitura", "Tinta eletrônica", "Programação", "Cinema", "Jogos", "Todas as telas em preto e branco (tinta eletrônica)"],
+ "it": ["Modalità schermo", "Originale", "Lettura", "E-ink", "Programmazione", "Film", "Giochi", "Tutti gli schermi in bianco e nero (e-ink)"],
+ "ru": ["Режим экрана", "Исходный", "Чтение", "E-ink", "Код", "Кино", "Игры", "Все экраны чёрно-белые (e-ink)"],
+ "ar": ["وضع العرض", "الأصلي", "القراءة", "الحبر الإلكتروني", "البرمجة", "الأفلام", "الألعاب", "كل الشاشات بالأبيض والأسود (حبر إلكتروني)"],
+ "hi": ["डिस्प्ले मोड", "मूल", "पढ़ना", "ई-इंक", "कोडिंग", "फ़िल्म", "गेमिंग", "सभी स्क्रीन श्वेत-श्याम (ई-इंक)"],
+ "id": ["Mode Layar", "Asli", "Membaca", "E-ink", "Coding", "Film", "Game", "Semua layar hitam putih (E-ink)"],
+ "tr": ["Ekran Modu", "Orijinal", "Okuma", "E-mürekkep", "Kodlama", "Film", "Oyun", "Tüm ekranlar siyah beyaz (E-mürekkep)"],
+ "vi": ["Chế độ hiển thị", "Gốc", "Đọc sách", "Mực điện tử", "Lập trình", "Phim", "Chơi game", "Tất cả màn hình đen trắng (mực điện tử)"],
+}
+KEYS += _DM_KEYS
+for _c, (_n, _arr) in LANGS.items():
+    _arr.extend(_DM[_c])
