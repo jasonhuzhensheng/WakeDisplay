@@ -340,9 +340,12 @@ func stepScaled(_ physical: CGDirectDisplayID, larger: Bool) {
 
 typealias DSGetBrightnessFn = @convention(c) (CGDirectDisplayID, UnsafeMutablePointer<Float>) -> Int32
 typealias DSSetBrightnessFn = @convention(c) (CGDirectDisplayID, Float) -> Int32
-let dsHandle = dlopen("/System/Library/PrivateFrameworks/DisplayServices.framework/DisplayServices", RTLD_NOW)
-let dsGetBrightness: DSGetBrightnessFn? = dsHandle.flatMap { dlsym($0, "DisplayServicesGetBrightness") }.map { unsafeBitCast($0, to: DSGetBrightnessFn.self) }
-let dsSetBrightness: DSSetBrightnessFn? = dsHandle.flatMap { dlsym($0, "DisplayServicesSetBrightness") }.map { unsafeBitCast($0, to: DSSetBrightnessFn.self) }
+/// Loaded on first use only (static lets are lazy) — never at launch
+enum DS {
+    static let handle = dlopen("/System/Library/PrivateFrameworks/DisplayServices.framework/DisplayServices", RTLD_LAZY)
+    static let get: DSGetBrightnessFn? = handle.flatMap { dlsym($0, "DisplayServicesGetBrightness") }.map { unsafeBitCast($0, to: DSGetBrightnessFn.self) }
+    static let set: DSSetBrightnessFn? = handle.flatMap { dlsym($0, "DisplayServicesSetBrightness") }.map { unsafeBitCast($0, to: DSSetBrightnessFn.self) }
+}
 
 func builtinDisplay() -> CGDirectDisplayID? {
     var ids = [CGDirectDisplayID](repeating: 0, count: 16); var n: UInt32 = 0
@@ -378,8 +381,8 @@ final class OutdoorMode {
         display = d
         isOn = true
         var cur: Float = 0
-        if let get = dsGetBrightness, get(d, &cur) == 0 { savedBrightness = cur }
-        _ = dsSetBrightness?(d, 1.0)
+        if let get = DS.get, get(d, &cur) == 0 { savedBrightness = cur }
+        _ = DS.set?(d, 1.0)
 
         if let screen = screenFor(d) {
             boost = OutdoorMode.available(screen)
@@ -399,7 +402,7 @@ final class OutdoorMode {
         window?.orderOut(nil); window = nil; metalLayer = nil
         if !baseR.isEmpty { CGSetDisplayTransferByTable(display, UInt32(baseR.count), baseR, baseG, baseB) }  // back to normal
         baseR = []; baseG = []; baseB = []; boostR = []; boostG = []; boostB = []
-        if let b = savedBrightness { _ = dsSetBrightness?(display, b) }
+        if let b = savedBrightness { _ = DS.set?(display, b) }
         savedBrightness = nil
         boost = 1.0
     }
@@ -411,7 +414,7 @@ final class OutdoorMode {
     private func apply(force: Bool = false) {
         guard isOn else { return }
         var cur: Float = 0
-        if force || dsGetBrightness?(display, &cur) != 0 || cur < 0.995 { _ = dsSetBrightness?(display, 1.0) }
+        if force || DS.get?(display, &cur) != 0 || cur < 0.995 { _ = DS.set?(display, 1.0) }
         // The EDR frame stays on screen by itself; repaint it only occasionally (every ~10 s)
         if force || ticks % 5 == 0 { renderEDR() }
         ticks &+= 1
@@ -573,35 +576,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             UserDefaults.standard.set(0.0, forKey: posKey)
             UserDefaults.standard.set(true, forKey: "didSetInitialPosition")
         }
+        // ① Right away: only what the user sees — the menu-bar icon (menu contents are built when it opens)
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem.autosaveName = "WakeDisplay"
         updateIcon()
-        // Hover wakes the external display; a click also opens the menu; contents are rebuilt each time it opens
         let menu = NSMenu()
         menu.delegate = self
         statusItem.menu = menu
-        // Hovering over the icon is enough to wake the external display (no click needed)
-        if let b = statusItem.button {
-            b.addTrackingArea(NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
-                                             owner: self, userInfo: nil))
+        trace("icon")
+
+        // ② Next run-loop turn, after the icon is on screen: input + safety
+        DispatchQueue.main.async { [self] in
+            // Hovering over the icon wakes the external display (no click needed)
+            statusItem.button?.addTrackingArea(NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect],
+                                                              owner: self, userInfo: nil))
+            registerHotKeys()
+            SoftDisconnect.reconnectAll()      // never leave a monitor switched off from a previous run
+            CrashReporter.start()
+            WakeReminder.start()
+            startDisplayWatcher()
+            trace("ready")
         }
-        registerHotKeys()
-        CrashReporter.start()
-        WakeReminder.start()
-        if AutoOutdoor.enabled { AutoOutdoor.start() }
-        SoftDisconnect.reconnectAll()          // never leave a monitor switched off from a previous run
-        startDisplayWatcher()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { PerDisplay.restoreAll() }
+        // ③ After 1 s: per-display settings and the light sensor (only if the user turned it on)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            PerDisplay.restoreAll()
+            if AutoOutdoor.enabled { AutoOutdoor.start() }
+        }
+        // ④ Background housekeeping, well after launch
         DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
             Telemetry.send("App.launched")
             Telemetry.dailyActiveIfNeeded()
         }
-        Updater.start()
-        // One low-priority hourly tick for all background housekeeping (tolerance lets macOS batch it)
-        telemetryTimer = every(3600, tolerance: 600) {
+        Updater.start()                        // first check after 60 s
+        telemetryTimer = every(3600, tolerance: 600) {   // one hourly tick; tolerance lets macOS batch it
             Telemetry.dailyActiveIfNeeded()
             Updater.hourlyTick()
         }
+    }
+
+    /// Free the menu's items once it closes (rebuilt fresh on the next open)
+    func menuDidClose(_ menu: NSMenu) {
+        DispatchQueue.main.async { menu.removeAllItems() }
     }
 
     func applicationWillTerminate(_ n: Notification) { outdoor.stop(); EInk.stopAll(); SoftDisconnect.reconnectAll(); CrashReporter.cleanExit() }
@@ -1016,6 +1031,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let a = NSAlert(); a.messageText = t; a.informativeText = msg
         NSApp.activate(ignoringOtherApps: true); a.runModal()
     }
+}
+
+/// WD_TRACE=1 prints milliseconds since process start (used by CI to measure startup)
+func trace(_ what: String) {
+    guard getenv("WD_TRACE") != nil else { return }
+    var kp = kinfo_proc(), size = MemoryLayout<kinfo_proc>.stride
+    var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+    sysctl(&mib, 4, &kp, &size, nil, 0)
+    let st = kp.kp_proc.p_un.__p_starttime
+    let ms = (Date().timeIntervalSince1970 - (Double(st.tv_sec) + Double(st.tv_usec) / 1e6)) * 1000
+    print("trace \(what): \(Int(ms)) ms"); fflush(stdout)
 }
 
 let app = NSApplication.shared
