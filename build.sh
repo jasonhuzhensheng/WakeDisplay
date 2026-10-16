@@ -34,9 +34,11 @@ cat > "$APP/Contents/Info.plist" <<EOF
 EOF
 
 echo "▶ 编译主程序 / Building app…"
+EXTRA=()
+[ -n "$LINK_MAP" ] && EXTRA=(-Xlinker -map -Xlinker linkmap.txt)   # CI size analysis
 # -Osize: optimise for size · -dead_strip: drop unused code · strip -x: drop local symbols
 swiftc -Osize -wmo -enforce-exclusivity=unchecked -import-objc-header CGVirtualDisplay.h main.swift Localization.swift Telemetry.swift Updater.swift Advanced.swift Extras.swift AutoOutdoor.swift -o "$APP/Contents/MacOS/WakeDisplay" \
-  -Xlinker -dead_strip -Xlinker -dead_strip_dylibs ${LINK_MAP:+-Xlinker -map -Xlinker linkmap.txt} -framework Cocoa -framework Carbon -framework IOKit -framework Metal -framework QuartzCore
+  -Xlinker -dead_strip -Xlinker -dead_strip_dylibs "${EXTRA[@]}" -framework Cocoa -framework Carbon -framework IOKit -framework Metal -framework QuartzCore
 strip -x "$APP/Contents/MacOS/WakeDisplay"
 
 codesign --force --sign - "$APP"   # ad-hoc 签名 / ad-hoc signature

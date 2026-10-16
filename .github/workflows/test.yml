@@ -24,6 +24,7 @@ jobs:
 
       - name: Build
         run: |
+          set -o pipefail
           chmod +x build.sh
           SKIP_INSTALL=1 LINK_MAP=1 ./build.sh 2>&1 | tee build.log
 
