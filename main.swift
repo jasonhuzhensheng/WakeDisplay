@@ -1033,9 +1033,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 }
 
-/// WD_TRACE=1 prints milliseconds since process start (used by CI to measure startup)
+/// CI-only startup timing: compiled in only with -D TRACE (release builds contain none of this)
+#if TRACE
 func trace(_ what: String) {
-    guard getenv("WD_TRACE") != nil else { return }
     var kp = kinfo_proc(), size = MemoryLayout<kinfo_proc>.stride
     var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
     sysctl(&mib, 4, &kp, &size, nil, 0)
@@ -1043,6 +1043,9 @@ func trace(_ what: String) {
     let ms = (Date().timeIntervalSince1970 - (Double(st.tv_sec) + Double(st.tv_usec) / 1e6)) * 1000
     fputs("trace " + what + ": " + String(Int(ms)) + " ms\n", stdout); fflush(stdout)
 }
+#else
+@inline(__always) func trace(_ what: String) {}
+#endif
 
 let app = NSApplication.shared
 let delegate = AppDelegate()

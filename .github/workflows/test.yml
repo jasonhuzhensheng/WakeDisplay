@@ -61,9 +61,11 @@ jobs:
             pkill -x WakeDisplay; sleep 2
           done
           # Startup cost: CPU time used and memory after 6 s idle (run the binary directly, 3 times)
-          BIN="$APP/Contents/MacOS/WakeDisplay"
+          rm -rf /tmp/tr && mkdir /tmp/tr && cp -R . /tmp/tr/ 2>/dev/null
+          (cd /tmp/tr && SKIP_INSTALL=1 TRACE=1 ./build.sh >/dev/null 2>&1)
+          BIN="/tmp/tr/WakeDisplay.app/Contents/MacOS/WakeDisplay"
           for i in 1 2 3; do
-            WD_TRACE=1 "$BIN" > /tmp/trace.txt & P=$!; sleep 6
+            "$BIN" > /tmp/trace.txt & P=$!; sleep 6
             FP=$(footprint $P 2>/dev/null | grep -m1 -i "footprint:" | sed 's/.*[Ff]ootprint: *//')
             echo "metrics run $i: $(tr '\n' ' ' < /tmp/trace.txt) | memory(footprint)=$FP | rss=$(ps -o rss= -p $P | tr -d ' ') KB | cpu=$(ps -o time= -p $P | tr -d ' ')" >> out/summary.txt
             kill $P; sleep 1
