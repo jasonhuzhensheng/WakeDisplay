@@ -846,6 +846,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         aboutSub.addItem(ExtrasMenu.shared.sponsorMenu())
         aboutSub.addItem(ExtrasMenu.shared.privacyMenu())
         aboutSub.addItem(.separator())
+        // Author, always visible in About ▸ (click → X profile)
+        aboutSub.addItem(item("👤 大老二 胡震生 (Jason Hu) · X @HUZHENSHENG · 0xBig2", #selector(actOpenAuthor)))
         let ver = NSMenuItem(title: "WakeDisplay v\(Updater.currentVersion)", action: nil, keyEquivalent: "")
         ver.isEnabled = false
         aboutSub.addItem(ver)
@@ -1029,6 +1031,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             shell("launchctl load '\(launchAgent)'")
         }
     }
+
+    @objc func actOpenAuthor() { openURL("https://x.com/HUZHENSHENG") }
 
     @objc func actAbout() {
         let ver = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "dev"
