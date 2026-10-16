@@ -7,7 +7,7 @@
 // 匿名使用统计（TelemetryDeck）：只发送版本号、系统版本、芯片架构、界面语言、外接屏数量和用了哪个功能。
 // 不发送任何个人信息；用户标识是随机安装 ID 的加盐 SHA-256。在「关于」窗口里可一键关闭。
 import Foundation
-import CryptoKit
+import CommonCrypto   // libSystem: no extra framework to load at launch
 
 enum Telemetry {
     static let appID = "D903CDC5-259C-4503-ABD2-C1E8375A342C"
@@ -26,7 +26,9 @@ enum Telemetry {
         let id: String
         if let saved = d.string(forKey: "telemetryInstallID") { id = saved }
         else { id = UUID().uuidString; d.set(id, forKey: "telemetryInstallID") }
-        let digest = SHA256.hash(data: Data(("WakeDisplay.v1:" + id).utf8))
+        let bytes = Array(("WakeDisplay.v1:" + id).utf8)
+        var digest = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+        CC_SHA256(bytes, CC_LONG(bytes.count), &digest)        // same hash as before → same anonymous ID
         return digest.map { String(format: "%02x", $0) }.joined()
     }()
 

@@ -60,27 +60,39 @@ out.append(f'let hidpiHelpEN = {lit(HIDPI_EN)}')
 out.append(f'let pmsetMsgEN = {lit(PMSET_EN)}')
 out.append(f'let edidMsgEN = {lit(EDID_EN)}')
 out.append(f'let aboutEN = {lit(ABOUT_EN)}\n')
-SEP = "\u001f"
-def blob(items): return lit(SEP.join(items)).replace(SEP, "\\u{1F}")
+# Translations live in a compressed resource (L10n.bin, raw DEFLATE), not in the binary.
+# Layout (UTF-8): record 0 = English keys, then one record per language in Lang order;
+# records separated by U+001E, strings inside a record by U+001F.
+import zlib
+US, RS = "\u001f", "\u001e"
 eng = {"@HIDPI":HIDPI_EN,"@PMSET":PMSET_EN,"@EDID":EDID_EN,"@ABOUT":ABOUT_EN}
+records = [US.join(eng.get(k,k) for k in KEYS)]
 for code,(name,arr) in LANGS.items():
-    for v in arr: assert SEP not in v
-out.append('// Compact storage: each language is ONE string literal (values in key order, separated by U+001F).')
-out.append('// A dictionary literal per language would compile to ~200 bytes of code per entry; this is ~0.')
-out.append('private let keysBlob = ' + blob([eng.get(k,k) for k in KEYS]))
-out.append('')
+    for v in arr: assert US not in v and RS not in v
+    records.append(US.join(arr))
+c = zlib.compressobj(9, zlib.DEFLATED, -15)
+data = c.compress(RS.join(records).encode()) + c.flush()
+open('L10n.bin','wb').write(data)
+idx = {c:i+1 for i,c in enumerate(LANGS)}
+out.append('/// Builds the table for one language from the bundled L10n.bin (decompressed on first use only)')
 out.append('private func buildTable(_ l: Lang) -> [String: String] {')
-out.append('    let blob: String')
+out.append('    let index: Int')
 out.append('    switch l {')
-for c,(name,arr) in LANGS.items():
-    out.append(f'    case .{cn(c)}: blob = {blob(arr)}')
+for c in LANGS:
+    out.append(f'    case .{cn(c)}: index = {idx[c]}')
 out.append('    default: return [:]')
 out.append('    }')
-out.append('    let k = keysBlob.split(separator: "\\u{1F}", omittingEmptySubsequences: false)')
-out.append('    let v = blob.split(separator: "\\u{1F}", omittingEmptySubsequences: false)')
+out.append('    guard let url = Bundle.main.url(forResource: "L10n", withExtension: "bin"),')
+out.append('          let raw = try? Data(contentsOf: url),')
+out.append('          let plain = try? (raw as NSData).decompressed(using: .zlib) as Data,')
+out.append('          let text = String(data: plain, encoding: .utf8) else { return [:] }')
+out.append('    let recs = text.split(separator: "\\u{1E}", omittingEmptySubsequences: false)')
+out.append('    guard recs.count > index else { return [:] }')
+out.append('    let k = recs[0].split(separator: "\\u{1F}", omittingEmptySubsequences: false)')
+out.append('    let v = recs[index].split(separator: "\\u{1F}", omittingEmptySubsequences: false)')
 out.append('    var t = [String: String](minimumCapacity: k.count)')
 out.append('    for (a, b) in zip(k, v) { t[String(a)] = String(b) }')
 out.append('    return t')
 out.append('}')
 open('Localization.swift','w').write('\n'.join(out)+'\n')
-print("ok", len(LANGS)+1, "languages,", len(KEYS), "strings")
+print("ok", len(LANGS)+1, "languages,", len(KEYS), "strings; L10n.bin", len(data), "bytes")

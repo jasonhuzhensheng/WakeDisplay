@@ -9,7 +9,8 @@ VERSION="1.29"
 APP=WakeDisplay.app
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"   # 7 KB, pre-optimised (see tools/icon)
+cp AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+cp L10n.bin "$APP/Contents/Resources/L10n.bin"     # 15 languages, compressed (see tools/i18n/gen.py)   # 7 KB, pre-optimised (see tools/icon)
 
 cat > "$APP/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>

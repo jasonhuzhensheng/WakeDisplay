@@ -38,6 +38,9 @@ jobs:
             echo "commit: ${GITHUB_SHA::7}"
             echo "version: $(grep -m1 '^VERSION=' build.sh)"
             echo "binary: $(stat -f%z "$APP/Contents/MacOS/WakeDisplay") bytes"
+            ditto -c -k --keepParent WakeDisplay.app /tmp/wd.zip
+            echo "zip (same as release): $(stat -f%z /tmp/wd.zip) bytes"
+            echo "app bundle: $(du -sk WakeDisplay.app | cut -f1) KB on disk"
             echo "macOS: $(sw_vers -productVersion) ($(uname -m))"
           } > out/summary.txt
           # keep CI runs out of the real usage stats / crash reports / auto-update
