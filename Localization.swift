@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Jason Hu (胡震生) — MIT License. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
 // WakeDisplay localization — generated from translations.py, do not edit by hand.
 // UI language: "Automatic" follows the macOS preferred language, falling back to English.
 import Foundation

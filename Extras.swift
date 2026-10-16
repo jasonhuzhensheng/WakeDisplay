@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Jason Hu (胡震生) — MIT License. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
 // Product extras: What's New after an update, Report an Issue, crash reporting, sponsorship.
 // 产品化功能：更新后的「新功能」窗口、反馈问题、崩溃上报、赞助入口。
 import Cocoa

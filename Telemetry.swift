@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Jason Hu (胡震生) — MIT License. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
 // Anonymous usage statistics via TelemetryDeck (https://telemetrydeck.com), no SDK needed.
 // What is sent: app version, macOS version, CPU architecture, UI language, number of external
 // displays, and which WakeDisplay feature was used. Never: names, files, IP-derived identity,

@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Jason Hu (胡震生) — MIT License. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
 // Advanced display features (menu → ⚙️ Advanced):
 //   brightness / volume / input source over DDC, extra dimming below minimum, refresh-rate switch,
 //   soft-disconnect a display, layout presets, and remembering settings per display.

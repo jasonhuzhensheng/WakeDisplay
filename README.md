@@ -318,3 +318,6 @@ Issues and PRs welcome — compatibility reports for other monitor models are es
 ## License
 
 MIT © 2026 Jason Hu (胡震生)
+
+> **Name & logo / 名称与图标**: the code is MIT, but the WakeDisplay name and logo are not — forks must rename and re-icon. See [TRADEMARKS.md](TRADEMARKS.md).
+> 代码为 MIT；「WakeDisplay」名称与 Logo 不在授权内，fork 版请改名换图标，详见 [TRADEMARKS.md](TRADEMARKS.md)。

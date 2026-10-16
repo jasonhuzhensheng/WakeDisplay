@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Jason Hu (胡震生) — MIT License. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
 // Auto Outdoor Mode: read the MacBook's ambient light sensor and switch Outdoor Mode on in bright
 // light, off again indoors. Apple Silicon has no public ALS API; this uses the private
 // IOHIDEventSystemClient interface (same approach as Lunar). If it is unavailable, the feature
