@@ -5,7 +5,7 @@
 set -e
 cd "$(dirname "$0")"
 
-VERSION="1.29"
+VERSION="1.30"
 APP=WakeDisplay.app
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
