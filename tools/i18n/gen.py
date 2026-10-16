@@ -8,7 +8,7 @@ for code,(name,arr) in LANGS.items():
 order = ["en"] + list(LANGS)
 case_names = {"en":"en","zh-Hans":"zhHans","zh-Hant":"zhHant"}
 cn = lambda c: case_names.get(c, c)
-out = ["// Copyright (c) 2026 Jason Hu (胡震生) — MIT License. The WakeDisplay name and logo are not covered, see TRADEMARKS.md"]
+out = ["// Copyright (c) 2026 Jason Hu (胡震生) — GPL-3.0-or-later. The WakeDisplay name and logo are not covered, see TRADEMARKS.md"]
 out.append('''// WakeDisplay localization — generated from translations.py, do not edit by hand.
 // UI language: "Automatic" follows the macOS preferred language, falling back to English.
 import Foundation

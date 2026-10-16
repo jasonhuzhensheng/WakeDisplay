@@ -1,4 +1,4 @@
-// Copyright (c) 2026 Jason Hu (胡震生) — MIT License. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
+// Copyright (c) 2026 Jason Hu (胡震生) — GPL-3.0-or-later. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
 // Self-updater: checks GitHub Releases, downloads the zip, verifies it and swaps the app in place.
 // No Sparkle / no server: releases are already built and published by GitHub Actions.
 // 自动更新：查询 GitHub Releases，下载 zip，校验后原地替换 App 并重启。

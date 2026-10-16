@@ -1,4 +1,4 @@
-// Copyright (c) 2026 Jason Hu (胡震生) — MIT License. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
+// Copyright (c) 2026 Jason Hu (胡震生) — GPL-3.0-or-later. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
 // WakeDisplay localization — generated from translations.py, do not edit by hand.
 // UI language: "Automatic" follows the macOS preferred language, falling back to English.
 import Foundation
@@ -79,7 +79,7 @@ func translationTable(_ l: Lang) -> [String: String] {
 let hidpiHelpEN = "macOS only generates HiDPI scaling modes for displays with high enough pixel density (usually ≥ 4K).\n1080p / 2K portable monitors typically expose native modes only, so System Settings offers no \"Larger Text\" either.\n\nOptions:\n• Pick a lower non-HiDPI resolution here (e.g. 1600×900): bigger text, slightly soft.\n• For \"big and sharp\", turn on \"Sharp Scaling at Native Resolution\" in this submenu: WakeDisplay renders the desktop on a HiDPI virtual display and mirrors your panel onto it, so the panel keeps its native resolution while text gets larger."
 let pmsetMsgEN = "Will run:\nsudo pmset -a sleep 0 standby 0 autopoweroff 0 powernap 0\n\nEffect: USB-C power is no longer cut when the lid is closed or the screen is locked. A laptop on battery will drain faster. Continue?"
 let edidMsgEN = "Will delete /Library/Preferences/com.apple.windowserver.displays.plist and the user-level display config, then restart the Mac.\nPersonal data is untouched, but display arrangement / scaling settings will reset. Continue?"
-let aboutEN = "macOS menu-bar utility: wake dark USB-C external displays with one click and unlock the HiDPI scaling modes macOS hides.\n\nAuthor: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nBuilt with: Claude Fable 5.1 (Anthropic)\nLicense: MIT"
+let aboutEN = "macOS menu-bar utility: wake dark USB-C external displays with one click and unlock the HiDPI scaling modes macOS hides.\n\nAuthor: Jason Hu 胡震生 (大老二)\nX: @HUZHENSHENG  ·  0xBig2\n\nBuilt with: Claude Fable 5.1 (Anthropic)\nLicense: GPLv3"
 
 /// Builds the table for one language from the bundled L10n.bin (decompressed on first use only)
 private func buildTable(_ l: Lang) -> [String: String] {

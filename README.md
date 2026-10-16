@@ -38,7 +38,7 @@
 | 一键布局、软断开 / One-click layout, soft disconnect | ✅ | Pro | — | — | — |
 | 快捷键 + URL 控制 / Hotkeys + URL scheme | ✅ | Pro | — | ✅ | ✅ |
 | 安装包大小 / Download size | **168 KB** | 数 MB / several MB | 数 MB / several MB | 数 MB / several MB | 数十 MB / tens of MB |
-| 价格 / Price | **免费开源 / Free, MIT** | Pro 收费 / Pro paid | 收费 / Paid (App Store) | 免费 / Free | 高级功能收费 / Pro paid |
+| 价格 / Price | **免费开源 / Free, GPLv3** | Pro 收费 / Pro paid | 收费 / Paid (App Store) | 免费 / Free | 高级功能收费 / Pro paid |
 
 > 以上为作者整理，各工具功能和价格以其官网为准。BetterDisplay 有调色、3D LUT、画中画、串流、HDR 切换等更专业的功能，WakeDisplay 不做这些。
 > Compiled by the author; check each tool's site for current features and pricing. BetterDisplay also offers pro features WakeDisplay doesn't (color adjustments, 3D LUTs, picture-in-picture, streaming, HDR switching).
@@ -317,7 +317,7 @@ Issues and PRs welcome — compatibility reports for other monitor models are es
 
 ## License
 
-MIT © 2026 Jason Hu (胡震生)
+GPL-3.0-or-later © 2026 Jason Hu (胡震生) — see [LICENSE](LICENSE).
 
-> **Name & logo / 名称与图标**: the code is MIT, but the WakeDisplay name and logo are not — forks must rename and re-icon. See [TRADEMARKS.md](TRADEMARKS.md).
-> 代码为 MIT；「WakeDisplay」名称与 Logo 不在授权内，fork 版请改名换图标，详见 [TRADEMARKS.md](TRADEMARKS.md)。
+> **Name & logo / 名称与图标**: the code is GPLv3, but the WakeDisplay name and logo are not — forks must rename and re-icon. See [TRADEMARKS.md](TRADEMARKS.md).
+> 代码为 GPLv3；「WakeDisplay」名称与 Logo 不在授权内，fork 版请改名换图标，详见 [TRADEMARKS.md](TRADEMARKS.md)。

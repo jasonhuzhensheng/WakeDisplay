@@ -1,7 +1,7 @@
-// Copyright (c) 2026 Jason Hu (胡震生) — MIT License. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
+// Copyright (c) 2026 Jason Hu (胡震生) — GPL-3.0-or-later. The WakeDisplay name and logo are not covered, see TRADEMARKS.md
 // WakeDisplay — macOS menu-bar utility: wake dark USB-C external displays / unlock hidden HiDPI scaling
 // WakeDisplay — macOS 菜单栏小工具：唤醒黑屏的 USB-C 外接显示器 / 解锁隐藏 HiDPI 缩放
-// Author: 胡震生 Jason Hu (@HUZHENSHENG · 0xBig2)  ·  MIT License
+// Author: 胡震生 Jason Hu (@HUZHENSHENG · 0xBig2)  ·  GPL-3.0-or-later
 // https://github.com/jasonhuzhensheng/WakeDisplay
 // Build: see build.sh (Xcode Command Line Tools only)
 import Cocoa
