@@ -1041,7 +1041,7 @@ func trace(_ what: String) {
     sysctl(&mib, 4, &kp, &size, nil, 0)
     let st = kp.kp_proc.p_un.__p_starttime
     let ms = (Date().timeIntervalSince1970 - (Double(st.tv_sec) + Double(st.tv_usec) / 1e6)) * 1000
-    print("trace \(what): \(Int(ms)) ms"); fflush(stdout)
+    fputs("trace " + what + ": " + String(Int(ms)) + " ms\n", stdout); fflush(stdout)
 }
 
 let app = NSApplication.shared
