@@ -1,0 +1,15 @@
+commit: 93ec1df
+version: VERSION="1.31"
+binary: 327056 bytes
+zip (same as release): 171041 bytes
+app bundle: 364 KB on disk
+macOS: 14.8.9 (arm64)
+[en] launch: OK
+[en] after menu: still running
+[zh-Hans] launch: OK
+[zh-Hans] after menu: still running
+metrics run 1: trace icon: 186 ms trace ready: 205 ms  | memory(footprint)=7538 KB (16384 bytes per page) | rss=25088 KB | cpu=0:00.15
+metrics run 2: trace icon: 67 ms trace ready: 72 ms  | memory(footprint)=7410 KB (16384 bytes per page) | rss=25056 KB | cpu=0:00.13
+metrics run 3: trace icon: 74 ms trace ready: 82 ms  | memory(footprint)=7346 KB (16384 bytes per page) | rss=25008 KB | cpu=0:00.14
+wallpaper: /System/Library/Desktop Pictures/Hello Metallic Blue.heic
+crash reports: none
