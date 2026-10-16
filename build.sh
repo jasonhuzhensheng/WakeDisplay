@@ -39,7 +39,7 @@ EXTRA=()
 [ -n "$LINK_MAP" ] && EXTRA=(-Xlinker -map -Xlinker linkmap.txt)   # CI size analysis
 [ -n "$TRACE" ] && EXTRA+=(-D TRACE)                                  # CI startup timing build
 # -Osize: optimise for size · -dead_strip: drop unused code · strip -x: drop local symbols
-swiftc -Osize -wmo -enforce-exclusivity=unchecked -import-objc-header CGVirtualDisplay.h main.swift Localization.swift Telemetry.swift Updater.swift Advanced.swift Extras.swift AutoOutdoor.swift -o "$APP/Contents/MacOS/WakeDisplay" \
+swiftc -Osize -wmo -enforce-exclusivity=unchecked -Xfrontend -disable-reflection-metadata -import-objc-header CGVirtualDisplay.h main.swift Localization.swift Telemetry.swift Updater.swift Advanced.swift Extras.swift AutoOutdoor.swift -o "$APP/Contents/MacOS/WakeDisplay" \
   -Xlinker -dead_strip -Xlinker -dead_strip_dylibs "${EXTRA[@]}" -framework Cocoa -framework Carbon -framework IOKit -framework Metal -framework QuartzCore
 strip -x "$APP/Contents/MacOS/WakeDisplay"
 
