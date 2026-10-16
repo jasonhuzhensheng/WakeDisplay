@@ -791,7 +791,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             parent.submenu = sub
             scaleItems.append(parent)
         }
-        if let quick = QuickLayout.menuItem() { m.addItem(quick) }
+        // Level 1: 🎨 Display Mode ▸ (per-screen modes + all screens black & white)
+        let dm = NSMenu()
+        EInk.menuItems(target: self).forEach { dm.addItem($0) }
+        let dmParent = NSMenuItem(title: "🎨 " + L("Display Mode"), action: nil, keyEquivalent: "")
+        dmParent.submenu = dm
+        dmParent.state = EInk.isOn ? .on : .off
+        m.addItem(dmParent)
         m.addItem(.separator())
 
         // ── Everything else lives in ⚙️ Advanced (level 2), ordered by how often it is used ──
@@ -854,16 +860,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let aboutParent = NSMenuItem(title: "ℹ️ " + L("About"), action: nil, keyEquivalent: "")
         aboutParent.submenu = aboutSub
 
-        // Level 3: 🧪 Experimental ▸ — E-ink Mode, one toggle per screen
-        let labs = NSMenu()
-        EInk.menuItems(target: self).forEach { labs.addItem($0) }
-        let labsParent = NSMenuItem(title: "🧪 " + L("Experimental Features"), action: nil, keyEquivalent: "")
-        labsParent.submenu = labs
-
-        let general: [NSMenuItem] = [
+        var general: [NSMenuItem] = []
+        if let quick = QuickLayout.menuItem() { general += [quick, .separator()] }   // External Display Position (level 2)
+        general += [
             item("☕️ " + L("Prevent Display Sleep"), #selector(actToggleSleep), state: preventSleepID != 0),
             maintParent,
-            labsParent,
             .separator(),
             langParent,
             item(L("Launch at Login"), #selector(actToggleLogin), state: FileManager.default.fileExists(atPath: launchAgent)),
